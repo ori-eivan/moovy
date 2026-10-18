@@ -1,0 +1,28 @@
+# Clash Display (ITF Free Font License) may be used in the app but not redistributed
+# through a repository. Keep the files local only; the UI falls back when they are missing.
+public/fonts/clash-display/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

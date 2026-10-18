@@ -1,0 +1,281 @@
+/* Placeholder styling. Replaced by the approved design from DESIGN_BRIEF.md. */
+@import "../assets/fonts/hyperlegible-sans/fonts.css";
+@import "../assets/fonts/clash-display.css";
+
+body.card-window {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+  font-family: "Hyperlegible Sans", "Segoe UI", system-ui, sans-serif;
+  user-select: none;
+}
+
+.card {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  width: 360px;
+  box-sizing: border-box;
+  display: flex;
+  gap: 14px;
+  padding: 12px;
+  background: #fffdf8;
+  color: #221d1a;
+  border: 1px solid rgba(34, 29, 26, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.mascot {
+  flex: none;
+  width: 126px;
+  height: 126px;
+  border-radius: 14px;
+  background: #f2ece2;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: #8a7f74;
+  text-align: center;
+  word-break: break-all;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding-right: 18px;
+}
+
+.body p {
+  margin: 0;
+}
+
+.small {
+  font-size: 15px;
+}
+
+.big {
+  font-family: "Clash Display", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.accent {
+  color: #c4502c;
+}
+
+.title {
+  font-family: "Clash Display", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.line {
+  font-size: 14px;
+  color: #6b6058;
+}
+
+.dose {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c4502c;
+}
+
+/* Movement view: as tall as the mascot square, with the buttons lined up with its bottom
+   edge. The same size whether "How to" is open or not. */
+.view-movement .body {
+  align-content: space-between;
+}
+
+.summary {
+  display: grid;
+  gap: 2px;
+}
+
+/* "How to": a panel that wipes in from right to left over the mascot and the text.
+   The buttons row stays exactly where it is. */
+.howto-pane {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  right: 30px;
+  bottom: 52px;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.38;
+  clip-path: inset(0 0 0 100%);
+  pointer-events: none;
+}
+
+.howto-pane p {
+  margin: 0;
+  opacity: 0;
+  transform: translateX(14px);
+}
+
+.howto-open .howto-pane {
+  clip-path: inset(0 0 0 0);
+  pointer-events: auto;
+}
+
+.howto-open .howto-pane p {
+  opacity: 1;
+  transform: none;
+}
+
+.howto-open .mascot {
+  opacity: 0;
+  transform: translateY(-16px) scale(0.92);
+}
+
+.howto-open .summary {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+
+.muted {
+  color: #8a7f74;
+}
+
+.switch {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c4502c;
+}
+
+.countdown {
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: #f2ece2;
+  overflow: hidden;
+}
+
+.progress > div {
+  height: 100%;
+  background: #221d1a;
+  transition: width 250ms linear;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  /* The close button sits at the top, so the buttons row can use the full width. */
+  margin-right: -18px;
+}
+
+.actions button {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 29, 26, 0.15);
+  background: #f2ece2;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.actions button.primary {
+  background: #221d1a;
+  color: #fffdf8;
+  border-color: #221d1a;
+}
+
+.actions button.link {
+  margin-left: auto;
+  border: none;
+  background: none;
+  padding: 0 2px;
+  color: #6b6058;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  font-size: 18px;
+  color: #8a7f74;
+  cursor: pointer;
+}
+
+/* Light motion. Off when Windows animation effects are off. */
+@media (prefers-reduced-motion: no-preference) {
+  .view-celebration .mascot,
+  .view-waterDone .mascot {
+    animation: bounce 600ms ease-out;
+  }
+  .view-waiting .mascot {
+    animation: sway 1600ms ease-in-out infinite;
+  }
+
+  /* How to: the mascot lifts away and the text slides left, then the panel wipes in
+     from the right and its lines settle in one after another. Closing reverses it. */
+  .view-movement .mascot,
+  .view-movement .summary {
+    transition:
+      transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 240ms ease;
+  }
+  .howto-pane {
+    transition: clip-path 300ms cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  .howto-pane p {
+    transition:
+      transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 200ms ease;
+  }
+  .howto-open .howto-pane {
+    transition: clip-path 460ms cubic-bezier(0.2, 0.8, 0.2, 1) 80ms;
+  }
+  .howto-open .howto-pane p:nth-child(1) {
+    transition-delay: 200ms;
+  }
+  .howto-open .howto-pane p:nth-child(2) {
+    transition-delay: 290ms;
+  }
+  .howto-open .howto-pane p:nth-child(3) {
+    transition-delay: 380ms;
+  }
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  35% { transform: translateY(-10px); }
+  65% { transform: translateY(0); }
+  80% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}

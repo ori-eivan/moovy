@@ -1,0 +1,214 @@
+@import "../assets/fonts/hyperlegible-sans/fonts.css";
+@import "../assets/fonts/clash-display.css";
+
+body {
+  margin: 0;
+  font-family: "Hyperlegible Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+.settings {
+  display: grid;
+  /* The footer sits at the bottom of the window. */
+  grid-template-rows: auto auto auto 1fr;
+  gap: 22px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 26px 22px 18px;
+  background: #fffdf8;
+  color: #221d1a;
+}
+
+.window .settings {
+  min-height: 520px;
+}
+
+.settings footer {
+  align-self: end;
+}
+
+.settings h1 {
+  margin: 0;
+  font-family: "Clash Display", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.settings .safety {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b6058;
+}
+
+.settings .label {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a7f74;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Character picker */
+.characters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.character {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 8px 6px 10px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.character .portrait {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 14px;
+  background: #f2ece2;
+  font-size: 11px;
+  color: #8a7f74;
+  text-align: center;
+  word-break: break-all;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.character .name {
+  font-size: 14px;
+}
+
+.character:hover {
+  background: #f8f3eb;
+}
+
+.character.selected {
+  border-color: #221d1a;
+}
+
+.character.selected .name {
+  font-weight: 700;
+}
+
+.character:focus-visible,
+.switch-row input:focus-visible + .track,
+.links button:focus-visible,
+.confirm button:focus-visible {
+  outline: 2px solid #c4502c;
+  outline-offset: 2px;
+}
+
+/* Switches */
+.switches {
+  display: grid;
+  border-top: 1px solid #eee6da;
+}
+
+.switch-row {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  border-bottom: 1px solid #eee6da;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.switch-row input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch-row .track {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  background: #d9d1c5;
+  transition: background 160ms ease;
+}
+
+.switch-row .track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 160ms ease;
+}
+
+.switch-row input:checked + .track {
+  background: #221d1a;
+}
+
+.switch-row input:checked + .track::after {
+  transform: translateX(16px);
+}
+
+/* Footer */
+.links,
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 13px;
+  color: #8a7f74;
+}
+
+.links button {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: #6b6058;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.confirm span {
+  flex-basis: 100%;
+  color: #221d1a;
+}
+
+.confirm button {
+  min-height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 29, 26, 0.15);
+  background: #f2ece2;
+  font: inherit;
+  font-size: 13px;
+  color: #221d1a;
+  cursor: pointer;
+}
+
+.confirm button.danger {
+  background: #b3412a;
+  border-color: #b3412a;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch-row .track,
+  .switch-row .track::after {
+    transition: none;
+  }
+}

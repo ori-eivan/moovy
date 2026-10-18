@@ -1,0 +1,11 @@
+/* Clash Display by Indian Type Foundry, ITF Free Font License (fontshare.com).
+   The font file is not in the repository (the license forbids redistributing it that way).
+   It lives in public/fonts/clash-display/, which is git-ignored. Without it, headings fall
+   back to Hyperlegible Sans. Get your own copy from https://www.fontshare.com/fonts/clash-display */
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/clash-display/ClashDisplay-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: normal;
+}

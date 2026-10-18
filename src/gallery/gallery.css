@@ -1,0 +1,178 @@
+@import "../assets/fonts/hyperlegible-sans/fonts.css";
+
+body {
+  margin: 0;
+  background: #f4f1ec;
+  color: #221d1a;
+  font-family: "Hyperlegible Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+.gallery {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.gallery header h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+}
+
+.gallery header p {
+  margin: 0 0 28px;
+  max-width: 70ch;
+  color: #6b6058;
+  line-height: 1.5;
+}
+
+.gallery > section {
+  margin-bottom: 44px;
+}
+
+.gallery h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 22px;
+}
+
+.gallery .step {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8a7f74;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.controls button {
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 29, 26, 0.18);
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.controls button.primary {
+  background: #221d1a;
+  border-color: #221d1a;
+  color: #fff;
+}
+
+.controls label {
+  font-size: 14px;
+  color: #6b6058;
+}
+
+/* A slice of a dark desktop, so the card is seen the way it sits on screen. */
+.desk {
+  position: relative;
+  width: 380px;
+  height: 330px;
+  border-radius: 12px;
+  background: #1b1b1d;
+  overflow: hidden;
+}
+
+.desk-live {
+  width: 420px;
+}
+
+/* A plain Windows-like frame around the settings window, at its real 380 px width. */
+.window {
+  width: 380px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow: 0 0 0 1px rgba(34, 29, 26, 0.15), 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.window .titlebar {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #6b6058;
+  background: #f2ece2;
+}
+
+.desk .card {
+  cursor: default;
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 20px;
+  color: #8a8a8f;
+  font-size: 14px;
+  text-align: center;
+}
+
+.desk-settings .empty {
+  position: static;
+  color: #8a7f74;
+}
+
+.log {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  font-size: 13px;
+  color: #6b6058;
+  font-variant-numeric: tabular-nums;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 26px;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+figcaption .num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #221d1a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+figcaption b {
+  display: block;
+  font-size: 15px;
+}
+
+figcaption small {
+  display: block;
+  font-size: 13px;
+  color: #6b6058;
+  line-height: 1.4;
+}
