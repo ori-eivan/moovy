@@ -87,7 +87,6 @@ All cards appear at the **bottom-left of the work area** of the monitor you are 
 | First 2 minutes after unlock or wake | Card waits |
 | A card has waited more than 20 minutes | It is dropped. The cycle continues |
 | Waiting cards | Never more than one in the queue |
-| Paused from tray | No cards until the pause ends |
 
 ## 8. The six movements
 
@@ -111,7 +110,7 @@ Card copy rule: say what to do and how it feels. No claims of improvement.
 | `upper-trap` | Upper Trap Stretch | 15s per side (30s) | One hand behind your back, tilt your head away. | One hand behind your back. Tilt your head gently to the other shoulder. Don't pull. | Or hold the seat of your chair. |
 | `doorway-chest` | Doorway Stretch | 15s per side (30s) | Forearm on a door frame, lean forward a little. | Forearm on a door frame, elbow at shoulder height. Step through gently. | No doorway? Clasp your hands behind your back. |
 
-**One-time safety note** at onboarding: "Move gently. Stop if anything hurts."
+No safety line in the UI (removed 2026-10-18). The copy stays gentle ("Don't pull", no forced positions) instead.
 
 ## 9. Character and illustrations
 
@@ -133,26 +132,28 @@ Card copy rule: say what to do and how it feels. No claims of improvement.
 
 ## 10. Settings window (minimal, decided 2026-10-18)
 
-**One window, one screen, no separate onboarding.** A regular window in the centre of the screen. It opens by itself on first launch and from "Open Moovy" in the tray.
+**One window, one screen, no separate onboarding.** A regular window in the centre of the screen. It opens by itself on first launch and from "Settings" in the tray.
 
-- Title "Moovy" and the line "Move gently. Stop if anything hurts."
+- Title "Moovy"
 - **Your buddy:** pick a character. Picking one shows a card with that character right away, so the choice is seen.
 - **Water reminders** (switch, on by default)
 - **Start with Windows** (switch, on by default, switched on at first launch)
 - Footer: version · GitHub · Report a problem · Clear my data (asks to confirm; forgets card position and movement order, keeps settings)
 
-Deliberately not in the window: stats, pause controls (they live in the tray), interval, sounds.
+Deliberately not in the window: stats, pause controls, interval, sounds.
 
 ## 11. Tray menu
 
+Kept minimal (decided 2026-10-18):
+
 - Next card in N min (status line)
-- Open Moovy
-- Pause for 1 hour
-- Pause until tomorrow
-- Resume (shown while paused)
-- Skip next card
+- Settings
+- Copy my stats
+- Reset card position
 - Update available: vX.Y.Z (shown only when there is one)
 - Quit
+
+Development builds also show "Fast mode". Pause and skip were removed from the tray; the scheduler still supports them and they can come back in v0.2.
 
 ## 12. Privacy
 

@@ -76,6 +76,7 @@ pub fn set_water_enabled(app: AppHandle, enabled: bool) {
         store.set(KEY_WATER, json!(enabled));
         let _ = store.save();
     }
+    crate::engine::set_water(&app, enabled);
 }
 
 #[tauri::command]

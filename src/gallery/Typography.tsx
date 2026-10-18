@@ -16,7 +16,6 @@ const STYLES: { key: string; name: string; where: string; sample: string }[] = [
   { key: "btnSecondary", name: "Secondary button", where: "Snooze", sample: "Snooze" },
   { key: "btnLink", name: "Text link", where: "How to, Back", sample: "How to" },
   { key: "close", name: "Close", where: "× on every card", sample: "×" },
-  { key: "safety", name: "Settings subtitle", where: "“Move gently. Stop if anything hurts.”", sample: "Move gently. Stop if anything hurts." },
   { key: "label", name: "Section label", where: "“Your buddy”", sample: "Your buddy" },
   { key: "charName", name: "Character name", where: "Under each character", sample: "Character 1" },
   { key: "switchRow", name: "Setting row", where: "Water reminders, Start with Windows", sample: "Water reminders" },
@@ -98,7 +97,7 @@ export default function Typography() {
         />
         <FontCard
           family="Manrope"
-          role="Long descriptions: card body, How to, settings subtitle"
+          role="Long descriptions: card body, How to"
           license="SIL Open Font License. Bundled in the repo"
           loaded={fonts["Manrope"]}
         />
@@ -190,7 +189,6 @@ export default function Typography() {
         </div>
         <main className="settings">
           <h1 data-k="h1">x</h1>
-          <p className="safety" data-k="safety">x</p>
           <p className="label" data-k="label">x</p>
           <button className="character">
             <span className="name" data-k="charName">x</span>

@@ -35,7 +35,6 @@ export default function SettingsView({ state, actions, confirmingClear = false }
     <main className="settings">
       <header>
         <h1>Moovy</h1>
-        <p className="safety">Move gently. Stop if anything hurts.</p>
       </header>
 
       <section aria-labelledby="character-label">

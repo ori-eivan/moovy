@@ -1,13 +1,17 @@
+mod activity;
 mod card;
+mod engine;
+mod scheduler;
 mod settings;
 mod stats;
 
 use tauri::{
-    menu::{Menu, MenuItem, PredefinedMenuItem},
+    menu::{IsMenuItem, Menu, MenuItem, PredefinedMenuItem},
     tray::TrayIconBuilder,
-    AppHandle, Manager, RunEvent, WindowEvent,
+    AppHandle, Manager, RunEvent, WindowEvent, Wry,
 };
 use tauri_plugin_clipboard_manager::ClipboardExt;
+
 
 /// The user pressed Start on a movement.
 #[tauri::command]
@@ -15,7 +19,7 @@ fn card_started(app: AppHandle) {
     stats::record(&app, stats::Event::BreakStarted);
 }
 
-/// The user finished a card: the break timer ran out, or they pressed Done on water.
+/// The user finished a card: the break timer ran out, Done on a rep movement, or Done on water.
 #[tauri::command]
 fn card_done(app: AppHandle, kind: String) {
     #[cfg(debug_assertions)]
@@ -23,6 +27,7 @@ fn card_done(app: AppHandle, kind: String) {
     let event = if kind == "water" { stats::Event::WaterDone } else { stats::Event::BreakCompleted };
     stats::record(&app, event);
     card::hide(&app);
+    engine::card_closed(&app);
 }
 
 /// The user closed the card with X.
@@ -32,15 +37,18 @@ fn card_skip(app: AppHandle) {
     println!("[moovy] card skipped");
     stats::record(&app, stats::Event::Skipped);
     card::hide(&app);
+    engine::card_closed(&app);
 }
 
 /// The user pressed Snooze. The card has already shown its Waiting state.
+/// The scheduler brings the same card back in 10 minutes.
 #[tauri::command]
 fn card_snooze(app: AppHandle) {
     #[cfg(debug_assertions)]
-    println!("[moovy] card snoozed for {:?}", card::snooze_duration());
+    println!("[moovy] card snoozed");
     stats::record(&app, stats::Event::Snoozed);
-    card::snooze(&app);
+    card::hide(&app);
+    engine::snoozed(&app);
 }
 
 /// The card's content changed size.
@@ -60,6 +68,14 @@ fn open_settings(app: &AppHandle) {
         let _ = window.show();
         let _ = window.unminimize();
         let _ = window.set_focus();
+    }
+}
+
+fn fast_mode_label(speed: u64) -> String {
+    if speed > 1 {
+        "Fast mode: on (1 min = 1 s)".into()
+    } else {
+        "Fast mode: off".into()
     }
 }
 
@@ -88,56 +104,55 @@ pub fn run() {
             settings::clear_data
         ])
         .setup(|app| {
-            card::init(app.handle());
-            settings::first_run(app.handle());
+            let handle = app.handle();
+            card::init(handle);
+            engine::init(handle, settings::water_enabled(handle));
+            settings::first_run(handle);
 
-            let show_break = MenuItem::with_id(app, "show_break", "Show card: Break (next movement)", true, None::<&str>)?;
-            let show_water = MenuItem::with_id(app, "show_water", "Show card: Water", true, None::<&str>)?;
-            let show_delayed = MenuItem::with_id(app, "show_delayed", "Show card in 5 seconds (focus test)", true, None::<&str>)?;
-            let reset_position = MenuItem::with_id(app, "reset_position", "Reset card position", true, None::<&str>)?;
-            let copy_stats = MenuItem::with_id(app, "copy_stats", "Copy my stats", true, None::<&str>)?;
-            let open = MenuItem::with_id(app, "open", "Open Moovy", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let separator = PredefinedMenuItem::separator(app)?;
-            let separator2 = PredefinedMenuItem::separator(app)?;
+            let item = |id: &str, text: &str, enabled: bool| MenuItem::with_id(app, id, text, enabled, None::<&str>);
+            let status = item("status", "Starting…", false)?;
+            let settings_item = item("settings", "Settings", true)?;
+            let copy_stats = item("copy_stats", "Copy my stats", true)?;
+            let reset_position = item("reset_position", "Reset card position", true)?;
+            let quit = item("quit", "Quit", true)?;
+            let fast_mode = item("fast_mode", &fast_mode_label(engine::speed(handle)), true)?;
+            let fast_mode_for_menu = fast_mode.clone();
 
-            let menu = Menu::with_items(
-                app,
-                &[
-                    &show_break,
-                    &show_water,
-                    &show_delayed,
-                    &separator,
-                    &reset_position,
-                    &copy_stats,
-                    &open,
-                    &separator2,
-                    &quit,
-                ],
-            )?;
+            let mut entries: Vec<Box<dyn IsMenuItem<Wry>>> = vec![
+                Box::new(status.clone()),
+                Box::new(PredefinedMenuItem::separator(app)?),
+                Box::new(settings_item),
+                Box::new(copy_stats),
+                Box::new(reset_position),
+            ];
+            // Development only: run the clock 60 times faster.
+            if cfg!(debug_assertions) {
+                entries.push(Box::new(PredefinedMenuItem::separator(app)?));
+                entries.push(Box::new(fast_mode));
+            }
+            entries.push(Box::new(PredefinedMenuItem::separator(app)?));
+            entries.push(Box::new(quit));
+            let refs: Vec<&dyn IsMenuItem<Wry>> = entries.iter().map(|e| e.as_ref()).collect();
+            let menu = Menu::with_items(app, &refs)?;
+
+            app.manage(engine::TrayItems { status });
 
             TrayIconBuilder::with_id("moovy")
                 .icon(app.default_window_icon().cloned().expect("app icon missing"))
                 .tooltip("Moovy")
                 .menu(&menu)
                 .show_menu_on_left_click(true)
-                .on_menu_event(|app, event| match event.id.as_ref() {
-                    "show_break" => card::show_next_break(app),
-                    "show_water" => card::show(app, card::CardPayload::Water),
-                    "show_delayed" => {
-                        // Gives time to click into another app and keep typing.
-                        let handle = app.clone();
-                        std::thread::spawn(move || {
-                            std::thread::sleep(std::time::Duration::from_secs(5));
-                            let inner = handle.clone();
-                            let _ = handle.run_on_main_thread(move || card::show_next_break(&inner));
-                        });
-                    }
-                    "reset_position" => card::reset_position(app),
+                .on_menu_event(move |app, event| match event.id.as_ref() {
+                    "settings" => open_settings(app),
                     "copy_stats" => {
                         let _ = app.clipboard().write_text(stats::summary(app));
                     }
-                    "open" => open_settings(app),
+                    "reset_position" => card::reset_position(app),
+                    "fast_mode" => {
+                        let speed = if engine::speed(app) > 1 { 1 } else { engine::FAST_SPEED };
+                        engine::set_speed(app, speed);
+                        let _ = fast_mode_for_menu.set_text(fast_mode_label(speed));
+                    }
                     "quit" => app.exit(0),
                     _ => {}
                 })
@@ -150,11 +165,8 @@ pub fn run() {
                     let handle = app.handle().clone();
                     std::thread::spawn(move || {
                         std::thread::sleep(std::time::Duration::from_secs(3));
-                        let inner = handle.clone();
-                        let _ = handle.run_on_main_thread(move || match kind.as_str() {
-                            "water" => card::show(&inner, card::CardPayload::Water),
-                            _ => card::show_next_break(&inner),
-                        });
+                        use crate::scheduler::Card;
+                        engine::force_show(&handle, if kind == "water" { Card::Water } else { Card::Break });
                     });
                 }
             }

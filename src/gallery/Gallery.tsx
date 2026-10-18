@@ -189,7 +189,7 @@ function SettingsScreens() {
     reportProblem: () => {},
   };
   const screens = [
-    { title: "Settings", how: "Opens on first launch, and from “Open Moovy” in the tray.", confirming: false },
+    { title: "Settings", how: "Opens on first launch, and from “Settings” in the tray.", confirming: false },
     { title: "Clear my data", how: "Click “Clear my data” on screen 11.", confirming: true },
   ];
   return (

@@ -6,7 +6,6 @@
 //! - Grows and shrinks with its content, keeping its bottom edge in place.
 
 use std::sync::Mutex;
-use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -55,9 +54,9 @@ pub struct SavedPosition {
 
 #[derive(Default)]
 pub struct CardRuntime {
-    /// Bumped on every show, so a stale snooze timer can tell it was superseded.
-    generation: u64,
     current: Option<CardPayload>,
+    /// The last card shown, kept after it closes so a snoozed card can come back.
+    last: Option<CardPayload>,
     saved_position: Option<SavedPosition>,
     rotation_index: usize,
     /// True between the user grabbing the card and the card hiding. Only drags are remembered.
@@ -79,15 +78,6 @@ pub fn init(app: &AppHandle) {
             .unwrap_or(0) as usize;
     }
     app.manage(Mutex::new(runtime));
-}
-
-pub fn snooze_duration() -> Duration {
-    // Development builds snooze for 15 s so the whole flow can be tried quickly.
-    if cfg!(debug_assertions) {
-        Duration::from_secs(15)
-    } else {
-        Duration::from_secs(10 * 60)
-    }
 }
 
 /// Shows the next movement in the rotation.
@@ -137,8 +127,8 @@ fn present(app: &AppHandle, payload: CardPayload) {
     let saved = {
         let state = app.state::<CardState>();
         let mut runtime = state.lock().unwrap();
-        runtime.generation += 1;
         runtime.current = Some(payload.clone());
+        runtime.last = Some(payload.clone());
         runtime.dragging = false;
         runtime.saved_position
     };
@@ -188,32 +178,13 @@ pub fn hide(app: &AppHandle) {
     }
 }
 
-/// Hides the card and brings the same card back after the snooze delay,
-/// unless another card was shown in the meantime.
-pub fn snooze(app: &AppHandle) {
-    let (generation, payload) = {
-        let state = app.state::<CardState>();
-        let runtime = state.lock().unwrap();
-        (runtime.generation, runtime.current.clone())
-    };
-    hide(app);
-    let Some(payload) = payload else {
-        return;
-    };
-    let handle = app.clone();
-    std::thread::spawn(move || {
-        std::thread::sleep(snooze_duration());
-        let still_current = {
-            let state = handle.state::<CardState>();
-            let runtime = state.lock().unwrap();
-            runtime.generation == generation
-        };
-        if still_current {
-            let inner = handle.clone();
-            // The same card coming back is not a new card: not counted again.
-            let _ = handle.run_on_main_thread(move || present(&inner, payload));
-        }
-    });
+/// Brings back the last card (after a snooze). The scheduler decides when.
+/// The same card coming back is not a new card, so it is not counted again.
+pub fn present_last(app: &AppHandle) {
+    let last = app.state::<CardState>().lock().unwrap().last.clone();
+    if let Some(payload) = last {
+        present(app, payload);
+    }
 }
 
 pub fn drag_started(app: &AppHandle) {
