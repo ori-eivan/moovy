@@ -1,5 +1,7 @@
 @import "../assets/fonts/hyperlegible-sans/fonts.css";
 @import "../assets/fonts/clash-display.css";
+@import "../assets/fonts/manrope/fonts.css";
+@import "../assets/fonts/chillax.css";
 
 body {
   margin: 0;
@@ -36,6 +38,7 @@ body {
 
 .settings .safety {
   margin: 4px 0 0;
+  font-family: "Manrope", "Hyperlegible Sans", "Segoe UI", sans-serif;
   font-size: 14px;
   color: #6b6058;
 }
@@ -195,7 +198,9 @@ body {
   border: 1px solid rgba(34, 29, 26, 0.15);
   background: #f2ece2;
   font: inherit;
+  font-family: "Chillax", "Hyperlegible Sans", "Segoe UI", sans-serif;
   font-size: 13px;
+  font-weight: 600;
   color: #221d1a;
   cursor: pointer;
 }

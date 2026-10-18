@@ -1,0 +1,11 @@
+/* Chillax by Indian Type Foundry, ITF Free Font License (fontshare.com).
+   Like Clash Display, the font file is not in the repository: it lives in the git-ignored
+   public/fonts/chillax/. Without it, buttons fall back to Hyperlegible Sans.
+   Get your own copy from https://www.fontshare.com/fonts/chillax */
+@font-face {
+  font-family: "Chillax";
+  src: url("/fonts/chillax/Chillax-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: normal;
+}

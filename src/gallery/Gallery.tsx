@@ -3,6 +3,7 @@ import CardView from "../card/CardView";
 import SettingsView, { type SettingsActions, type SettingsState } from "../settings/SettingsView";
 import { useCardFlow, type CardActions, type Payload, type View } from "../card/useCardFlow";
 import { MOVEMENTS } from "../content/movements";
+import Typography from "./Typography";
 import "./gallery.css";
 
 // Same order as the app's rotation in card.rs.
@@ -11,6 +12,7 @@ const GALLERY_SNOOZE_MS = 5000;
 
 const noop: CardActions = {
   start: () => {},
+  repsDone: () => {},
   snooze: () => {},
   waterDone: () => {},
   toggleHowTo: () => {},
@@ -26,6 +28,7 @@ export default function Gallery() {
       </header>
       <TryIt />
       <AllScreens />
+      <Typography />
     </main>
   );
 }
@@ -112,25 +115,35 @@ function AllScreens() {
   const now = Date.now();
   const wall = MOVEMENTS["wall-angels"];
   const hip = MOVEMENTS["hip-flexor"];
+  const neck = MOVEMENTS["neck-flexion"];
 
   const screens: { title: string; how: string; view: View }[] = [
     { title: "Break intro", how: "Appears on its own every hour. Lasts 3 seconds.", view: { name: "breakIntro", movement: wall } },
-    { title: "Movement", how: "Follows the intro automatically.", view: { name: "movement", movement: wall, howTo: false } },
-    { title: "How to, open", how: "Click “How to” on screen 2.", view: { name: "movement", movement: wall, howTo: true } },
+    {
+      title: "Movement, reps",
+      how: "Follows the intro. Counted in reps, so no timer: “Done” closes the card.",
+      view: { name: "movement", movement: wall, howTo: false },
+    },
+    { title: "How to, open", how: "Click “How to” on screen 2 or 4.", view: { name: "movement", movement: wall, howTo: true } },
+    {
+      title: "Movement, timed",
+      how: "Follows the intro. Held for 30 seconds: “Start” runs the timer.",
+      view: { name: "movement", movement: hip, howTo: false },
+    },
     {
       title: "Running",
-      how: "Click “Start” on screen 2 or 3.",
-      view: { name: "running", movement: wall, endsAt: now + 42_000, durationMs: 60_000 },
+      how: "Click “Start” on screen 4.",
+      view: { name: "running", movement: neck, endsAt: now + 21_000, durationMs: 30_000 },
     },
     {
       title: "Switch sides",
       how: "Halfway through a two-sided movement, for 3 seconds.",
-      view: { name: "running", movement: hip, endsAt: now + 29_000, durationMs: 60_000 },
+      view: { name: "running", movement: hip, endsAt: now + 14_000, durationMs: 30_000 },
     },
     { title: "Celebration", how: "When the timer ends. Closes after 4 seconds.", view: { name: "celebration" } },
     { title: "Water", how: "Appears on its own, at the half hour.", view: { name: "water" } },
-    { title: "Water done", how: "Click “Done” on screen 7. Closes after about a second.", view: { name: "waterDone" } },
-    { title: "Waiting", how: "Click “Snooze” on screen 2 or 7. Closes after 2 seconds, the card returns in 10 minutes.", view: { name: "waiting" } },
+    { title: "Water done", how: "Click “Done” on screen 8. Closes after about a second.", view: { name: "waterDone" } },
+    { title: "Waiting", how: "Click “Snooze” on screen 2, 4 or 8. Closes after 2 seconds, the card returns in 10 minutes.", view: { name: "waiting" } },
   ];
 
   return (
@@ -177,14 +190,14 @@ function SettingsScreens() {
   };
   const screens = [
     { title: "Settings", how: "Opens on first launch, and from “Open Moovy” in the tray.", confirming: false },
-    { title: "Clear my data", how: "Click “Clear my data” on screen 10.", confirming: true },
+    { title: "Clear my data", how: "Click “Clear my data” on screen 11.", confirming: true },
   ];
   return (
     <>
       {screens.map((s, i) => (
         <figure key={s.title}>
           <figcaption>
-            <span className="num">{10 + i}</span>
+            <span className="num">{11 + i}</span>
             <span>
               <b>{s.title}</b>
               <small>{s.how}</small>

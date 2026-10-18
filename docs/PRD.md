@@ -54,8 +54,9 @@ All cards appear at the **bottom-left of the work area** of the monitor you are 
 
 1. Appears in the **Break** state: headline "It's time to move!" (or "It's time to stretch!" for a Stretch turn) with the Break illustration.
 2. After about 3 seconds it turns into the **movement view** in the same card: movement pose illustration, name, one-line instruction, reps or duration, daily count ("2 today").
-3. Buttons: **Start**, **Snooze**, **How to** (expands instructions and the no-equipment alternative), **X** (skip silently).
-4. **Start** runs one timer for the whole movement (30 or 60 seconds). For two-sided movements, "Switch sides" appears at the halfway point.
+3. Buttons: **Start** (timed movements) or **Done** (rep-based movements), **Snooze**, **How to** (opens the instructions panel), **X** (skip silently).
+4. **Rep-based** movements (Wall Angels, Spine Twist) have no timer: **Done** closes the card and counts the break as completed.
+   **Timed** movements (the stretches) are all 30 seconds: **Start** runs one timer for both sides, and "Switch sides" appears at 15 seconds.
 5. When the timer ends: **Celebration** state, short message, card hides after about 4 seconds.
 
 ### 6.2 Water card
@@ -98,17 +99,17 @@ Card copy rule: say what to do and how it feels. No claims of improvement.
 
 | ID | Name | Dose | Card line | How to | Alternative |
 |---|---|---|---|---|---|
-| `wall-angels` | Wall Angels | 10 slow reps (about 60s) | Back to the wall, slide your arms up and down. | Back, head and arms on the wall, elbows in a W. Slide your arms up, then down. | No wall? Do it standing, arms in a W. |
-| `spine-twist` | Standing Spine Twist | 10 per side (about 60s) | Stand tall and turn gently side to side. | Feet hip-width, arms crossed. Turn your upper body side to side, hips facing forward. | Seated version works too. |
-| `hip-flexor` | Hip Flexor Stretch | 30s per side | Step back and feel the front of your hip open. | Split stance, one foot back. Tuck your hips under and lean forward gently. | Hold a chair or desk for balance. |
+| `wall-angels` | Wall Angels | 6 slow reps (30s) | Back to the wall, slide your arms up and down. | Back, head and arms on the wall, elbows in a W. Slide your arms up, then down. | No wall? Do it standing, arms in a W. |
+| `spine-twist` | Standing Spine Twist | 5 per side (30s) | Stand tall and turn gently side to side. | Feet hip-width, arms crossed. Turn your upper body side to side, hips facing forward. | Seated version works too. |
+| `hip-flexor` | Hip Flexor Stretch | 15s per side (30s) | Step back and feel the front of your hip open. | Split stance, one foot back. Tuck your hips under and lean forward gently. | Hold a chair or desk for balance. |
 
 ### Stretch
 
 | ID | Name | Dose | Card line | How to | Alternative |
 |---|---|---|---|---|---|
 | `neck-flexion` | Neck Flexion Stretch | 30s | Hands rest behind your head, chin to chest. | Hands rest lightly behind your head. Let your chin drop to your chest. Don't pull. | Without hands is fine. |
-| `upper-trap` | Upper Trap Stretch | 30s per side | One hand behind your back, tilt your head away. | One hand behind your back. Tilt your head gently to the other shoulder. Don't pull. | Or hold the seat of your chair. |
-| `doorway-chest` | Doorway Stretch | 30s per side | Forearm on a door frame, lean forward a little. | Forearm on a door frame, elbow at shoulder height. Step through gently. | No doorway? Clasp your hands behind your back. |
+| `upper-trap` | Upper Trap Stretch | 15s per side (30s) | One hand behind your back, tilt your head away. | One hand behind your back. Tilt your head gently to the other shoulder. Don't pull. | Or hold the seat of your chair. |
+| `doorway-chest` | Doorway Stretch | 15s per side (30s) | Forearm on a door frame, lean forward a little. | Forearm on a door frame, elbow at shoulder height. Step through gently. | No doorway? Clasp your hands behind your back. |
 
 **One-time safety note** at onboarding: "Move gently. Stop if anything hurts."
 

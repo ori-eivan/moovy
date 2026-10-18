@@ -1,4 +1,5 @@
 import { useState } from "react";
+import CharacterImage from "../content/CharacterImage";
 import { CHARACTERS } from "../content/characters";
 import "./settings.css";
 
@@ -51,7 +52,7 @@ export default function SettingsView({ state, actions, confirmingClear = false }
               onClick={() => actions.setCharacter(c.id)}
             >
               <span className="portrait" aria-hidden="true">
-                {c.id}/idle.png
+                <CharacterImage character={c.id} file="idle.png" />
               </span>
               <span className="name">{c.name}</span>
             </button>

@@ -27,8 +27,13 @@ npm run tauri dev
 
 ### Fonts
 
-- Body text: [Hyperlegible Sans](https://github.com/matthewlarn/hyperlegible-sans), SIL Open Font License, bundled.
-- Headings: [Clash Display](https://www.fontshare.com/fonts/clash-display) by Indian Type Foundry. Its license does not allow redistributing the font file through a repository, so it is **not** included. Download it from Fontshare and place `ClashDisplay-Variable.woff2` in `public/fonts/clash-display/`. Without it, headings fall back to Hyperlegible Sans.
+- Labels and numbers: [Hyperlegible Sans](https://github.com/matthewlarn/hyperlegible-sans), SIL Open Font License, bundled.
+- Long descriptions: [Manrope](https://github.com/sharanda/manrope), SIL Open Font License, bundled.
+- Headings and buttons: [Clash Display](https://www.fontshare.com/fonts/clash-display) and [Chillax](https://www.fontshare.com/fonts/chillax) by Indian Type Foundry. Their license does not allow redistributing the font files through a repository, so they are **not** included. Download them from Fontshare and place `ClashDisplay-Variable.woff2` in `public/fonts/clash-display/` and `Chillax-Variable.woff2` in `public/fonts/chillax/`. Without them, the UI falls back to Hyperlegible Sans.
+
+### Character art
+
+Character images live in `public/characters/<id>/` and are not in the repository yet. Without them, cards show the name of the missing image file.
 
 ## License
 

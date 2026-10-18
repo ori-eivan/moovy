@@ -1,4 +1,5 @@
 import { forwardRef, type MouseEvent } from "react";
+import CharacterImage from "../content/CharacterImage";
 import { DEFAULT_CHARACTER } from "../content/characters";
 import { SWITCH_SIDES_MS, type CardActions, type View } from "./useCardFlow";
 import "./card.css";
@@ -25,7 +26,7 @@ const CardView = forwardRef<HTMLDivElement, Props>(function CardView(
       role="dialog"
       aria-label="Moovy reminder"
     >
-      <Mascot image={`${character}/${imageFor(view)}`} />
+      <Mascot character={character} image={imageFor(view)} />
       <div className="body">{renderBody(view, now, actions)}</div>
       {view.name === "movement" && (
         // Slides in over the mascot and text, from right to left. The buttons below it never move.
@@ -46,11 +47,10 @@ const CardView = forwardRef<HTMLDivElement, Props>(function CardView(
 
 export default CardView;
 
-function Mascot({ image }: { image: string }) {
-  // Placeholder until the character art exists. The file name shows which image goes here.
+function Mascot({ character, image }: { character: string; image: string }) {
   return (
     <div className="mascot" aria-hidden="true">
-      {image}
+      <CharacterImage character={character} file={image} />
     </div>
   );
 }
@@ -97,9 +97,15 @@ function renderBody(view: View, now: number, actions: CardActions) {
             <p className="dose">{m.dose}</p>
           </div>
           <div className="actions">
-            <button className="primary" onClick={() => actions.start(m)}>
-              Start
-            </button>
+            {m.mode === "reps" ? (
+              <button className="primary" onClick={actions.repsDone}>
+                Done
+              </button>
+            ) : (
+              <button className="primary" onClick={() => actions.start(m)}>
+                Start
+              </button>
+            )}
             <button onClick={actions.snooze}>Snooze</button>
             <button className="link" onClick={actions.toggleHowTo}>
               {view.howTo ? "Back" : "How to"}

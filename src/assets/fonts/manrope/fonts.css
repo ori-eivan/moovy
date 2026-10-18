@@ -1,0 +1,8 @@
+/* Manrope, SIL Open Font License 1.1 (see OFL.txt). Used for long descriptions. */
+@font-face {
+  font-family: "Manrope";
+  src: url("./Manrope-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800;
+  font-display: swap;
+  font-style: normal;
+}

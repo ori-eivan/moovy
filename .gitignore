@@ -1,6 +1,12 @@
-# Clash Display (ITF Free Font License) may be used in the app but not redistributed
-# through a repository. Keep the files local only; the UI falls back when they are missing.
+# Clash Display and Chillax (ITF Free Font License) may be used in the app but not
+# redistributed through a repository. Keep the files local only; the UI falls back when
+# they are missing.
 public/fonts/clash-display/
+public/fonts/chillax/
+
+# Character art used for local testing. Pilot art may be third-party fan art and must never
+# be committed. Original art that can ship goes in through a separate, reviewed path.
+public/characters/
 
 # Logs
 logs

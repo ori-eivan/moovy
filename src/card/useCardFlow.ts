@@ -29,6 +29,8 @@ export interface CardOutcomes {
 
 export interface CardActions {
   start: (movement: Movement) => void;
+  /** Rep-based movement finished: no timer, the card just closes. */
+  repsDone: () => void;
   snooze: () => void;
   waterDone: () => void;
   toggleHowTo: () => void;
@@ -98,6 +100,12 @@ export function useCardFlow(outcomes: CardOutcomes, options: { timeScale?: numbe
       setNow(startedAt);
       setView({ name: "running", movement, endsAt: startedAt + durationMs, durationMs });
       outcomesRef.current.started?.();
+    },
+    repsDone: () => {
+      clearTimers();
+      // Counted as started and completed in one go.
+      outcomesRef.current.started?.();
+      outcomesRef.current.done("break");
     },
     snooze: () => {
       clearTimers();

@@ -176,3 +176,114 @@ figcaption small {
   color: #6b6058;
   line-height: 1.4;
 }
+
+/* Part 3: typography */
+.font-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.font-card {
+  display: grid;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: #fffdf8;
+  box-shadow: 0 0 0 1px rgba(34, 29, 26, 0.12);
+}
+
+.font-card p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.font-card .font-name {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.font-card .font-glyphs {
+  font-size: 18px;
+  color: #6b6058;
+}
+
+.font-card small {
+  font-size: 13px;
+  color: #8a7f74;
+}
+
+.font-card small.ok {
+  color: #2f6a3a;
+}
+
+.font-card small.bad {
+  color: #b3412a;
+}
+
+.type-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fffdf8;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(34, 29, 26, 0.12);
+  font-size: 14px;
+}
+
+.type-table th {
+  background: #221d1a;
+  color: #fffdf8;
+  font-weight: 500;
+  text-align: left;
+  padding: 10px 12px;
+}
+
+.type-table td {
+  padding: 12px;
+  border-top: 1px solid #eee6da;
+  vertical-align: middle;
+}
+
+.type-table td small {
+  display: block;
+  font-size: 12.5px;
+  color: #8a7f74;
+}
+
+.type-table .sample {
+  min-width: 260px;
+}
+
+.type-table .num,
+.type-table td:last-child {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  vertical-align: -1px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.type-probe {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  width: 400px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.type-probe .card {
+  position: static;
+}
+
+.type-probe .settings {
+  min-height: 0;
+}
