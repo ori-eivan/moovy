@@ -9,7 +9,7 @@ const host = process.env.TAURI_DEV_HOST;
 /** Character packs that may ship. Any other folder in public/characters/ is local only
  *  (third-party art for testing) and is removed from every build, so it never reaches an
  *  installer. */
-const SHIPPED_CHARACTERS = ["thomas"];
+const SHIPPED_CHARACTERS = ["thomas", "corni"];
 
 const shipOnlyOwnCharacters = {
   name: "ship-only-own-characters",

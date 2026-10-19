@@ -5,6 +5,7 @@ The code in this repository is licensed under the MIT License (see LICENSE).
 The character art is NOT covered by the MIT License. It is licensed separately:
 
   Thomas (public/characters/thomas/)
+  Corni (public/characters/corni/)
   The Moovy icon, a Thomas-style "m" (src-tauri/icons/)
   Copyright (c) 2026 Ori Eivan
   Licensed under Creative Commons Attribution-NonCommercial 4.0 International
@@ -12,7 +13,7 @@ The character art is NOT covered by the MIT License. It is licensed separately:
 
 You may copy, share and adapt the character art, including inside forks of Moovy, as long as:
 
-  - Attribution: you credit "Thomas character by Ori Eivan", link to this license, and say
+  - Attribution: you credit "Thomas and Corni characters by Ori Eivan", link to this license, and say
     whether you changed the images.
   - NonCommercial: you do not use the art for commercial purposes. Selling the images, using
     the character on merchandise, or using it in paid products or advertising needs

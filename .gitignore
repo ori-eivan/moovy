@@ -9,6 +9,7 @@ public/fonts/chillax/
 # under ASSETS_LICENSE (CC BY-NC 4.0).
 public/characters/*
 !public/characters/thomas/
+!public/characters/corni/
 
 # Logs
 logs

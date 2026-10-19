@@ -15,7 +15,7 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 
 ## Install
 
-1. Download `Moovy_0.1.0_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
+1. Download `Moovy_0.1.1_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
 2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
 3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
 4. Moovy opens its settings window once, then lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 30 minutes of active work.
@@ -27,9 +27,9 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and Moovy makes no network requests ([Privacy](PRIVACY.md)).
 
 ```powershell
-$setup = "$env:TEMP\Moovy_0.1.0_x64-setup.exe"
-Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.0/Moovy_0.1.0_x64-setup.exe" -OutFile $setup
-(Get-FileHash $setup -Algorithm SHA256).Hash   # should be 28123F94EF55EA6002FEAD2A1AD1E1C0C8151583BE8072F911711E6B46529A54
+$setup = "$env:TEMP\Moovy_0.1.1_x64-setup.exe"
+Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.1/Moovy_0.1.1_x64-setup.exe" -OutFile $setup
+(Get-FileHash $setup -Algorithm SHA256).Hash   # should be CCFED0E9E7DF8D744657917DAAF1DC57FC404CEEB1271BDA278BCF903B3BD5AA
 Start-Process $setup -ArgumentList "/S" -Wait   # silent, current user only
 Start-Process "$env:LOCALAPPDATA\Moovy\moovy.exe"
 ```
@@ -59,10 +59,10 @@ npm run tauri dev
 
 ### Character art
 
-Moovy's default character is **Thomas**, a tabby cat, in `public/characters/thomas/`. Each character is a folder of 11 images (one per card state and movement). Other folders in `public/characters/` are local only and never committed. The settings window lists only the characters whose images are present.
+Moovy ships two characters: **Thomas**, a tabby cat (the default), in `public/characters/thomas/`, and **Corni**, a cornichon pickle, in `public/characters/corni/`. Each character is a folder of 11 images (one per card state and movement). Other folders in `public/characters/` are local only and never committed. The settings window lists only the characters whose images are present.
 
 ## License
 
-Code: [MIT](LICENSE). Character art (Thomas): [CC BY-NC 4.0](ASSETS_LICENSE), not covered by the MIT license.
+Code: [MIT](LICENSE). Character art (Thomas, Corni): [CC BY-NC 4.0](ASSETS_LICENSE), not covered by the MIT license.
 
 Made by Ori Eivan.
