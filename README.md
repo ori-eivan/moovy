@@ -12,6 +12,10 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 - No account, no cloud, no tracking. Everything stays on your computer
 - English only
 
+## Download
+
+**Get the installer from the [Releases page](https://github.com/ori-eivan/moovy/releases)** (available once v0.1 is released). The installer is the recommended way to use Moovy: it is the only version that includes the full design, with every font. A copy built from this source code works the same but shows a fallback font for headings and buttons (see [Fonts](#fonts)).
+
 ## Development
 
 Requires Node.js, Rust and the Microsoft C++ Build Tools ([Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)).
@@ -29,7 +33,7 @@ npm run tauri dev
 
 - Labels and numbers: [Hyperlegible Sans](https://github.com/matthewlarn/hyperlegible-sans), SIL Open Font License, bundled.
 - Long descriptions: [Manrope](https://github.com/sharanda/manrope), SIL Open Font License, bundled.
-- Headings and buttons: [Clash Display](https://www.fontshare.com/fonts/clash-display) and [Chillax](https://www.fontshare.com/fonts/chillax) by Indian Type Foundry. Their license does not allow redistributing the font files through a repository, so they are **not** included. Download them from Fontshare and place `ClashDisplay-Variable.woff2` in `public/fonts/clash-display/` and `Chillax-Variable.woff2` in `public/fonts/chillax/`. Without them, the UI falls back to Hyperlegible Sans.
+- Headings and buttons: [Clash Display](https://www.fontshare.com/fonts/clash-display) and [Chillax](https://www.fontshare.com/fonts/chillax) by Indian Type Foundry. Their license does not allow redistributing the font files through a repository, so they are **not** included. Download them from Fontshare and place `ClashDisplay-Variable.woff2` in `public/fonts/clash-display/` and `Chillax-Variable.woff2` in `public/fonts/chillax/`. Without them, the UI falls back to Hyperlegible Sans. The installer on the Releases page already includes them, embedded in the app as the license allows.
 
 ### Character art
 
