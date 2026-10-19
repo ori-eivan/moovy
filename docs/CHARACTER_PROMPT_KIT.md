@@ -38,6 +38,25 @@ Palette (hex):
 Personality in one line: [e.g. cheerful, a bit clumsy, always encouraging]
 ```
 
+Example, filled in for Corni:
+
+```text
+Name: Corni
+What it is: a small cheerful cornichon pickle
+Body: chibi; big rounded pickle-top head, CLEAR NECK, smaller pickle body, short arms WITH ELBOWS, stubby legs with round feet
+Face: large shiny oval eyes with two white highlights, small happy open smile, pink blush
+Signature detail: a small sprig of fresh dill on top of the head
+Palette (hex):
+  Body       #7FB83A
+  Shade      #4F8A2B
+  Accent 1   #A6D45E   (bumps)
+  Accent 2   #3E7A2E   (dill)
+  Blush      #FF9AA2
+  Outline    #2B2420
+Style line: Chibi game (step 2)
+Personality in one line: cheerful, a little silly, always ready to stretch
+```
+
 **Why the neck, elbows and legs are required:** four of the six movements are neck, shoulder and upper-back moves. Without a neck and elbows, Neck Flexion and Wall Angels can't be read in the picture.
 
 ---
@@ -56,10 +75,19 @@ Signature detail: [Signature detail].
 Palette: body [hex], shade [hex], accent [hex], accent [hex], blush [hex], outline #2B2420.
 
 Pose: standing, facing the viewer, arms relaxed at the sides, neutral friendly smile, full body visible.
-Style: flat 2D vector illustration, bold clean dark outline of even thickness, flat colours with one simple shade tone, no gradients, no texture, no drop shadow, a thin white sticker border around the whole character.
+Style: [Style line, see below].
 Canvas: square, 1024x1024, character centred and filling about 80% of the height, TRANSPARENT background.
-Do not add text, logos, props or background elements.
+Do not add text, logos, props or background elements. Original character design, not based on any existing character.
 ```
+
+**Style line: pick one and use the same one for all 11 images.**
+
+| Style | Used for | Style line |
+|---|---|---|
+| Flat sticker | Thomas | `flat 2D vector illustration, bold clean dark outline of even thickness, flat colours with one simple shade tone, no gradients, no texture, no drop shadow, a thin white sticker border around the whole character` |
+| Chibi game | Corni | `cute 2D chibi game character style: big head about half the height, small body, soft cel shading with one shade tone and small glossy highlights, clean dark outline of even thickness, a thin white sticker border around the whole character` |
+
+Never name a game, film or brand in the style line. Describe the look in words, so the result is your own character and not a copy.
 
 Keep asking for tweaks until you love it. **This image is now the master.** Save it as `master.png`.
 
@@ -68,68 +96,119 @@ Keep asking for tweaks until you love it. **This image is now the master.** Save
 ## Step 3: Style Lock (paste at the top of EVERY request after the master)
 
 ```text
-STYLE LOCK. Use the attached master image as the exact reference for [Name].
-Keep identical: proportions, head size, neck, arm and leg length, face, signature detail, palette hex values, outline colour and thickness, white sticker border, flat 2D vector style.
+STYLE LOCK. Use the attached master image as the exact reference for [Name], [What it is].
+Keep identical: proportions, head size, neck, arm and leg length, face, signature detail, palette hex values, outline colour and thickness, white sticker border, and the style: [Style line].
 Canvas: square 1024x1024, transparent background, full body visible, character centred, same scale as the master (about 80% of the height).
-No text, no background, no floor shadow, no extra characters.
+No text, no background, no floor shadow, no extra characters. One single image of one pose.
 Only change what the next instruction asks for.
 ```
+
+If you already have a character sheet instead of a single master (like Corni), attach the sheet and write "the attached sheet" instead of "the attached master image".
 
 ---
 
 ## Step 4: The 11 images
 
-Paste the Style Lock, then one of these. Save each result with the exact file name.
+Paste the Style Lock, then one of these. Save each result with the exact file name. Every prompt
+below is general: it works for any character, with no edits.
+
+| # | File | What the card uses it for |
+|---|---|---|
+| 1 | `idle.png` | Settings window, character picker |
+| 2 | `break.png` | "It's time to move!" intro |
+| 3 | `celebration.png` | End of a timed movement |
+| 4 | `water.png` | Water card |
+| 5 | `waiting.png` | After Snooze |
+| 6 | `wall-angels.png` | Movement |
+| 7 | `spine-twist.png` | Movement |
+| 8 | `hip-flexor.png` | Movement |
+| 9 | `neck-flexion.png` | Stretch |
+| 10 | `upper-trap.png` | Stretch |
+| 11 | `doorway-chest.png` | Stretch |
 
 ### States
 
 **`idle.png`**
 ```text
-Pose: standing relaxed, one hand giving a small friendly wave, gentle smile, eyes open. Calm, welcoming.
+Pose: idle, FRONT view, standing relaxed, feet hip-width apart.
+- One hand raised beside the head giving a small friendly wave, palm toward the viewer.
+- The other arm relaxed at the side.
+- Eyes open, gentle smile. Calm and welcoming.
+Must NOT show: props, motion lines, both hands raised.
 ```
 
 **`break.png`**
 ```text
-Pose: energetic "time to move" pose. One arm raised high pointing up, the other on the hip, big open smile, eyebrows up. Encouraging, not urgent.
+Pose: "time to move!", FRONT view, standing, feet hip-width apart.
+- One arm raised high, index finger pointing straight up.
+- The other hand resting on the hip, elbow out.
+- Big open smile, eyebrows up. Encouraging, not urgent.
+- Two or three small exclamation dashes near the raised hand, in a warm accent colour.
+Must NOT show: a worried or stern face, both arms up, text.
 ```
 
 **`celebration.png`**
 ```text
-Pose: celebrating. Small jump with both feet off the ground, both arms up in a V, eyes happily closed (curved lines), big smile. Two or three tiny sparkle shapes near the hands in the accent colour.
+Pose: celebrating, FRONT view, a small happy jump with both feet off the ground.
+- Both arms up in a V, hands in small fists.
+- Eyes happily closed (curved lines), big smile.
+- Two or three tiny four-point sparkles near the hands, in a warm accent colour.
+Must NOT show: confetti, text, a floor or shadow under the feet.
 ```
 
 **`water.png`**
 ```text
-Pose: holding a clear glass of fresh water with both hands at chest height, a few light-blue water highlights in the glass, refreshed happy expression, slight head tilt. The glass is simple, flat style, same outline.
+Pose: drinking water, FRONT view, standing, feet hip-width apart.
+- Both hands hold a clear glass of fresh water at chest height.
+- The glass is simple and see-through, with a few light-blue highlights, same outline style.
+- Refreshed happy expression, slight head tilt.
+Must NOT show: a bottle, a cup with a handle, a straw, spilled water.
 ```
 
 **`waiting.png`**
 ```text
-Pose: patient waiting. Sitting cross-legged on nothing (no floor), one hand under the chin, relaxed half-smile, eyes looking up and to the side as if thinking "see you soon". Calm, not sad, not bored-looking.
+Pose: patient waiting, FRONT view, sitting cross-legged on nothing (no floor).
+- One elbow resting on a knee, that hand under the chin.
+- The other hand resting in the lap.
+- Relaxed half-smile, eyes looking up and to the side, as if thinking "see you soon".
+Must NOT show: a sad, bored or sleepy face, a chair, a floor.
 ```
 
 ### Movement poses
 
 **`wall-angels.png`**
 ```text
-Pose: Wall Angels exercise, front view. Standing tall with back straight. Both arms raised in a W shape: upper arms out to the sides at shoulder height, elbows bent 90 degrees, forearms pointing straight up, palms facing forward. A simple vertical light-grey rectangle behind the character suggests a wall. Focused, calm expression.
+Pose: Wall Angels exercise, FRONT view, standing tall, back straight, feet hip-width apart.
+- A simple light-grey vertical rectangle behind the character suggests a wall, taller and a bit wider than the body.
+- Both arms raised in a W: upper arms out to the sides at shoulder height, elbows bent 90 degrees, forearms pointing straight up, palms facing forward.
+- Focused, calm expression.
+Must NOT show: arms straight up in a Y, hands on the head, the character turned to the side.
 ```
 
 **`spine-twist.png`**
 ```text
-Pose: Standing Spine Twist, front view. Feet hip-width apart, hips facing forward, arms crossed over the chest, upper body clearly rotated to the character's right, head following the turn. Small curved motion arrow beside the torso in the accent colour.
+Pose: Standing Spine Twist, FRONT view, feet hip-width apart, hips and feet facing forward.
+- Arms crossed over the chest, each hand on the opposite shoulder.
+- The upper body clearly rotated toward the character's right; the head follows the turn.
+- One curved double-headed motion arrow around the waist, in a warm accent colour.
+Must NOT show: hips turned with the chest, arms out to the sides, a side bend.
 ```
 
 **`hip-flexor.png`**
 ```text
-Pose: standing Hip Flexor Stretch, side view facing left. Split stance: front foot forward with a slightly bent front knee, back leg extended behind with heel lifted, back knee nearly straight, hips tucked, torso upright, hands resting on the hips. Calm expression.
+Pose: standing Hip Flexor Stretch, SIDE view, the character faces LEFT.
+- Split stance: front foot forward with the front knee slightly bent, back leg extended far behind with the heel lifted and the back knee nearly straight.
+- Hips tucked under, torso upright, both hands resting on the hips (or on the front thigh).
+- Calm expression.
+- Two small accent dashes near the front of the back hip, where the stretch is felt.
+Must NOT show: the back knee on the ground, the torso leaning far forward, a front view.
 ```
 
 ### Stretch poses
 
 > **These three are the ones image models get wrong.** On full character sheets they were the
-> poses that came back missing (Thomas: Neck Flexion and Doorway) or wrong (a hand pulling the
-> head instead of resting). So: always ask for them **one at a time**, never inside a sheet; name
+> poses that came back missing (Thomas and Corni: Neck Flexion and Doorway) or wrong (a hand
+> pulling the head instead of resting, on both characters' Upper Trap). So: always ask for them **one at a time**, never inside a sheet; name
 > every limb's position; and say what must **not** be in the picture. Check them against the
 > checklist below before keeping them.
 
@@ -166,6 +245,35 @@ Must NOT show: both arms on the frame, the character facing the viewer, the char
 **Before you finish:** count your files against the list at the top of step 4. Sheets with
 many poses tend to silently drop the hard ones, so a "complete" sheet is not proof that all 11
 are there.
+
+### Shortcut: one sheet for the easy eight
+
+A full sheet is faster, and it's fine for poses 1 to 8. Ask for it after the master, then get the
+three stretches one by one with their own prompts above. Claude cuts the sheet into files.
+
+```text
+STYLE LOCK. Use the attached master image as the exact reference for [Name], [What it is].
+Keep identical: proportions, face, signature detail, colours, outline and white sticker border, and the style: [Style line].
+
+Make ONE character sheet on a transparent background with exactly 8 poses in two rows of four, same size, with clear space between them and no labels:
+1. Idle: standing, one hand waving, gentle smile.
+2. Break: one arm pointing straight up, other hand on the hip, big smile, small exclamation dashes.
+3. Celebration: small jump, both arms up in a V, eyes happily closed, a few sparkles.
+4. Water: holding a clear glass of water with both hands at chest height.
+5. Waiting: sitting cross-legged, hand under the chin, looking up and to the side.
+6. Wall Angels: front view, arms in a W against a light-grey wall rectangle.
+7. Spine Twist: arms crossed on the chest, upper body turned, curved arrow around the waist.
+8. Hip Flexor: side view, deep split stance, back heel lifted, hands on hips.
+No text, no numbers, no floor shadows.
+```
+
+### When a pose comes back wrong
+
+Reply in the same chat, attach the wrong image, and paste:
+
+```text
+Keep everything about this image, fix only this: [what is wrong, e.g. "no hand on the head: the right hand rests on the lower back and the left arm hangs at the side"]. Same style, same canvas, transparent background.
+```
 
 ---
 

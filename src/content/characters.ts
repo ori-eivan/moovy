@@ -11,6 +11,7 @@ export interface Character {
 
 export const CHARACTERS: Character[] = [
   { id: "thomas", name: "Thomas" },
+  { id: "corni", name: "Corni" },
   { id: "pilot-1", name: "Character 1" },
   { id: "pilot-3", name: "Character 3" },
 ];
