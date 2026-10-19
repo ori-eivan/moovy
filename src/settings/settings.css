@@ -11,17 +11,17 @@ body {
 .settings {
   display: grid;
   /* The footer sits at the bottom of the window. */
-  grid-template-rows: auto auto auto 1fr;
-  gap: 22px;
+  grid-template-rows: auto auto auto auto 1fr;
+  gap: 16px;
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 26px 22px 18px;
+  padding: 22px 22px 16px;
   background: #fffdf8;
   color: #221d1a;
 }
 
 .window .settings {
-  min-height: 520px;
+  min-height: 560px;
 }
 
 .settings footer {
@@ -75,8 +75,8 @@ body {
 .character .portrait {
   display: grid;
   place-items: center;
-  width: 92px;
-  height: 92px;
+  width: 84px;
+  height: 84px;
   border-radius: 14px;
   background: #f2ece2;
   font-size: 11px;

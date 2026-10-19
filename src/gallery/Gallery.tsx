@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import CardView from "../card/CardView";
+import Onboarding from "../settings/Onboarding";
 import SettingsView, { type SettingsActions, type SettingsState } from "../settings/SettingsView";
 import { useCardFlow, type CardActions, type Payload, type View } from "../card/useCardFlow";
 import { CHARACTERS, DEFAULT_CHARACTER } from "../content/characters";
@@ -18,6 +19,8 @@ const noop: CardActions = {
   waterDone: () => {},
   toggleHowTo: () => {},
   skip: () => {},
+  helloSaved: () => {},
+  helloDone: () => {},
 };
 
 export default function Gallery() {
@@ -153,6 +156,8 @@ function AllScreens({ character }: { character: string }) {
     { title: "Water", how: "Appears on its own, at the half hour.", view: { name: "water" } },
     { title: "Water done", how: "Click “Done” on screen 8. Closes after about a second.", view: { name: "waterDone" } },
     { title: "Waiting", how: "Click “Snooze” on screen 2, 4 or 8. Closes after 2 seconds, the card returns in 10 minutes.", view: { name: "waiting" } },
+    { title: "Hello", how: "Once, right after onboarding. Drag it anywhere.", view: { name: "hello", saved: false } },
+    { title: "Hello, saved", how: "After letting go of the drag. Closes after 2 seconds.", view: { name: "hello", saved: true } },
   ];
 
   return (
@@ -184,14 +189,16 @@ function AllScreens({ character }: { character: string }) {
 /** Screens 10 and 11: the one settings window. Clickable here too, nothing is saved. */
 function SettingsScreens() {
   const [state, setState] = useState<SettingsState>({
-    waterEnabled: true,
+    pace: "recommended",
+    onboarded: true,
     autostart: true,
     character: DEFAULT_CHARACTER,
-    version: "0.1.0",
+    version: "0.1.2",
   });
+  const [onboardingRun, setOnboardingRun] = useState(0);
   const actions: SettingsActions = {
     setCharacter: (id) => setState((s) => ({ ...s, character: id })),
-    setWater: (waterEnabled) => setState((s) => ({ ...s, waterEnabled })),
+    setPace: (pace) => setState((s) => ({ ...s, pace })),
     setAutostart: (autostart) => setState((s) => ({ ...s, autostart })),
     clearData: () => {},
     openGitHub: () => {},
@@ -203,10 +210,23 @@ function SettingsScreens() {
   ];
   return (
     <>
+      <figure>
+        <figcaption>
+          <span className="num">0</span>
+          <span>
+            <b>Onboarding</b>
+            <small>First launch only. Click through it; Close starts it again here.</small>
+          </span>
+        </figcaption>
+        <div className="window">
+          <div className="titlebar">Moovy</div>
+          <Onboarding key={onboardingRun} onFinish={() => setOnboardingRun((n) => n + 1)} />
+        </div>
+      </figure>
       {screens.map((s, i) => (
         <figure key={s.title}>
           <figcaption>
-            <span className="num">{11 + i}</span>
+            <span className="num">{13 + i}</span>
             <span>
               <b>{s.title}</b>
               <small>{s.how}</small>

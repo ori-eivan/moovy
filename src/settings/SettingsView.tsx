@@ -1,10 +1,14 @@
 import { useState } from "react";
 import CharacterImage from "../content/CharacterImage";
 import { useAvailableCharacters } from "../content/characters";
+import { PACES, type PaceId } from "../content/paces";
+import "./onboarding.css";
 import "./settings.css";
 
 export interface SettingsState {
-  waterEnabled: boolean;
+  pace: PaceId;
+  /** False until the first-run onboarding is finished. */
+  onboarded: boolean;
   autostart: boolean;
   character: string;
   version: string;
@@ -12,7 +16,7 @@ export interface SettingsState {
 
 export interface SettingsActions {
   setCharacter: (id: string) => void;
-  setWater: (enabled: boolean) => void;
+  setPace: (pace: PaceId) => void;
   setAutostart: (enabled: boolean) => void;
   clearData: () => void;
   openGitHub: () => void;
@@ -26,7 +30,7 @@ interface Props {
   confirmingClear?: boolean;
 }
 
-/** The one Moovy window: pick a character, two switches, and a footer. Nothing else. */
+/** The one Moovy window: pick a character, pick a pace, one switch, and a footer. Nothing else. */
 export default function SettingsView({ state, actions, confirmingClear = false }: Props) {
   const [confirming, setConfirming] = useState(confirmingClear);
   const [cleared, setCleared] = useState(false);
@@ -60,8 +64,28 @@ export default function SettingsView({ state, actions, confirmingClear = false }
         </div>
       </section>
 
+      <section aria-labelledby="pace-label">
+        <p className="label" id="pace-label">
+          Pace
+        </p>
+        <div className="paces compact" role="radiogroup" aria-labelledby="pace-label">
+          {PACES.map((p) => (
+            <button
+              key={p.id}
+              role="radio"
+              aria-checked={state.pace === p.id}
+              className={`pace${state.pace === p.id ? " selected" : ""}`}
+              onClick={() => actions.setPace(p.id)}
+            >
+              <span className="radio" aria-hidden="true" />
+              <span className="pace-title">{p.title}</span>
+              <span className="pace-short">{p.short}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <section className="switches">
-        <Switch label="Water reminders" checked={state.waterEnabled} onChange={actions.setWater} />
         <Switch label="Start with Windows" checked={state.autostart} onChange={actions.setAutostart} />
       </section>
 

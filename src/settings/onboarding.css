@@ -1,0 +1,274 @@
+@import "../assets/fonts/hyperlegible-sans/fonts.css";
+@import "../assets/fonts/clash-display.css";
+@import "../assets/fonts/manrope/fonts.css";
+@import "../assets/fonts/chillax.css";
+
+/* First run, in the settings window. Same palette and type as the settings screen. */
+.onboarding {
+  position: relative;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 26px 22px 18px;
+  background: #fffdf8;
+  color: #221d1a;
+  font-family: "Hyperlegible Sans", "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.window .onboarding {
+  height: 560px;
+}
+
+.onboarding .stage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  will-change: transform, opacity, filter;
+}
+
+/* The sheet of frosted glass the screens change behind. GSAP fades it in and out. */
+.onboarding .glass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.55), rgba(255, 253, 248, 0.25));
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+.onboarding h1 {
+  margin: 0;
+  font-family: "Clash Display", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.onboarding .step {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a7f74;
+}
+
+.onboarding .body {
+  margin: 0;
+  font-family: "Manrope", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #4a413b;
+}
+
+.onboarding .hint {
+  margin: 0;
+  font-size: 13px;
+  color: #8a7f74;
+}
+
+/* Buddy choice */
+.buddies {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.buddy {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 8px 6px 10px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.buddy:hover {
+  background: #f8f3eb;
+}
+
+.buddy.selected {
+  border-color: #221d1a;
+}
+
+.buddy .portrait {
+  display: grid;
+  place-items: center;
+  width: 130px;
+  height: 130px;
+  border-radius: 14px;
+  background: #f2ece2;
+}
+
+.buddy .portrait img,
+.onboarding .art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.buddy .name {
+  font-size: 14px;
+}
+
+.buddy.selected .name {
+  font-weight: 700;
+}
+
+/* Pace choice (also used in the settings screen) */
+.paces {
+  display: grid;
+  gap: 8px;
+}
+
+.pace {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e6ddd0;
+  border-radius: 14px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pace:hover {
+  border-color: #b9ada0;
+}
+
+.pace.selected {
+  border-color: #221d1a;
+  background: #faf6ef;
+}
+
+.pace .radio {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border-radius: 50%;
+  border: 2px solid #b9ada0;
+  box-sizing: border-box;
+}
+
+.pace.selected .radio {
+  border: 5px solid #221d1a;
+}
+
+.pace-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.pace-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: #6b6058;
+}
+
+.paces.compact .pace {
+  padding: 8px 12px;
+}
+
+.paces.compact .pace-detail {
+  font-size: 12px;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #c4502c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Done screen */
+.onboarding .art {
+  align-self: center;
+  width: 170px;
+  height: 170px;
+}
+
+/* Bottom buttons */
+.onboarding .nav {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.onboarding .nav button {
+  min-height: 40px;
+  border-radius: 999px;
+  border: none;
+  font-family: "Chillax", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.onboarding .nav .primary {
+  padding: 0 22px;
+  background: #221d1a;
+  color: #fffdf8;
+}
+
+.onboarding .nav .ghost {
+  padding: 0 4px;
+  background: none;
+  color: #6b6058;
+}
+
+.buddy:focus-visible,
+.pace:focus-visible,
+.onboarding .nav button:focus-visible {
+  outline: 2px solid #c4502c;
+  outline-offset: 2px;
+}
+
+/* Settings window: one line per pace, so everything fits the 520 px window. */
+.paces.compact {
+  gap: 6px;
+}
+
+.paces.compact .pace {
+  align-items: center;
+  padding: 8px 12px;
+}
+
+.paces.compact .pace .radio {
+  margin-top: 0;
+}
+
+.pace-short {
+  margin-left: auto;
+  font-size: 13px;
+  color: #6b6058;
+}
+
+/* Three or more buddies (local test packs): smaller tiles, three per row. */
+.buddies:has(> :nth-child(3)) {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.buddies:has(> :nth-child(3)) .portrait {
+  width: 96px;
+  height: 96px;
+}

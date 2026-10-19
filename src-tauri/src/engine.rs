@@ -14,7 +14,7 @@ use tauri::{menu::MenuItem, AppHandle, Manager, Wry};
 
 use crate::activity::{self, Signals};
 use crate::card;
-use crate::scheduler::{Card, Config, Decision, Event, Scheduler, Status};
+use crate::scheduler::{Card, Config, Decision, Event, Pace, Scheduler, Status};
 
 /// A wall-clock gap this long between two ticks means the computer was asleep.
 const SLEEP_GAP: Duration = Duration::from_secs(30);
@@ -36,14 +36,16 @@ pub struct TrayItems {
     pub status: MenuItem<Wry>,
 }
 
-pub fn init(app: &AppHandle, water_enabled: bool) {
+pub fn init(app: &AppHandle, pace: Pace) {
     let speed = std::env::var("MOOVY_SPEED")
         .ok()
         .filter(|_| cfg!(debug_assertions))
         .and_then(|s| s.parse().ok())
         .unwrap_or(1);
+    let mut scheduler = Scheduler::new(Config::default(), pace.water());
+    scheduler.handle(Event::Pace(pace));
     app.manage(Mutex::new(Engine {
-        scheduler: Scheduler::new(Config::default(), water_enabled),
+        scheduler,
         now: 0,
         speed,
         signals: Signals::default(),
@@ -143,8 +145,8 @@ pub fn force_show(app: &AppHandle, card: Card) {
     send(app, |_| Event::ForceShow { card });
 }
 
-pub fn set_water(app: &AppHandle, enabled: bool) {
-    send(app, |_| Event::WaterEnabled(enabled));
+pub fn set_pace(app: &AppHandle, pace: Pace) {
+    send(app, |_| Event::Pace(pace));
 }
 
 pub fn speed(app: &AppHandle) -> u64 {

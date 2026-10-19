@@ -1,5 +1,5 @@
-//! The few settings Moovy has: which character, water reminders on or off, start with Windows.
-//! Stored in the same local file as the card position.
+//! The few settings Moovy has: which character, the pace, start with Windows, and whether the
+//! first-run onboarding is done. Stored in the same local file as the card position.
 
 use serde::Serialize;
 use serde_json::json;
@@ -8,9 +8,12 @@ use tauri_plugin_autostart::ManagerExt as _;
 use tauri_plugin_store::StoreExt;
 
 use crate::card;
+use crate::scheduler::Pace;
 
 const STORE_FILE: &str = "moovy.json";
+/// Before the pace existed (v0.1.0/0.1.1), water could only be switched on or off.
 const KEY_WATER: &str = "waterEnabled";
+const KEY_PACE: &str = "pace";
 const KEY_CHARACTER: &str = "character";
 const KEY_ONBOARDED: &str = "onboarded";
 pub const DEFAULT_CHARACTER: &str = "thomas";
@@ -18,7 +21,8 @@ pub const DEFAULT_CHARACTER: &str = "thomas";
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SettingsView {
-    water_enabled: bool,
+    pace: String,
+    onboarded: bool,
     autostart: bool,
     character: String,
     version: String,
@@ -32,19 +36,30 @@ pub fn character(app: &AppHandle) -> String {
         .unwrap_or_else(|| DEFAULT_CHARACTER.to_string())
 }
 
-pub fn water_enabled(app: &AppHandle) -> bool {
-    app.store(STORE_FILE)
-        .ok()
-        .and_then(|s| s.get(KEY_WATER))
-        .and_then(|v| v.as_bool())
-        .unwrap_or(true)
+pub fn pace(app: &AppHandle) -> Pace {
+    let Ok(store) = app.store(STORE_FILE) else { return Pace::Recommended };
+    if let Some(id) = store.get(KEY_PACE).and_then(|v| v.as_str().map(str::to_string)) {
+        return Pace::from_id(&id);
+    }
+    // Older installs: water switched off meant breaks only.
+    match store.get(KEY_WATER).and_then(|v| v.as_bool()) {
+        Some(false) => Pace::MovesOnly,
+        _ => Pace::Recommended,
+    }
 }
 
-/// First launch: turn on start-with-Windows (the agreed default, visible in the window)
-/// and open the settings window so the user can pick a character.
+fn onboarded(app: &AppHandle) -> bool {
+    app.store(STORE_FILE)
+        .ok()
+        .and_then(|s| s.get(KEY_ONBOARDED))
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
+}
+
+/// Until onboarding is finished: start with Windows (on without asking, decided 2026-10-19)
+/// and open the window, which shows the onboarding instead of the settings.
 pub fn first_run(app: &AppHandle) {
-    let Ok(store) = app.store(STORE_FILE) else { return };
-    if store.get(KEY_ONBOARDED).and_then(|v| v.as_bool()) == Some(true) {
+    if onboarded(app) {
         return;
     }
     // Development builds never register themselves to start with Windows: that would point
@@ -52,8 +67,6 @@ pub fn first_run(app: &AppHandle) {
     if !cfg!(debug_assertions) {
         let _ = app.autolaunch().enable();
     }
-    store.set(KEY_ONBOARDED, json!(true));
-    let _ = store.save();
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();
         let _ = window.set_focus();
@@ -63,7 +76,8 @@ pub fn first_run(app: &AppHandle) {
 #[tauri::command]
 pub fn get_settings(app: AppHandle) -> SettingsView {
     SettingsView {
-        water_enabled: water_enabled(&app),
+        pace: pace(&app).id().to_string(),
+        onboarded: onboarded(&app),
         autostart: app.autolaunch().is_enabled().unwrap_or(false),
         character: character(&app),
         version: app.package_info().version.to_string(),
@@ -71,12 +85,33 @@ pub fn get_settings(app: AppHandle) -> SettingsView {
 }
 
 #[tauri::command]
-pub fn set_water_enabled(app: AppHandle, enabled: bool) {
+pub fn set_pace(app: AppHandle, id: String) {
+    let pace = Pace::from_id(&id);
     if let Ok(store) = app.store(STORE_FILE) {
-        store.set(KEY_WATER, json!(enabled));
+        store.set(KEY_PACE, json!(pace.id()));
         let _ = store.save();
     }
-    crate::engine::set_water(&app, enabled);
+    crate::engine::set_pace(&app, pace);
+}
+
+/// The last onboarding screen was closed: save the choices, close the window, and show the
+/// hello card that explains dragging.
+#[tauri::command]
+pub fn finish_onboarding(app: AppHandle, character: String, pace: String) {
+    let pace = Pace::from_id(&pace);
+    #[cfg(debug_assertions)]
+    println!("[moovy] onboarding finished: character={character} pace={}", pace.id());
+    if let Ok(store) = app.store(STORE_FILE) {
+        store.set(KEY_CHARACTER, json!(character));
+        store.set(KEY_PACE, json!(pace.id()));
+        store.set(KEY_ONBOARDED, json!(true));
+        let _ = store.save();
+    }
+    crate::engine::set_pace(&app, pace);
+    if let Some(window) = app.get_webview_window("settings") {
+        let _ = window.hide();
+    }
+    card::show_hello(&app);
 }
 
 #[tauri::command]
@@ -102,7 +137,7 @@ pub fn set_character(app: AppHandle, id: String) {
 }
 
 /// "Clear my data": forgets the card position, the movement rotation and the daily counts.
-/// Settings (character, water, start with Windows) are kept.
+/// Settings (character, pace, start with Windows) are kept.
 #[tauri::command]
 pub fn clear_data(app: AppHandle) {
     card::clear_data(&app);

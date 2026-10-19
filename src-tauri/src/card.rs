@@ -43,6 +43,8 @@ pub enum CardPayload {
         movement_id: String,
     },
     Water,
+    /// Shown once, right after onboarding: "drag me anywhere". Never counted, never scheduled.
+    Hello,
 }
 
 /// Where the user parked the card: the card's bottom-left corner, as a fraction of the work area.
@@ -109,14 +111,20 @@ fn next_break(app: &AppHandle) -> CardPayload {
 
 /// Shows a new card and counts it.
 pub fn show(app: &AppHandle, payload: CardPayload) {
-    stats::record(
-        app,
-        match payload {
-            CardPayload::Break { .. } => stats::Event::BreakShown,
-            CardPayload::Water => stats::Event::WaterShown,
-        },
-    );
+    let event = match payload {
+        CardPayload::Break { .. } => Some(stats::Event::BreakShown),
+        CardPayload::Water => Some(stats::Event::WaterShown),
+        CardPayload::Hello => None,
+    };
+    if let Some(event) = event {
+        stats::record(app, event);
+    }
     present(app, payload);
+}
+
+/// The hello card after onboarding. Not counted, and not remembered as the last card.
+pub fn show_hello(app: &AppHandle) {
+    present(app, CardPayload::Hello);
 }
 
 /// Puts a card on screen without counting it (snooze returns, previews).
@@ -128,7 +136,9 @@ fn present(app: &AppHandle, payload: CardPayload) {
         let state = app.state::<CardState>();
         let mut runtime = state.lock().unwrap();
         runtime.current = Some(payload.clone());
-        runtime.last = Some(payload.clone());
+        if payload != CardPayload::Hello {
+            runtime.last = Some(payload.clone());
+        }
         runtime.dragging = false;
         runtime.saved_position
     };
@@ -188,8 +198,24 @@ pub fn present_last(app: &AppHandle) {
 }
 
 pub fn drag_started(app: &AppHandle) {
-    let state = app.state::<CardState>();
-    state.lock().unwrap().dragging = true;
+    let is_hello = {
+        let state = app.state::<CardState>();
+        let mut runtime = state.lock().unwrap();
+        runtime.dragging = true;
+        runtime.current == Some(CardPayload::Hello)
+    };
+    // The hello card reacts when the user lets go. Windows runs the drag itself, so the page
+    // never sees the mouse button come up: watch the button from here instead.
+    #[cfg(windows)]
+    if is_hello {
+        let app = app.clone();
+        std::thread::spawn(move || {
+            win32::wait_for_left_button_up(std::time::Duration::from_secs(120));
+            let _ = app.emit_to("card", "card:drag-end", ());
+        });
+    }
+    #[cfg(not(windows))]
+    let _ = is_hello;
 }
 
 /// Called for every move of the card window. Only moves made by the user dragging are remembered.
@@ -310,6 +336,19 @@ mod win32 {
         SWP_NOSIZE, SWP_NOZORDER, SW_HIDE, SW_SHOWNOACTIVATE, WDA_EXCLUDEFROMCAPTURE, WDA_NONE,
         WS_EX_NOACTIVATE,
     };
+
+    /// Blocks until the left mouse button is released (or `limit` passes).
+    pub fn wait_for_left_button_up(limit: std::time::Duration) {
+        use windows::Win32::UI::Input::KeyboardAndMouse::{GetAsyncKeyState, VK_LBUTTON};
+        let start = std::time::Instant::now();
+        while start.elapsed() < limit {
+            std::thread::sleep(std::time::Duration::from_millis(40));
+            // The high bit is set while the button is down.
+            if unsafe { GetAsyncKeyState(VK_LBUTTON.0 as i32) } as u16 & 0x8000 == 0 {
+                return;
+            }
+        }
+    }
 
     fn hwnd_of(window: &tauri::WebviewWindow) -> Option<HWND> {
         window.hwnd().ok().map(|raw| HWND(raw.0))

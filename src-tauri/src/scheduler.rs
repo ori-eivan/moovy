@@ -36,6 +36,47 @@ impl Default for Config {
     }
 }
 
+/// How often cards come, picked in onboarding and settings.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Pace {
+    /// Water at :30, a move at :60.
+    Recommended,
+    /// Water at :45, a move at :90.
+    Relaxed,
+    /// A move every 60 minutes, no water.
+    MovesOnly,
+}
+
+impl Pace {
+    pub fn from_id(id: &str) -> Self {
+        match id {
+            "relaxed" => Pace::Relaxed,
+            "moves-only" => Pace::MovesOnly,
+            _ => Pace::Recommended,
+        }
+    }
+
+    pub fn id(self) -> &'static str {
+        match self {
+            Pace::Recommended => "recommended",
+            Pace::Relaxed => "relaxed",
+            Pace::MovesOnly => "moves-only",
+        }
+    }
+
+    pub fn water(self) -> bool {
+        self != Pace::MovesOnly
+    }
+
+    /// (cycle, water_at), in ms of active time.
+    pub fn timing(self) -> (u64, u64) {
+        match self {
+            Pace::Relaxed => (90 * MINUTE, 45 * MINUTE),
+            Pace::Recommended | Pace::MovesOnly => (60 * MINUTE, 30 * MINUTE),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Card {
     Water,
@@ -69,7 +110,11 @@ pub enum Event {
     Resume,
     #[allow(dead_code)]
     SkipNext,
+    // Superseded by Pace in the app (2026-10-19); kept for the scheduler tests.
+    #[allow(dead_code)]
     WaterEnabled(bool),
+    /// A new pace: cycle length, when water comes, and whether it comes at all.
+    Pace(Pace),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -207,14 +252,22 @@ impl Scheduler {
             }
             Event::Resume => self.paused_until = None,
             Event::SkipNext => self.skip_next = true,
-            Event::WaterEnabled(enabled) => {
-                self.water_enabled = enabled;
-                if !enabled && matches!(self.queued, Some(Queued { card: Card::Water, .. })) {
-                    self.queued = None;
-                }
+            Event::WaterEnabled(enabled) => self.set_water(enabled),
+            Event::Pace(pace) => {
+                let (cycle, water_at) = pace.timing();
+                self.config.cycle = cycle;
+                self.config.water_at = water_at;
+                self.set_water(pace.water());
             }
         }
         Vec::new()
+    }
+
+    fn set_water(&mut self, enabled: bool) {
+        self.water_enabled = enabled;
+        if !enabled && matches!(self.queued, Some(Queued { card: Card::Water, .. })) {
+            self.queued = None;
+        }
     }
 
     /// Which card a Return brings back.
@@ -576,6 +629,47 @@ mod tests {
         sim.s.handle(Event::WaterEnabled(false));
         sim.work(60);
         assert_eq!(sim.cards(), vec![Card::Break]);
+    }
+
+    #[test]
+    fn relaxed_pace_means_water_at_45_and_a_move_at_90() {
+        let mut sim = Sim::new();
+        sim.s.handle(Event::Pace(Pace::Relaxed));
+        sim.work(44);
+        assert!(sim.shown.is_empty());
+        sim.work(1);
+        assert_eq!(sim.cards(), vec![Card::Water]);
+        sim.close();
+        sim.work(44);
+        assert_eq!(sim.cards(), vec![Card::Water]);
+        sim.work(1);
+        assert_eq!(sim.cards(), vec![Card::Water, Card::Break]);
+    }
+
+    #[test]
+    fn moves_only_pace_never_shows_water() {
+        let mut sim = Sim::new();
+        sim.s.handle(Event::Pace(Pace::MovesOnly));
+        sim.work(60);
+        assert_eq!(sim.cards(), vec![Card::Break]);
+    }
+
+    #[test]
+    fn a_lunch_break_on_the_relaxed_pace_keeps_the_order_and_the_spacing() {
+        let mut sim = Sim::new();
+        sim.s.handle(Event::Pace(Pace::Relaxed));
+        sim.work(45);
+        sim.close();
+        sim.run(30 * MINUTE, false); // lunch
+        assert_eq!(sim.s.status(), Status::Next { card: Card::Break, minutes: 45 });
+    }
+
+    #[test]
+    fn pace_ids_round_trip() {
+        for pace in [Pace::Recommended, Pace::Relaxed, Pace::MovesOnly] {
+            assert_eq!(Pace::from_id(pace.id()), pace);
+        }
+        assert_eq!(Pace::from_id("anything else"), Pace::Recommended);
     }
 
     #[test]

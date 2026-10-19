@@ -1,4 +1,5 @@
-import { forwardRef, type MouseEvent } from "react";
+import { forwardRef, useLayoutEffect, useRef, type MouseEvent } from "react";
+import { gsap } from "gsap";
 import CharacterImage from "../content/CharacterImage";
 import { DEFAULT_CHARACTER } from "../content/characters";
 import { SWITCH_SIDES_MS, type CardActions, type View } from "./useCardFlow";
@@ -37,15 +38,41 @@ const CardView = forwardRef<HTMLDivElement, Props>(function CardView(
         </div>
       )}
       {showsClose(view) && (
-        <button className="close" aria-label="Skip" onClick={actions.skip}>
+        <button
+          className="close"
+          aria-label={view.name === "hello" ? "Close" : "Skip"}
+          onClick={view.name === "hello" ? actions.helloDone : actions.skip}
+        >
           ×
         </button>
       )}
+      {view.name === "hello" && <HelloBubble saved={view.saved} />}
     </div>
   );
 });
 
 export default CardView;
+
+/** The speech bubble above the hello card. Pops in once, then only its text changes. */
+function HelloBubble({ saved }: { saved: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const tween = gsap.fromTo(
+      ref.current,
+      { autoAlpha: 0, y: 6, scale: 0.94 },
+      { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, delay: 0.25, ease: "back.out(1.6)" },
+    );
+    return () => {
+      tween.kill();
+    };
+  }, []);
+  return (
+    <div className="bubble" ref={ref} role="status">
+      {saved ? "Saved! I'll show up right here." : "Drag me anywhere. I'll remember the spot."}
+    </div>
+  );
+}
 
 function Mascot({ character, image }: { character: string; image: string }) {
   return (
@@ -69,11 +96,19 @@ function imageFor(view: View): string {
       return "water.png";
     case "waiting":
       return "waiting.png";
+    case "hello":
+      return "idle.png";
   }
 }
 
 function showsClose(view: View): boolean {
-  return view.name === "breakIntro" || view.name === "movement" || view.name === "running" || view.name === "water";
+  return (
+    view.name === "breakIntro" ||
+    view.name === "movement" ||
+    view.name === "running" ||
+    view.name === "water" ||
+    view.name === "hello"
+  );
 }
 
 function renderBody(view: View, now: number, actions: CardActions) {
@@ -165,5 +200,13 @@ function renderBody(view: View, now: number, actions: CardActions) {
 
     case "waiting":
       return <p className="big">See you in 10</p>;
+
+    case "hello":
+      return (
+        <>
+          <p className="title">Hi! This is where I'll pop up.</p>
+          <p className="line">Every now and then, while you work.</p>
+        </>
+      );
   }
 }

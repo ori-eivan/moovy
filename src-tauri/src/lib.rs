@@ -63,6 +63,14 @@ fn card_drag_start(app: AppHandle) {
     card::drag_started(&app);
 }
 
+/// The hello card after onboarding was dragged into place (or closed). Nothing is counted.
+#[tauri::command]
+fn card_hello_done(app: AppHandle) {
+    #[cfg(debug_assertions)]
+    println!("[moovy] hello card done");
+    card::hide(&app);
+}
+
 fn open_settings(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();
@@ -97,8 +105,10 @@ pub fn run() {
             card_snooze,
             card_resize,
             card_drag_start,
+            card_hello_done,
             settings::get_settings,
-            settings::set_water_enabled,
+            settings::set_pace,
+            settings::finish_onboarding,
             settings::set_autostart,
             settings::set_character,
             settings::clear_data
@@ -106,7 +116,7 @@ pub fn run() {
         .setup(|app| {
             let handle = app.handle();
             card::init(handle);
-            engine::init(handle, settings::water_enabled(handle));
+            engine::init(handle, settings::pace(handle));
             settings::first_run(handle);
 
             let item = |id: &str, text: &str, enabled: bool| MenuItem::with_id(app, id, text, enabled, None::<&str>);

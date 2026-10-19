@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MOVEMENTS, type Movement } from "../content/movements";
 
 /** What Rust sends with "card:show". Matches `CardPayload` in card.rs. */
-export type Payload = { kind: "break"; movementId: string } | { kind: "water" };
+export type Payload = { kind: "break"; movementId: string } | { kind: "water" } | { kind: "hello" };
 
 export type View =
   | { name: "breakIntro"; movement: Movement }
@@ -11,13 +11,17 @@ export type View =
   | { name: "celebration" }
   | { name: "water" }
   | { name: "waterDone" }
-  | { name: "waiting" };
+  | { name: "waiting" }
+  /** After onboarding: "drag me anywhere". `saved` once the user has let go of it. */
+  | { name: "hello"; saved: boolean };
 
 export const BREAK_INTRO_MS = 3000;
 export const CELEBRATION_MS = 4000;
 export const WATER_DONE_MS = 1200;
 export const WAITING_MS = 2000;
 export const SWITCH_SIDES_MS = 3000;
+/** How long "Saved!" stays before the hello card leaves. */
+export const HELLO_SAVED_MS = 2000;
 
 /** Where the card's decisions go: Rust in the app, a fake in the gallery. */
 export interface CardOutcomes {
@@ -25,6 +29,8 @@ export interface CardOutcomes {
   done: (kind: "break" | "water") => void;
   skip: () => void;
   snooze: () => void;
+  /** The hello card is finished (dragged into place, or closed). */
+  helloDone?: () => void;
 }
 
 export interface CardActions {
@@ -35,6 +41,9 @@ export interface CardActions {
   waterDone: () => void;
   toggleHowTo: () => void;
   skip: () => void;
+  /** The user let go of the hello card after dragging it. */
+  helloSaved: () => void;
+  helloDone: () => void;
 }
 
 /**
@@ -66,6 +75,10 @@ export function useCardFlow(outcomes: CardOutcomes, options: { timeScale?: numbe
       clearTimers();
       if (payload.kind === "water") {
         setView({ name: "water" });
+        return;
+      }
+      if (payload.kind === "hello") {
+        setView({ name: "hello", saved: false });
         return;
       }
       const movement = MOVEMENTS[payload.movementId];
@@ -121,6 +134,15 @@ export function useCardFlow(outcomes: CardOutcomes, options: { timeScale?: numbe
     skip: () => {
       clearTimers();
       outcomesRef.current.skip();
+    },
+    helloSaved: () => {
+      clearTimers();
+      setView({ name: "hello", saved: true });
+      after(HELLO_SAVED_MS, () => outcomesRef.current.helloDone?.());
+    },
+    helloDone: () => {
+      clearTimers();
+      outcomesRef.current.helloDone?.();
     },
   };
 

@@ -307,3 +307,36 @@ body.card-window {
   0%, 100% { transform: rotate(-2deg); }
   50% { transform: rotate(2deg); }
 }
+
+/* Hello card (once, after onboarding): a speech bubble above the card. */
+.card .bubble {
+  position: absolute;
+  left: 8px;
+  bottom: calc(100% + 12px);
+  max-width: 320px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: #221d1a;
+  color: #fffdf8;
+  font-family: "Manrope", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transform-origin: 28px 100%;
+  pointer-events: none;
+}
+
+.card .bubble::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  background: #221d1a;
+  transform: rotate(45deg);
+}
+
+.card.view-hello {
+  align-items: center;
+}

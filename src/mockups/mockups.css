@@ -1,0 +1,620 @@
+/* Dev-only page around the mockups. The screens themselves reuse settings.css. */
+body {
+  background: #ece6dc;
+}
+
+.mockups {
+  padding: 32px 28px 64px;
+  color: #221d1a;
+}
+
+.intro h1 {
+  margin: 0 0 6px;
+  font-family: "Clash Display", "Hyperlegible Sans", sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.intro p {
+  margin: 0;
+  max-width: 720px;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  color: #6b6058;
+}
+
+.direction {
+  margin-top: 40px;
+}
+
+.direction-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+  font-family: "Clash Display", "Hyperlegible Sans", sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #221d1a;
+  color: #fffdf8;
+  font-size: 16px;
+}
+
+.direction-note {
+  margin: 0 0 16px;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  color: #6b6058;
+}
+
+.frames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.frame {
+  margin: 0;
+}
+
+.frame figcaption {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #6b6058;
+}
+
+.frame figcaption strong {
+  color: #221d1a;
+}
+
+.window {
+  width: 380px;
+  height: 552px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fffdf8;
+  box-shadow: 0 8px 24px rgba(34, 29, 26, 0.18);
+}
+
+.titlebar {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  color: #6b6058;
+  background: #f4efe7;
+  border-bottom: 1px solid #eee6da;
+}
+
+/* The onboarding screen inside a window. */
+.window .settings.onboarding {
+  min-height: 520px;
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.onboarding h2 {
+  margin: 0;
+  font-family: "Clash Display", "Hyperlegible Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.onboarding .label {
+  margin: 4px 0 -6px;
+}
+
+.onboarding .body {
+  margin: 0;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #4a413b;
+}
+
+.onboarding .hint {
+  margin: 0;
+  font-size: 13px;
+  color: #8a7f74;
+}
+
+.step {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a7f74;
+}
+
+/* Character picker: two big tiles. */
+.onboarding .characters {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.onboarding .character .portrait {
+  width: 130px;
+  height: 130px;
+}
+
+.onboarding .characters.compact .character .portrait {
+  width: 84px;
+  height: 84px;
+}
+
+.character .portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Pace options */
+.paces {
+  display: grid;
+  gap: 8px;
+}
+
+.pace {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1.5px solid #e6ddd0;
+  border-radius: 14px;
+}
+
+.paces.compact .pace {
+  padding: 8px 12px;
+}
+
+.pace.selected {
+  border-color: #221d1a;
+  background: #faf6ef;
+}
+
+.pace .radio {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border-radius: 50%;
+  border: 2px solid #b9ada0;
+  box-sizing: border-box;
+}
+
+.pace.selected .radio {
+  border: 5px solid #221d1a;
+}
+
+.pace-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.pace-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: #6b6058;
+}
+
+.paces.compact .pace-detail {
+  font-size: 12px;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #c4502c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tag.muted {
+  margin-left: 8px;
+  background: #e6ddd0;
+  color: #6b6058;
+}
+
+/* Toggle row (static) */
+.toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+  border-top: 1px solid #eee6da;
+  border-bottom: 1px solid #eee6da;
+  font-size: 15px;
+}
+
+.toggle .track {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  background: #d9d1c5;
+}
+
+.toggle .track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.toggle .track.on {
+  background: #221d1a;
+}
+
+.toggle .track.on::after {
+  transform: translateX(16px);
+}
+
+/* Buttons pinned to the bottom of the window. */
+.actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actions button {
+  min-height: 40px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: none;
+  font-family: "Chillax", "Hyperlegible Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions .primary {
+  background: #221d1a;
+  color: #fffdf8;
+}
+
+.actions .ghost {
+  background: none;
+  color: #6b6058;
+  padding: 0 4px;
+}
+
+/* Hello and done screens */
+.hello,
+.done {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.done {
+  height: 100%;
+}
+
+.hello-art {
+  align-self: center;
+  width: 200px;
+  height: 200px;
+}
+
+.hello-art.small {
+  width: 170px;
+  height: 170px;
+}
+
+.hello-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  height: 44px;
+  margin: 4px 8px 0;
+}
+
+.timeline .line {
+  position: absolute;
+  top: 7px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e6ddd0;
+}
+
+.timeline .tick {
+  position: absolute;
+  top: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #6b6058;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.timeline .tick.start {
+  left: 0;
+  transform: none;
+  justify-items: start;
+}
+
+.timeline .tick.water {
+  left: 50%;
+}
+
+.timeline .tick.move {
+  left: 100%;
+  transform: translateX(-100%);
+  justify-items: end;
+}
+
+.timeline .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #d9d1c5;
+}
+
+.timeline .water .dot {
+  background: #5aa7d6;
+}
+
+.timeline .move .dot {
+  background: #c4502c;
+}
+
+/* Sample card (a static picture of the real card) */
+.sample-card {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(34, 29, 26, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  background: #fffdf8;
+}
+
+.sample-art {
+  flex: none;
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  background: #f2ece2;
+}
+
+.sample-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sample-title {
+  margin: 4px 0 2px;
+  font-family: "Clash Display", "Hyperlegible Sans", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.sample-line {
+  margin: 0 0 10px;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  font-size: 13px;
+  color: #4a413b;
+}
+
+.sample-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.pill {
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: #f2ece2;
+  font-family: "Chillax", "Hyperlegible Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pill.dark {
+  background: #221d1a;
+  color: #fffdf8;
+}
+
+/* Clickable prototype: a small fake desktop with the window and, later, the hello card. */
+.older {
+  margin: 48px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a7f74;
+}
+
+.desktop {
+  position: relative;
+  height: 680px;
+  max-width: 1100px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #5b7a99, #2f4a63);
+  user-select: none;
+}
+
+.desktop .window.centered {
+  position: absolute;
+  left: 50%;
+  top: 40px;
+  transform: translateX(-50%);
+}
+
+.desktop .taskbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  background: rgba(20, 24, 30, 0.85);
+}
+
+button.pace {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+button.pace:hover {
+  border-color: #b9ada0;
+}
+
+button.pace.selected:hover {
+  border-color: #221d1a;
+}
+
+.demo {
+  position: absolute;
+  width: 340px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.demo:active {
+  cursor: grabbing;
+}
+
+.demo.saved {
+  cursor: default;
+  animation: demo-out 300ms ease 1.7s forwards;
+}
+
+@keyframes demo-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.bubble {
+  position: relative;
+  width: max-content;
+  max-width: 300px;
+  margin: 0 0 12px 18px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: #221d1a;
+  color: #fffdf8;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  bottom: -7px;
+  width: 14px;
+  height: 14px;
+  background: #221d1a;
+  transform: rotate(45deg);
+}
+
+.hello-card {
+  position: relative;
+  align-items: center;
+}
+
+.hello-card .close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 18px;
+  color: #8a7f74;
+  cursor: pointer;
+}
+
+.finished {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #fffdf8;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+}
+
+.restart {
+  min-height: 36px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: none;
+  background: #fffdf8;
+  font-family: "Chillax", "Hyperlegible Sans", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo.saved {
+    animation: none;
+  }
+}
+
+/* Frosted-glass screen transition (GSAP drives opacity, blur and position). */
+.onboarding.glassy {
+  position: relative;
+}
+
+.onboarding .stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  will-change: transform, opacity, filter;
+}
+
+.onboarding .glass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.55), rgba(255, 253, 248, 0.25));
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+.bubble {
+  transform-origin: 28px 100%;
+}

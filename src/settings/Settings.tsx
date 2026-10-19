@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import Onboarding from "./Onboarding";
 import SettingsView, { type SettingsState } from "./SettingsView";
 
 const REPO = "https://github.com/ori-eivan/moovy";
@@ -15,6 +16,19 @@ export default function Settings() {
 
   if (!state) return null;
 
+  if (!state.onboarded) {
+    return (
+      <Onboarding
+        onFinish={({ character, pace }) => {
+          // Rust saves the choices, hides this window and shows the hello card.
+          invoke("finish_onboarding", { character, pace }).then(() =>
+            setState({ ...state, character, pace, onboarded: true }),
+          );
+        }}
+      />
+    );
+  }
+
   return (
     <SettingsView
       state={state}
@@ -23,9 +37,9 @@ export default function Settings() {
           setState({ ...state, character: id });
           invoke("set_character", { id });
         },
-        setWater: (enabled) => {
-          setState({ ...state, waterEnabled: enabled });
-          invoke("set_water_enabled", { enabled });
+        setPace: (pace) => {
+          setState({ ...state, pace });
+          invoke("set_pace", { id: pace });
         },
         setAutostart: (enabled) => {
           setState({ ...state, autostart: enabled });

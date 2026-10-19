@@ -7,6 +7,8 @@ import { useCardFlow, type Payload } from "./useCardFlow";
 
 /** Room around the card for its shadow, in px. Must match the card's offset in card.css. */
 const SHADOW_ROOM = 20;
+/** Extra room above the hello card for its speech bubble. Matches .bubble in card.css. */
+const BUBBLE_ROOM = 64;
 
 const appWindow = getCurrentWebviewWindow();
 
@@ -18,7 +20,12 @@ export default function Card() {
     done: (kind) => invoke("card_done", { kind }),
     skip: () => invoke("card_skip"),
     snooze: () => invoke("card_snooze"),
+    helloDone: () => invoke("card_hello_done"),
   });
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const actionsRef = useRef(actions);
+  actionsRef.current = actions;
 
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
 
@@ -29,8 +36,14 @@ export default function Card() {
       invoke<{ character: string }>("get_settings").then((s) => setCharacter(s.character));
       show(payload);
     });
+    // The hello card: Windows tells Rust when the user lets go of the drag.
+    const unlistenDrag = appWindow.listen("card:drag-end", () => {
+      const v = viewRef.current;
+      if (v.name === "hello" && !v.saved) actionsRef.current.helloSaved();
+    });
     return () => {
       unlisten.then((stop) => stop());
+      unlistenDrag.then((stop) => stop());
     };
   }, [show]);
 
@@ -38,12 +51,13 @@ export default function Card() {
   useLayoutEffect(() => {
     const el = cardRef.current;
     if (!el) return;
-    const report = () => invoke("card_resize", { height: el.offsetHeight + SHADOW_ROOM });
+    const extra = view.name === "hello" ? BUBBLE_ROOM : 0;
+    const report = () => invoke("card_resize", { height: el.offsetHeight + SHADOW_ROOM + extra });
     report();
     const observer = new ResizeObserver(report);
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [view.name]);
 
   // Drag the card anywhere. Buttons keep working normally.
   const onMouseDown = (event: MouseEvent) => {
