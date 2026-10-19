@@ -127,20 +127,45 @@ Pose: standing Hip Flexor Stretch, side view facing left. Split stance: front fo
 
 ### Stretch poses
 
+> **These three are the ones image models get wrong.** On full character sheets they were the
+> poses that came back missing (Thomas: Neck Flexion and Doorway) or wrong (a hand pulling the
+> head instead of resting). So: always ask for them **one at a time**, never inside a sheet; name
+> every limb's position; and say what must **not** be in the picture. Check them against the
+> checklist below before keeping them.
+
 **`neck-flexion.png`**
 ```text
-Pose: Neck Flexion stretch, three-quarter front view. Standing upright. Both hands resting LIGHTLY on the back of the head, elbows pointing forward and relaxed, chin gently lowered toward the chest so the neck is clearly visible and bent forward. Eyes closed, relaxed face. The hands are resting, not pulling.
+Pose: Neck Flexion stretch, FRONT view, standing upright, feet hip-width apart.
+- BOTH hands (paws) rest lightly on the BACK of the head, fingers interlaced or touching.
+- Both elbows point FORWARD and slightly down, close together in front of the face.
+- The head is bent straight FORWARD: chin down toward the chest, so the top of the head faces the viewer and the back of the neck is long.
+- Eyes closed, calm relaxed face.
+Must NOT show: the head tilted to the side, elbows pointing out to the sides, hands pulling, a hand on the side of the head.
 ```
 
 **`upper-trap.png`**
 ```text
-Pose: Upper Trapezius stretch, front view. Standing upright. Right hand resting behind the lower back. Head gently tilted toward the LEFT shoulder so the right side of the neck is clearly visible and lengthened. Left arm relaxed at the side. Eyes closed, calm face. No pulling.
+Pose: Upper Trapezius stretch, FRONT view, standing upright, feet hip-width apart.
+- RIGHT hand (paw) rests flat on the lower back, behind the body, mostly hidden.
+- LEFT arm hangs relaxed at the side. The left hand does NOT touch the head.
+- The head tilts gently toward the LEFT shoulder, ear toward the shoulder, so the right side of the neck is long and visible.
+- Eyes closed, calm face.
+Must NOT show: any hand on the head, the head bent forward, arms raised.
 ```
 
 **`doorway-chest.png`**
 ```text
-Pose: Doorway Chest stretch, side view facing right. A simple light-grey vertical door frame shape on the left. The character's left forearm rests flat against the frame, elbow bent at shoulder height. The body leans slightly forward through the doorway, chest open, one foot a small step ahead. Calm, open expression.
+Pose: Doorway Chest stretch, SIDE view, the character faces RIGHT.
+- A simple light-grey vertical door frame (a plain upright rectangle, same outline style) stands on the LEFT side of the image, taller than the character.
+- The character's arm nearest the frame is raised to shoulder height, elbow bent 90 degrees, the whole forearm and paw resting FLAT against the frame.
+- The body steps gently forward, away from the frame: front foot a small step ahead, chest open and pushed slightly forward, shoulders back.
+- The other arm relaxed at the side or on the hip. Calm, open expression.
+Must NOT show: both arms on the frame, the character facing the viewer, the character leaning on the frame with its back.
 ```
+
+**Before you finish:** count your files against the list at the top of step 4. Sheets with
+many poses tend to silently drop the hard ones, so a "complete" sheet is not proof that all 11
+are there.
 
 ---
 

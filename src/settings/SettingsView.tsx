@@ -1,6 +1,6 @@
 import { useState } from "react";
 import CharacterImage from "../content/CharacterImage";
-import { CHARACTERS } from "../content/characters";
+import { useAvailableCharacters } from "../content/characters";
 import "./settings.css";
 
 export interface SettingsState {
@@ -30,6 +30,7 @@ interface Props {
 export default function SettingsView({ state, actions, confirmingClear = false }: Props) {
   const [confirming, setConfirming] = useState(confirmingClear);
   const [cleared, setCleared] = useState(false);
+  const characters = useAvailableCharacters();
 
   return (
     <main className="settings">
@@ -42,7 +43,7 @@ export default function SettingsView({ state, actions, confirmingClear = false }
           Your buddy
         </p>
         <div className="characters" role="radiogroup" aria-labelledby="character-label">
-          {CHARACTERS.map((c) => (
+          {characters.map((c) => (
             <button
               key={c.id}
               role="radio"

@@ -4,9 +4,11 @@
 public/fonts/clash-display/
 public/fonts/chillax/
 
-# Character art used for local testing. Pilot art may be third-party fan art and must never
-# be committed. Original art that can ship goes in through a separate, reviewed path.
-public/characters/
+# Character art. Everything here stays local by default: pilot art may be third-party fan
+# art and must never be committed. Original packs that ship are allowed in one by one, below,
+# under ASSETS_LICENSE (CC BY-NC 4.0).
+public/characters/*
+!public/characters/thomas/
 
 # Logs
 logs

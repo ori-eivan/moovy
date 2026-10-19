@@ -33,10 +33,10 @@ npm run tauri dev
 
 ### Character art
 
-Character images live in `public/characters/<id>/` and are not in the repository yet. Without them, cards show the name of the missing image file.
+Moovy's default character is **Thomas**, a tabby cat, in `public/characters/thomas/`. Each character is a folder of 11 images (one per card state and movement). Other folders in `public/characters/` are local only and never committed. The settings window lists only the characters whose images are present.
 
 ## License
 
-Code: [MIT](LICENSE). Character art: CC BY-NC 4.0 (added with the art).
+Code: [MIT](LICENSE). Character art (Thomas): [CC BY-NC 4.0](ASSETS_LICENSE), not covered by the MIT license.
 
 Made by Ori Eivan.

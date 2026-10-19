@@ -1,0 +1,23 @@
+Moovy character art license
+===========================
+
+The code in this repository is licensed under the MIT License (see LICENSE).
+The character art is NOT covered by the MIT License. It is licensed separately:
+
+  Thomas (public/characters/thomas/)
+  Copyright (c) 2026 Ori Eivan
+  Licensed under Creative Commons Attribution-NonCommercial 4.0 International
+  (CC BY-NC 4.0): https://creativecommons.org/licenses/by-nc/4.0/
+
+You may copy, share and adapt the character art, including inside forks of Moovy, as long as:
+
+  - Attribution: you credit "Thomas character by Ori Eivan", link to this license, and say
+    whether you changed the images.
+  - NonCommercial: you do not use the art for commercial purposes. Selling the images, using
+    the character on merchandise, or using it in paid products or advertising needs
+    separate permission from the author.
+
+This summary does not replace the license. The full legal text is at
+https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+Third-party characters are never included in this repository.

@@ -287,3 +287,26 @@ figcaption small {
 .type-probe .settings {
   min-height: 0;
 }
+
+.character-switch {
+  display: flex;
+  gap: 8px;
+  margin: -12px 0 28px;
+}
+
+.character-switch button {
+  min-height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 29, 26, 0.18);
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.character-switch button.on {
+  background: #221d1a;
+  border-color: #221d1a;
+  color: #fff;
+}

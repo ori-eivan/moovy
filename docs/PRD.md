@@ -114,7 +114,7 @@ No safety line in the UI (removed 2026-10-18). The copy stays gentle ("Don't pul
 
 ## 9. Character and illustrations
 
-- v0.1 ships **one** original character by Ori. It must have a clear neck, arms with elbows, and legs.
+- v0.1 ships **one** original character by Ori: **Thomas**, a tabby cat (the default). Art under CC BY-NC 4.0, see `ASSETS_LICENSE`. A character must have a clear neck, arms with elbows, and legs.
 - **11 illustrations**, transparent PNG, consistent style:
 
 | File | Used for |

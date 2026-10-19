@@ -13,7 +13,7 @@ const STORE_FILE: &str = "moovy.json";
 const KEY_WATER: &str = "waterEnabled";
 const KEY_CHARACTER: &str = "character";
 const KEY_ONBOARDED: &str = "onboarded";
-pub const DEFAULT_CHARACTER: &str = "pilot-1";
+pub const DEFAULT_CHARACTER: &str = "thomas";
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]

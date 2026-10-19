@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import CardView from "../card/CardView";
 import SettingsView, { type SettingsActions, type SettingsState } from "../settings/SettingsView";
 import { useCardFlow, type CardActions, type Payload, type View } from "../card/useCardFlow";
+import { CHARACTERS, DEFAULT_CHARACTER } from "../content/characters";
 import { MOVEMENTS } from "../content/movements";
 import Typography from "./Typography";
 import "./gallery.css";
@@ -20,21 +21,29 @@ const noop: CardActions = {
 };
 
 export default function Gallery() {
+  const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   return (
     <main className="gallery">
       <header>
         <h1>Moovy screens</h1>
         <p>Every card screen at real size. Part 1 runs the real card flow: click it like in the app. Part 2 shows every screen side by side, in the order a click leads to it.</p>
+        <div className="character-switch" role="radiogroup" aria-label="Character">
+          {CHARACTERS.map((c) => (
+            <button key={c.id} role="radio" aria-checked={character === c.id} className={character === c.id ? "on" : ""} onClick={() => setCharacter(c.id)}>
+              {c.name}
+            </button>
+          ))}
+        </div>
       </header>
-      <TryIt />
-      <AllScreens />
+      <TryIt character={character} />
+      <AllScreens character={character} />
       <Typography />
     </main>
   );
 }
 
 /** Part 1: the real flow, clickable. */
-function TryIt() {
+function TryIt({ character }: { character: string }) {
   const [visible, setVisible] = useState(false);
   const [fast, setFast] = useState(true);
   const [log, setLog] = useState<string[]>([]);
@@ -103,7 +112,7 @@ function TryIt() {
         </label>
       </div>
       <div className="desk desk-live">
-        {visible ? <CardView view={view} now={now} actions={actions} /> : <p className="empty">No card on screen. Use the buttons above.</p>}
+        {visible ? <CardView view={view} now={now} actions={actions} character={character} /> : <p className="empty">No card on screen. Use the buttons above.</p>}
       </div>
       <ul className="log">{log.map((line) => <li key={line}>{line}</li>)}</ul>
     </section>
@@ -111,7 +120,7 @@ function TryIt() {
 }
 
 /** Part 2: every screen, frozen, numbered in click order. */
-function AllScreens() {
+function AllScreens({ character }: { character: string }) {
   const now = Date.now();
   const wall = MOVEMENTS["wall-angels"];
   const hip = MOVEMENTS["hip-flexor"];
@@ -162,7 +171,7 @@ function AllScreens() {
               </span>
             </figcaption>
             <div className="desk">
-              <CardView view={s.view} now={now} actions={noop} />
+              <CardView view={s.view} now={now} actions={noop} character={character} />
             </div>
           </figure>
         ))}
@@ -177,7 +186,7 @@ function SettingsScreens() {
   const [state, setState] = useState<SettingsState>({
     waterEnabled: true,
     autostart: true,
-    character: "pilot-1",
+    character: DEFAULT_CHARACTER,
     version: "0.1.0",
   });
   const actions: SettingsActions = {
