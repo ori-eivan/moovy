@@ -43,7 +43,16 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis"],
+    "publisher": "Ori Eivan",
+    "copyright": "Copyright (c) 2026 Ori Eivan",
+    "shortDescription": "A friendly companion that reminds you to drink water and move.",
+    "homepage": "https://github.com/ori-eivan/moovy",
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

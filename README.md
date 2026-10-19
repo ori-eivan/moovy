@@ -2,19 +2,27 @@
 
 A small, friendly companion for Windows that reminds you to drink water and move while you work at your computer.
 
-> **Status: early development (v0.1 in progress).** Not ready to install yet. Nothing below is a finished feature until it is released.
+> **Status: v0.1, early testing.** Windows 10 and 11.
 
 ## What it does
 
-Every 30 minutes of active computer time, a small card pops up at the bottom-left of your screen, alternating between a glass of water and a one-minute movement or stretch. One click to start, snooze or skip. Then it gets out of your way.
+Every 30 minutes of active computer time, a small card pops up at the bottom-left of your screen, alternating between a glass of water and a 30-second movement or stretch. One click to start, snooze or skip. Then it gets out of your way.
 
-- Never takes your keyboard focus, never shows during calls or presentations (planned)
-- No account, no cloud, no tracking. Everything stays on your computer
+- Never takes your keyboard focus
+- Waits while you're in a call (even muted), sharing your screen, presenting or in a full-screen app, and is left out of screen shares and recordings
+- No account, no network, no tracking. Everything stays on your computer ([Privacy](PRIVACY.md))
 - English only
 
-## Download
+## Install
 
-**Get the installer from the [Releases page](https://github.com/ori-eivan/moovy/releases)** (available once v0.1 is released). The installer is the recommended way to use Moovy: it is the only version that includes the full design, with every font. A copy built from this source code works the same but shows a fallback font for headings and buttons (see [Fonts](#fonts)).
+1. Download `Moovy_0.1.0_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
+2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
+3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
+4. Moovy opens its settings window once, then lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 30 minutes of active work.
+
+**Uninstall:** Windows Settings → Apps → Installed apps → Moovy → Uninstall.
+
+The installer is the recommended way to use Moovy: it is the only version that includes the full design, with every font. A copy built from this source code works the same but shows a fallback font for headings and buttons (see [Fonts](#fonts)).
 
 ## Development
 

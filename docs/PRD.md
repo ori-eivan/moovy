@@ -26,7 +26,7 @@ A public GitHub repository good enough for Ori Eivan's portfolio, used daily by 
 3. **Never rude.** Moovy never takes keyboard focus, never shows during a call or presentation, and never piles up cards.
 4. **No guilt.** No streaks, no sad character, no "you missed" messages.
 5. **No medical claims.** Cards describe what to do and how it feels, never what it fixes.
-6. **Private.** Everything stays on the device. The only network call is a version check against GitHub.
+6. **Private.** Everything stays on the device. v0.1 makes no network calls at all.
 7. **Small.** Tray app, low CPU and memory when idle.
 
 ## 4. Users
@@ -162,7 +162,8 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 - No account, no telemetry, no analytics.
 - Settings and daily counts are stored locally in the user's AppData.
 - Microphone: Moovy checks only **whether** some app is recording from the microphone, by asking Windows' audio system and its privacy records. It never opens, records or listens to the microphone.
-- Network: one request to the GitHub Releases API to check for a newer version, at launch and once a day.
+- Network: none in v0.1 (the update check is not built yet). See `PRIVACY.md`, which is the user-facing version of this section.
+- Screen sharing: window titles are read and compared to recognise a share bar, never stored.
 - Uninstall removes the app. A clear note explains where local data lives and how to delete it.
 
 ## 13. Success metric and release gate
