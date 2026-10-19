@@ -3,7 +3,8 @@
 //!
 //! The scheduler's clock is "Moovy time": real time multiplied by the speed. At speed 1 it is
 //! ordinary milliseconds. In fast mode (development) one real second is one Moovy minute, so a
-//! full hour-long cycle plays in a minute.
+//! full hour-long cycle plays in a minute. Time without input is not sped up, so pausing and
+//! resetting behave as they do for real.
 
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime};
@@ -78,13 +79,24 @@ fn tick(app: &AppHandle, gap: Duration) {
         if signals.locked != e.signals.locked {
             events.push(if signals.locked { Event::Locked { now } } else { Event::Unlocked { now } });
         }
-        if signals.busy != e.signals.busy {
-            events.push(Event::Busy(signals.busy));
+        // Sharing the screen counts as busy, like a presentation.
+        let busy = signals.busy || signals.sharing_screen;
+        if busy != (e.signals.busy || e.signals.sharing_screen) {
+            events.push(Event::Busy(busy));
         }
         if signals.mic_in_use != e.signals.mic_in_use {
             events.push(Event::MicInUse(signals.mic_in_use));
         }
-        events.push(Event::Tick { now, idle_ms: signals.idle_ms * speed });
+        #[cfg(debug_assertions)]
+        if (Signals { idle_ms: 0, ..signals }) != (Signals { idle_ms: 0, ..e.signals }) || gap > SLEEP_GAP {
+            println!(
+                "[moovy] signals: locked={} busy={} mic={} sharing={} slept={}",
+                signals.locked, signals.busy, signals.mic_in_use, signals.sharing_screen, gap > SLEEP_GAP
+            );
+        }
+        // Idle time stays in real time, even in fast mode: a short pause to read must not count
+        // as 15 minutes away and reset the cycle.
+        events.push(Event::Tick { now, idle_ms: signals.idle_ms });
         e.signals = signals;
 
         events.into_iter().flat_map(|ev| e.scheduler.handle(ev)).collect::<Vec<_>>()

@@ -3,7 +3,8 @@
 //! simulated clock (see the tests at the bottom).
 //!
 //! The rules (PRD §7): a 60-minute cycle of *active* computer time, water at :30, a break at
-//! :60. Idle pauses the count, 15 minutes away resets it. Never two cards within 15 minutes,
+//! :60. Idle pauses the count, 15 minutes away restarts the clock (keeping the water/break
+//! order). Never two cards within 15 minutes,
 //! never while busy, in a call or paused, and a card that waits 20 minutes is dropped.
 
 pub const MINUTE: u64 = 60_000;
@@ -144,9 +145,16 @@ impl Scheduler {
         self.water_done_this_cycle = false;
     }
 
-    /// Being away (locked, asleep, 15 minutes idle) counts as a break.
+    /// Being away (locked, asleep, 15 minutes idle) counts as a break: the clock starts over, but
+    /// the order is kept. If water already came this cycle, the next card is still the break,
+    /// 30 active minutes after coming back, so frequent breaks don't turn into water only.
     fn away_reset(&mut self) {
+        let break_is_next = self.water_enabled && self.water_done_this_cycle;
         self.restart_cycle();
+        if break_is_next {
+            self.active = self.config.cycle - self.config.water_at;
+            self.water_done_this_cycle = true;
+        }
         self.queued = None;
         self.snoozed = None;
     }
@@ -414,6 +422,35 @@ mod tests {
         assert!(sim.shown.is_empty(), "the away time reset the cycle");
         sim.work(5);
         assert_eq!(sim.cards(), vec![Card::Water]);
+    }
+
+    #[test]
+    fn a_lunch_break_after_water_keeps_the_break_next() {
+        let mut sim = Sim::new();
+        sim.work(30);
+        sim.close();
+        sim.work(10);
+        sim.run(30 * MINUTE, false); // lunch
+        assert_eq!(sim.s.status(), Status::Next { card: Card::Break, minutes: 30 });
+        sim.work(29);
+        assert_eq!(sim.cards(), vec![Card::Water], "no second water after lunch");
+        sim.work(1);
+        assert_eq!(sim.cards(), vec![Card::Water, Card::Break]);
+    }
+
+    #[test]
+    fn a_lunch_break_after_the_break_starts_with_water() {
+        let mut sim = Sim::new();
+        sim.work(30);
+        sim.close();
+        sim.work(30);
+        sim.close();
+        sim.work(5);
+        sim.s.handle(Event::Locked { now: sim.now });
+        sim.now += 30 * MINUTE;
+        sim.s.handle(Event::Unlocked { now: sim.now });
+        sim.work(30);
+        assert_eq!(sim.cards(), vec![Card::Water, Card::Break, Card::Water]);
     }
 
     #[test]

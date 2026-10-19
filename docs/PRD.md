@@ -80,10 +80,12 @@ All cards appear at the **bottom-left of the work area** of the monitor you are 
 | Situation | Behaviour |
 |---|---|
 | No keyboard or mouse input | Counting **pauses**. It does not reset. |
-| Away 15+ minutes, screen locked, or computer asleep | Cycle **resets** to 0 (being away counts as a break) |
+| Away 15+ minutes, screen locked, or computer asleep | The clock **restarts** (being away counts as a break), but the order is kept: if water already came, the next card is the break, 30 active minutes after coming back. The movement rotation continues where it stopped |
 | Any two cards | At least 15 minutes apart |
 | Windows reports busy (presentation, full-screen game, quiet time) | Card waits |
 | Microphone in use (a call) | Card waits |
+| Sharing the screen, a window or a tab: Chrome or Edge (English or Hebrew UI), or the Zoom app | Card waits |
+| Screen sharing or recording of any kind | The card is left out of the capture; only the user sees it |
 | First 2 minutes after unlock or wake | Card waits |
 | A card has waited more than 20 minutes | It is dropped. The cycle continues |
 | Waiting cards | Never more than one in the queue |
@@ -159,7 +161,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 
 - No account, no telemetry, no analytics.
 - Settings and daily counts are stored locally in the user's AppData.
-- Microphone: Moovy checks only **whether** the microphone is in use, from Windows' own privacy records. It never opens, records or listens to the microphone.
+- Microphone: Moovy checks only **whether** some app is recording from the microphone, by asking Windows' audio system and its privacy records. It never opens, records or listens to the microphone.
 - Network: one request to the GitHub Releases API to check for a newer version, at launch and once a day.
 - Uninstall removes the app. A clear note explains where local data lives and how to delete it.
 
@@ -189,7 +191,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 4. No card appears while the microphone is in use, during a presentation, or in a full-screen game.
 5. Never two cards within 15 minutes.
 6. Reading without input for 10 minutes does not reset the cycle.
-7. After sleep, lock or 15+ minutes away, the cycle starts from 0 and no backlog of cards appears.
+7. After sleep, lock or 15+ minutes away, the clock restarts with the water/break order kept, and no backlog of cards appears.
 8. Settings and daily counts survive restart.
 9. The card always appears fully on screen, on the monitor in use, with the taskbar on any side and at 100% to 200% scaling.
 10. Idle CPU near 0% and no memory growth over an 8 hour run (measured, not assumed).

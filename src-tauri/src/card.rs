@@ -305,9 +305,10 @@ mod win32 {
     };
     use windows::Win32::UI::HiDpi::{GetDpiForMonitor, GetDpiForWindow, MDT_EFFECTIVE_DPI};
     use windows::Win32::UI::WindowsAndMessaging::{
-        GetForegroundWindow, GetWindowLongPtrW, GetWindowRect, SetWindowLongPtrW, SetWindowPos,
-        ShowWindow, GWL_EXSTYLE, HWND_TOPMOST, SWP_NOACTIVATE, SWP_NOSIZE, SWP_NOZORDER, SW_HIDE,
-        SW_SHOWNOACTIVATE, WS_EX_NOACTIVATE,
+        GetForegroundWindow, GetWindowLongPtrW, GetWindowRect, SetWindowDisplayAffinity,
+        SetWindowLongPtrW, SetWindowPos, ShowWindow, GWL_EXSTYLE, HWND_TOPMOST, SWP_NOACTIVATE,
+        SWP_NOSIZE, SWP_NOZORDER, SW_HIDE, SW_SHOWNOACTIVATE, WDA_EXCLUDEFROMCAPTURE, WDA_NONE,
+        WS_EX_NOACTIVATE,
     };
 
     fn hwnd_of(window: &tauri::WebviewWindow) -> Option<HWND> {
@@ -336,6 +337,13 @@ mod win32 {
             // brings back a small native title bar. skipTaskbar already hides it from the taskbar.)
             let ex_style = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
             SetWindowLongPtrW(hwnd, GWL_EXSTYLE, ex_style | WS_EX_NOACTIVATE.0 as isize);
+
+            // Leave the card out of screen sharing and recordings: if one ever shows during a
+            // call, only the user sees it. Development builds can turn this off to take
+            // screenshots (MOOVY_ALLOW_CAPTURE=1).
+            let allow_capture = cfg!(debug_assertions) && std::env::var("MOOVY_ALLOW_CAPTURE").is_ok_and(|v| v == "1");
+            let affinity = if allow_capture { WDA_NONE } else { WDA_EXCLUDEFROMCAPTURE };
+            let _ = SetWindowDisplayAffinity(hwnd, affinity);
 
             // The monitor holding the window the user is working in.
             let monitor = MonitorFromWindow(GetForegroundWindow(), MONITOR_DEFAULTTOPRIMARY);

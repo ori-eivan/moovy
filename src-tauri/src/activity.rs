@@ -11,12 +11,14 @@ pub struct Signals {
     pub busy: bool,
     /// Some app is using the microphone right now (a call).
     pub mic_in_use: bool,
+    /// The browser is sharing the screen (a call or a presentation, maybe with the mic off).
+    pub sharing_screen: bool,
 }
 
 #[cfg(windows)]
 pub fn read() -> Signals {
     let (locked, busy) = notification_state();
-    Signals { idle_ms: idle_ms(), locked, busy, mic_in_use: mic_in_use() }
+    Signals { idle_ms: idle_ms(), locked, busy, mic_in_use: mic_in_use(), sharing_screen: sharing_screen() }
 }
 
 #[cfg(not(windows))]
@@ -53,10 +55,129 @@ fn notification_state() -> (bool, bool) {
     }
 }
 
-/// Reads Windows' privacy record of which apps use the microphone. Moovy never opens the
-/// microphone itself: an app is "in use" when it has a start time and no stop time yet.
+/// Is any app recording from a microphone right now (a call, a voice note)?
+///
+/// Asked the audio system directly: is any capture session active. Moovy never opens the
+/// microphone or reads audio. The privacy registry is checked too, but on some Windows builds it
+/// stops updating, so it can't be the only source (seen on 26200 in October 2026).
 #[cfg(windows)]
 fn mic_in_use() -> bool {
+    capture_session_active() || mic_in_use_registry()
+}
+
+#[cfg(windows)]
+fn capture_session_active() -> bool {
+    use windows::Win32::Media::Audio::{
+        eCapture, AudioSessionStateActive, IAudioSessionManager2, IMMDeviceEnumerator,
+        MMDeviceEnumerator, DEVICE_STATE_ACTIVE,
+    };
+    use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
+
+    unsafe {
+        // Once per thread; calling it again is harmless.
+        let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
+        let Ok(enumerator) = CoCreateInstance::<_, IMMDeviceEnumerator>(&MMDeviceEnumerator, None, CLSCTX_ALL) else {
+            return false;
+        };
+        let Ok(devices) = enumerator.EnumAudioEndpoints(eCapture, DEVICE_STATE_ACTIVE) else {
+            return false;
+        };
+        let count = devices.GetCount().unwrap_or(0);
+        for i in 0..count {
+            let Ok(device) = devices.Item(i) else { continue };
+            let Ok(manager) = device.Activate::<IAudioSessionManager2>(CLSCTX_ALL, None) else { continue };
+            let Ok(sessions) = manager.GetSessionEnumerator() else { continue };
+            for j in 0..sessions.GetCount().unwrap_or(0) {
+                if let Ok(session) = sessions.GetSession(j)
+                    && session.GetState().is_ok_and(|state| state == AudioSessionStateActive)
+                {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+}
+
+/// The titles Chrome and Edge give the "<site> is sharing ..." bar, for the screen, a window or a
+/// tab, in English and Hebrew (from Chromium's own translations).
+const SHARE_BAR_TITLES: &[&str] = &[
+    "is sharing your screen",
+    "is sharing a window",
+    "is sharing a Chrome tab",
+    "משתף את המסך",
+    "משתף חלון",
+    "משתפת חלון",
+    "משתף כרטיסיית",
+    "משתף כרטיסייה",
+];
+
+fn is_share_bar(title: &str, class: &str) -> bool {
+    // A browser window whose page title merely mentions sharing is not the bar.
+    let browser_window = title.contains(" - Google Chrome") || title.contains(" - Microsoft");
+    (!browser_window && SHARE_BAR_TITLES.iter().any(|t| title.contains(t))) || class == "ZPFloatToolbarClass"
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_share_bar;
+
+    #[test]
+    fn recognises_share_bars() {
+        assert!(is_share_bar("meet.google.com is sharing your screen.", "Chrome_WidgetWin_1"));
+        assert!(is_share_bar("zoom.us is sharing a window.", "Chrome_WidgetWin_1"));
+        assert!(is_share_bar("\u{202b}meet.google.com משתף את המסך שלך.\u{202c}", "Chrome_WidgetWin_1"));
+        assert!(is_share_bar("\u{200f}teams.microsoft.com משתף כרטיסיית Chrome.", "Chrome_WidgetWin_1"));
+        assert!(is_share_bar("Screen sharing meeting controls", "ZPFloatToolbarClass"));
+    }
+
+    #[test]
+    fn ignores_ordinary_windows() {
+        assert!(!is_share_bar("Meet - abc-defg-hij - Google Chrome", "Chrome_WidgetWin_1"));
+        assert!(!is_share_bar("Why Chrome is sharing your screen - Google Chrome", "Chrome_WidgetWin_1"));
+        assert!(!is_share_bar("Zoom Meeting", "ConfMultiTabContentWndClass"));
+    }
+}
+
+/// Is the screen being shared? Recognised by the small bar window each app shows while sharing:
+/// - Chrome and Edge: see SHARE_BAR_TITLES (English and Hebrew UI)
+/// - Zoom app: the "Screen sharing meeting controls" bar, matched by its class name, which does
+///   not change with the language.
+///
+/// Anything else is not matched, and the card is left out of the capture anyway.
+#[cfg(windows)]
+fn sharing_screen() -> bool {
+    use windows::core::BOOL;
+    use windows::Win32::Foundation::{HWND, LPARAM};
+    use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetClassNameW, GetWindowTextW, IsWindowVisible};
+
+    unsafe extern "system" fn each(hwnd: HWND, found: LPARAM) -> BOOL {
+        unsafe {
+            if IsWindowVisible(hwnd).as_bool() {
+                let mut title = [0u16; 256];
+                let n = GetWindowTextW(hwnd, &mut title);
+                let mut class = [0u16; 256];
+                let c = GetClassNameW(hwnd, &mut class);
+                if is_share_bar(&String::from_utf16_lossy(&title[..n as usize]), &String::from_utf16_lossy(&class[..c as usize])) {
+                    *(found.0 as *mut bool) = true;
+                    return false.into(); // stop looking
+                }
+            }
+            true.into()
+        }
+    }
+
+    let mut found = false;
+    unsafe {
+        let _ = EnumWindows(Some(each), LPARAM(&mut found as *mut bool as isize));
+    }
+    found
+}
+
+/// Windows' privacy record of which apps use the microphone: an app is "in use" when it has a
+/// start time and no stop time yet.
+#[cfg(windows)]
+fn mic_in_use_registry() -> bool {
     use winreg::enums::HKEY_CURRENT_USER;
     use winreg::RegKey;
 
@@ -81,4 +202,69 @@ fn mic_in_use() -> bool {
         .open_subkey(STORE)
         .map(|k| any_in_use(&k))
         .unwrap_or(false)
+}
+
+#[cfg(all(test, windows))]
+mod probe {
+    /// Prints every capture session and its state. Run by hand: cargo test probe -- --ignored --nocapture
+    #[test]
+    #[ignore]
+    fn probe_capture_sessions() {
+        use windows::core::Interface;
+        use windows::Win32::Media::Audio::{eCapture, IAudioSessionControl2, IAudioSessionManager2, IMMDeviceEnumerator, MMDeviceEnumerator, DEVICE_STATE_ACTIVE};
+        use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED};
+        unsafe {
+            let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
+            let en: IMMDeviceEnumerator = CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL).unwrap();
+            let devs = en.EnumAudioEndpoints(eCapture, DEVICE_STATE_ACTIVE).unwrap();
+            for i in 0..devs.GetCount().unwrap() {
+                let d = devs.Item(i).unwrap();
+                let m: IAudioSessionManager2 = d.Activate(CLSCTX_ALL, None).unwrap();
+                let s = m.GetSessionEnumerator().unwrap();
+                for j in 0..s.GetCount().unwrap() {
+                    let c = s.GetSession(j).unwrap();
+                    let pid = c.cast::<IAudioSessionControl2>().ok().and_then(|c2| c2.GetProcessId().ok());
+                    println!("device {i} session {j}: state={:?} pid={pid:?}", c.GetState());
+                }
+            }
+            println!("capture_session_active={}", super::capture_session_active());
+        }
+    }
+    /// Lists visible top-level windows with their class and process. Run by hand while sharing
+    /// and while not, then compare: cargo test probe_windows -- --ignored --nocapture
+    #[test]
+    #[ignore]
+    fn probe_windows() {
+        use windows::core::BOOL;
+        use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM, MAX_PATH};
+        use windows::Win32::System::Threading::{OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION};
+        use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetClassNameW, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible};
+        unsafe extern "system" fn each(hwnd: HWND, _: LPARAM) -> BOOL {
+            unsafe {
+                if !IsWindowVisible(hwnd).as_bool() {
+                    return true.into();
+                }
+                let mut title = [0u16; 256];
+                let n = GetWindowTextW(hwnd, &mut title);
+                let mut class = [0u16; 256];
+                let c = GetClassNameW(hwnd, &mut class);
+                let mut pid = 0u32;
+                GetWindowThreadProcessId(hwnd, Some(&mut pid));
+                let mut exe = String::new();
+                if let Ok(h) = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) {
+                    let mut buf = [0u16; MAX_PATH as usize];
+                    let mut len = buf.len() as u32;
+                    if QueryFullProcessImageNameW(h, PROCESS_NAME_WIN32, windows::core::PWSTR(buf.as_mut_ptr()), &mut len).is_ok() {
+                        exe = String::from_utf16_lossy(&buf[..len as usize]).rsplit(std::path::MAIN_SEPARATOR).next().unwrap_or("").to_string();
+                    }
+                    let _ = CloseHandle(h);
+                }
+                println!("window: exe={exe} class={} title={}", String::from_utf16_lossy(&class[..c as usize]), String::from_utf16_lossy(&title[..n as usize]));
+                true.into()
+            }
+        }
+        unsafe {
+            let _ = EnumWindows(Some(each), LPARAM(0));
+        }
+    }
 }
