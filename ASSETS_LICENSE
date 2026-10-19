@@ -5,6 +5,7 @@ The code in this repository is licensed under the MIT License (see LICENSE).
 The character art is NOT covered by the MIT License. It is licensed separately:
 
   Thomas (public/characters/thomas/)
+  The Moovy icon, a Thomas-style "m" (src-tauri/icons/)
   Copyright (c) 2026 Ori Eivan
   Licensed under Creative Commons Attribution-NonCommercial 4.0 International
   (CC BY-NC 4.0): https://creativecommons.org/licenses/by-nc/4.0/
