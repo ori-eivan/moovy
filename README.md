@@ -22,6 +22,20 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 
 **Uninstall:** Windows Settings → Apps → Installed apps → Moovy → Uninstall.
 
+### Install from the command line
+
+Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and Moovy makes no network requests ([Privacy](PRIVACY.md)).
+
+```powershell
+$setup = "$env:TEMP\Moovy_0.1.0_x64-setup.exe"
+Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.0/Moovy_0.1.0_x64-setup.exe" -OutFile $setup
+(Get-FileHash $setup -Algorithm SHA256).Hash   # should be 28123F94EF55EA6002FEAD2A1AD1E1C0C8151583BE8072F911711E6B46529A54
+Start-Process $setup -ArgumentList "/S" -Wait   # silent, current user only
+Start-Process "$env:LOCALAPPDATA\Moovy\moovy.exe"
+```
+
+Moovy then sits in the tray and starts with Windows. The first card appears after 30 minutes of active work.
+
 The installer is the recommended way to use Moovy: it is the only version that includes the full design, with every font. A copy built from this source code works the same but shows a fallback font for headings and buttons (see [Fonts](#fonts)).
 
 ## Development
