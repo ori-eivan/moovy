@@ -144,14 +144,7 @@ fn present(app: &AppHandle, payload: CardPayload) {
     };
     let _ = app.emit_to("card", "card:show", &payload);
 
-    #[cfg(windows)]
-    win32::place_and_show(&window, saved);
-
-    #[cfg(not(windows))]
-    {
-        let _ = saved;
-        let _ = window.show();
-    }
+    platform::place_and_show(&window, saved);
 }
 
 pub fn hide(app: &AppHandle) {
@@ -163,28 +156,21 @@ pub fn hide(app: &AppHandle) {
     };
     // If the user moved the card while it was up, remember where it ended. Move events are
     // not reliable during the drag itself, so the final rectangle is read here.
-    if was_dragged {
-        #[cfg(windows)]
-        if let Some(position) = app
+    if was_dragged
+        && let Some(position) = app
             .get_webview_window("card")
-            .and_then(|window| win32::current_position(&window))
-        {
-            app.state::<CardState>().lock().unwrap().saved_position = Some(position);
-            if let Ok(store) = app.store(STORE_FILE) {
-                store.set(KEY_POSITION, json!(position));
-            }
+            .and_then(|window| platform::current_position(&window))
+    {
+        app.state::<CardState>().lock().unwrap().saved_position = Some(position);
+        if let Ok(store) = app.store(STORE_FILE) {
+            store.set(KEY_POSITION, json!(position));
         }
     }
     if let Ok(store) = app.store(STORE_FILE) {
         let _ = store.save();
     }
     if let Some(window) = app.get_webview_window("card") {
-        // Hidden the same way it was shown (directly through Windows), otherwise Tauri
-        // believes the window is already hidden and skips the call.
-        #[cfg(windows)]
-        win32::hide(&window);
-        #[cfg(not(windows))]
-        let _ = window.hide();
+        platform::hide(&window);
     }
 }
 
@@ -204,18 +190,15 @@ pub fn drag_started(app: &AppHandle) {
         runtime.dragging = true;
         runtime.current == Some(CardPayload::Hello)
     };
-    // The hello card reacts when the user lets go. Windows runs the drag itself, so the page
-    // never sees the mouse button come up: watch the button from here instead.
-    #[cfg(windows)]
+    // The hello card reacts when the user lets go. The system runs the drag itself, so the
+    // page never sees the mouse button come up: watch the button from here instead.
     if is_hello {
         let app = app.clone();
         std::thread::spawn(move || {
-            win32::wait_for_left_button_up(std::time::Duration::from_secs(120));
+            platform::wait_for_left_button_up(std::time::Duration::from_secs(120));
             let _ = app.emit_to("card", "card:drag-end", ());
         });
     }
-    #[cfg(not(windows))]
-    let _ = is_hello;
 }
 
 /// Called for every move of the card window. Only moves made by the user dragging are remembered.
@@ -227,16 +210,13 @@ pub fn on_moved(app: &AppHandle) {
     let Some(window) = app.get_webview_window("card") else {
         return;
     };
-    #[cfg(windows)]
-    if let Some(position) = win32::current_position(&window) {
+    if let Some(position) = platform::current_position(&window) {
         let state = app.state::<CardState>();
         state.lock().unwrap().saved_position = Some(position);
         if let Ok(store) = app.store(STORE_FILE) {
             store.set(KEY_POSITION, json!(position));
         }
     }
-    #[cfg(not(windows))]
-    let _ = window;
 }
 
 /// Forgets everything the card remembered: its position and where the rotation is.
@@ -267,10 +247,7 @@ pub fn reset_position(app: &AppHandle) {
 /// Resizes the card window to `logical_height`, keeping its bottom edge where it is.
 pub fn resize(app: &AppHandle, logical_height: f64) {
     if let Some(window) = app.get_webview_window("card") {
-        #[cfg(windows)]
-        win32::resize_keep_bottom(&window, logical_height);
-        #[cfg(not(windows))]
-        let _ = (window, logical_height);
+        platform::resize_keep_bottom(&window, logical_height);
     }
 }
 
@@ -318,6 +295,108 @@ pub fn to_saved(work: Rect, window: Rect) -> SavedPosition {
     SavedPosition {
         fx: fx.clamp(0.0, 1.0),
         fy: fy.clamp(0.0, 1.0),
+    }
+}
+
+/// Windows talks to the window directly (no focus, DPI-exact placement); everything else goes
+/// through Tauri's own window API.
+#[cfg(windows)]
+use win32 as platform;
+#[cfg(not(windows))]
+use portable as platform;
+
+#[cfg(not(windows))]
+mod portable {
+    use super::{placement, to_saved, Rect, SavedPosition, CARD_HEIGHT, CARD_WIDTH};
+    use tauri::{PhysicalPosition, PhysicalSize};
+
+    fn rect_of(work: &tauri::PhysicalRect<i32, u32>) -> Rect {
+        Rect {
+            left: work.position.x,
+            top: work.position.y,
+            right: work.position.x + work.size.width as i32,
+            bottom: work.position.y + work.size.height as i32,
+        }
+    }
+
+    /// The work area (screen minus menu bar and Dock) of the monitor under the mouse: the one
+    /// the user is working on.
+    fn active_work_area(window: &tauri::WebviewWindow) -> Option<(Rect, f64)> {
+        let monitor = window
+            .cursor_position()
+            .ok()
+            .and_then(|p| window.monitor_from_point(p.x, p.y).ok().flatten())
+            .or_else(|| window.primary_monitor().ok().flatten())?;
+        Some((rect_of(monitor.work_area()), monitor.scale_factor()))
+    }
+
+    pub fn place_and_show(window: &tauri::WebviewWindow, saved: Option<SavedPosition>) {
+        // Never take focus, and stay out of screen shares and recordings.
+        let _ = window.set_focusable(false);
+        let allow_capture = cfg!(debug_assertions) && std::env::var("MOOVY_ALLOW_CAPTURE").is_ok_and(|v| v == "1");
+        let _ = window.set_content_protected(!allow_capture);
+        let _ = window.set_visible_on_all_workspaces(true);
+
+        let Some((work, scale)) = active_work_area(window) else {
+            let _ = window.show();
+            return;
+        };
+        let logical_height = window
+            .outer_size()
+            .ok()
+            .filter(|s| s.height > 0)
+            .map(|s| s.height as f64 / window.scale_factor().unwrap_or(1.0))
+            .unwrap_or(CARD_HEIGHT);
+        let width = (CARD_WIDTH * scale).round() as i32;
+        let height = (logical_height * scale).round() as i32;
+        let (x, y) = placement(work, scale, width, height, saved);
+        let _ = window.set_size(PhysicalSize::new(width as u32, height as u32));
+        let _ = window.set_position(PhysicalPosition::new(x, y));
+        let _ = window.show();
+    }
+
+    pub fn hide(window: &tauri::WebviewWindow) {
+        let _ = window.hide();
+    }
+
+    pub fn resize_keep_bottom(window: &tauri::WebviewWindow, logical_height: f64) {
+        let (Ok(pos), Ok(size), Ok(scale)) = (window.outer_position(), window.outer_size(), window.scale_factor()) else {
+            return;
+        };
+        let height = (logical_height * scale).round() as i32;
+        if height == size.height as i32 {
+            return;
+        }
+        let bottom = pos.y + size.height as i32;
+        let _ = window.set_size(PhysicalSize::new(size.width, height as u32));
+        let _ = window.set_position(PhysicalPosition::new(pos.x, bottom - height));
+    }
+
+    pub fn current_position(window: &tauri::WebviewWindow) -> Option<SavedPosition> {
+        let pos = window.outer_position().ok()?;
+        let size = window.outer_size().ok()?;
+        let monitor = window.current_monitor().ok().flatten()?;
+        let r = Rect {
+            left: pos.x,
+            top: pos.y,
+            right: pos.x + size.width as i32,
+            bottom: pos.y + size.height as i32,
+        };
+        Some(to_saved(rect_of(monitor.work_area()), r))
+    }
+
+    /// Blocks until the left mouse button is released (or `limit` passes).
+    pub fn wait_for_left_button_up(limit: std::time::Duration) {
+        let start = std::time::Instant::now();
+        while start.elapsed() < limit {
+            std::thread::sleep(std::time::Duration::from_millis(40));
+            #[cfg(target_os = "macos")]
+            if !crate::activity::mac::left_button_down() {
+                return;
+            }
+            #[cfg(not(target_os = "macos"))]
+            return;
+        }
     }
 }
 

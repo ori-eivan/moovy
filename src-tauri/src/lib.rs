@@ -114,6 +114,10 @@ pub fn run() {
             settings::clear_data
         ])
         .setup(|app| {
+            // macOS: a tray-only app, with no Dock icon and no menu bar of its own.
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
             let handle = app.handle();
             card::init(handle);
             engine::init(handle, settings::pace(handle));

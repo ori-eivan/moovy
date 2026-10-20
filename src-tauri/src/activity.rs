@@ -21,9 +21,161 @@ pub fn read() -> Signals {
     Signals { idle_ms: idle_ms(), locked, busy, mic_in_use: mic_in_use(), sharing_screen: sharing_screen() }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "macos")]
+pub fn read() -> Signals {
+    Signals {
+        idle_ms: mac::idle_ms(),
+        locked: mac::screen_locked(),
+        // macOS has no "presentation mode" signal, and recognising a screen share needs the
+        // Screen Recording permission, which Moovy does not ask for. The card is left out of
+        // captures anyway, and a call already holds cards through the microphone.
+        busy: false,
+        mic_in_use: mac::mic_in_use(),
+        sharing_screen: false,
+    }
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
 pub fn read() -> Signals {
     Signals::default()
+}
+
+/// The macOS side of the signals, through the system frameworks directly. None of these ask
+/// for a permission: idle time and the lock state come from the window server, and the
+/// microphone check asks Core Audio whether an input device is running, without opening it.
+#[cfg(target_os = "macos")]
+pub mod mac {
+    use std::ffi::{c_char, c_void};
+
+    type CFTypeRef = *const c_void;
+
+    #[link(name = "CoreGraphics", kind = "framework")]
+    unsafe extern "C" {
+        fn CGEventSourceSecondsSinceLastEventType(state: i32, event_type: u32) -> f64;
+        fn CGEventSourceButtonState(state: i32, button: u32) -> bool;
+        fn CGSessionCopyCurrentDictionary() -> CFTypeRef;
+    }
+
+    #[link(name = "CoreFoundation", kind = "framework")]
+    unsafe extern "C" {
+        fn CFDictionaryGetValue(dict: CFTypeRef, key: CFTypeRef) -> CFTypeRef;
+        fn CFStringCreateWithCString(alloc: CFTypeRef, s: *const c_char, encoding: u32) -> CFTypeRef;
+        fn CFBooleanGetValue(b: CFTypeRef) -> u8;
+        fn CFGetTypeID(cf: CFTypeRef) -> usize;
+        fn CFBooleanGetTypeID() -> usize;
+        fn CFRelease(cf: CFTypeRef);
+    }
+
+    #[repr(C)]
+    struct PropertyAddress {
+        selector: u32,
+        scope: u32,
+        element: u32,
+    }
+
+    #[link(name = "CoreAudio", kind = "framework")]
+    unsafe extern "C" {
+        fn AudioObjectGetPropertyDataSize(
+            object: u32,
+            address: *const PropertyAddress,
+            qualifier_size: u32,
+            qualifier: *const c_void,
+            size: *mut u32,
+        ) -> i32;
+        fn AudioObjectGetPropertyData(
+            object: u32,
+            address: *const PropertyAddress,
+            qualifier_size: u32,
+            qualifier: *const c_void,
+            size: *mut u32,
+            data: *mut c_void,
+        ) -> i32;
+    }
+
+    /// The input as the hardware sees it, for every app in the session.
+    const HID_SYSTEM_STATE: i32 = 1;
+    const ANY_INPUT_EVENT: u32 = u32::MAX;
+    const LEFT_BUTTON: u32 = 0;
+    const UTF8: u32 = 0x0800_0100;
+
+    const fn fourcc(code: &[u8; 4]) -> u32 {
+        ((code[0] as u32) << 24) | ((code[1] as u32) << 16) | ((code[2] as u32) << 8) | code[3] as u32
+    }
+    const SYSTEM_OBJECT: u32 = 1;
+    const DEVICES: u32 = fourcc(b"dev#");
+    const STREAMS: u32 = fourcc(b"stm#");
+    const RUNNING_SOMEWHERE: u32 = fourcc(b"gone");
+    const SCOPE_GLOBAL: u32 = fourcc(b"glob");
+    const SCOPE_INPUT: u32 = fourcc(b"inpt");
+    const ELEMENT_MAIN: u32 = 0;
+
+    pub fn idle_ms() -> u64 {
+        let seconds = unsafe { CGEventSourceSecondsSinceLastEventType(HID_SYSTEM_STATE, ANY_INPUT_EVENT) };
+        if seconds.is_finite() && seconds > 0.0 { (seconds * 1000.0) as u64 } else { 0 }
+    }
+
+    pub fn left_button_down() -> bool {
+        unsafe { CGEventSourceButtonState(HID_SYSTEM_STATE, LEFT_BUTTON) }
+    }
+
+    /// Locked, or switched to another user (the session is no longer on the screen).
+    pub fn screen_locked() -> bool {
+        unsafe {
+            let session = CGSessionCopyCurrentDictionary();
+            if session.is_null() {
+                return true;
+            }
+            let locked = bool_value(session, c"CGSSessionScreenIsLocked".as_ptr()).unwrap_or(false);
+            let on_console = bool_value(session, c"kCGSSessionOnConsoleKey".as_ptr()).unwrap_or(true);
+            CFRelease(session);
+            locked || !on_console
+        }
+    }
+
+    unsafe fn bool_value(dict: CFTypeRef, key: *const c_char) -> Option<bool> {
+        unsafe {
+            let key = CFStringCreateWithCString(std::ptr::null(), key, UTF8);
+            if key.is_null() {
+                return None;
+            }
+            let value = CFDictionaryGetValue(dict, key);
+            CFRelease(key);
+            if value.is_null() || CFGetTypeID(value) != CFBooleanGetTypeID() {
+                return None;
+            }
+            Some(CFBooleanGetValue(value) != 0)
+        }
+    }
+
+    /// Is any app recording from a microphone? True when any device that has input streams is
+    /// running for some process. Output-only devices (speakers playing music) don't count.
+    pub fn mic_in_use() -> bool {
+        unsafe {
+            let all = PropertyAddress { selector: DEVICES, scope: SCOPE_GLOBAL, element: ELEMENT_MAIN };
+            let mut size = 0u32;
+            if AudioObjectGetPropertyDataSize(SYSTEM_OBJECT, &all, 0, std::ptr::null(), &mut size) != 0 {
+                return false;
+            }
+            let mut devices = vec![0u32; size as usize / std::mem::size_of::<u32>()];
+            if AudioObjectGetPropertyData(SYSTEM_OBJECT, &all, 0, std::ptr::null(), &mut size, devices.as_mut_ptr().cast()) != 0 {
+                return false;
+            }
+            devices.iter().any(|&device| {
+                let streams = PropertyAddress { selector: STREAMS, scope: SCOPE_INPUT, element: ELEMENT_MAIN };
+                let mut streams_size = 0u32;
+                let has_input = AudioObjectGetPropertyDataSize(device, &streams, 0, std::ptr::null(), &mut streams_size) == 0
+                    && streams_size > 0;
+                if !has_input {
+                    return false;
+                }
+                let running = PropertyAddress { selector: RUNNING_SOMEWHERE, scope: SCOPE_GLOBAL, element: ELEMENT_MAIN };
+                let mut value = 0u32;
+                let mut value_size = std::mem::size_of::<u32>() as u32;
+                AudioObjectGetPropertyData(device, &running, 0, std::ptr::null(), &mut value_size, (&mut value as *mut u32).cast()) == 0
+                    && value != 0
+            })
+        }
+    }
 }
 
 #[cfg(windows)]

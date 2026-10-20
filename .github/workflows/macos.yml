@@ -1,0 +1,79 @@
+# Builds and checks the macOS version on a GitHub-hosted Mac (free for public repositories).
+# Output: a universal .dmg (Apple silicon and Intel) and a screenshot of the first launch,
+# attached to the run as artifacts. Signed ad-hoc (free), not notarized.
+name: macOS build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "src-tauri/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/macos.yml"
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      # Clash Display and Chillax may not be committed (ITF licence). If the repository has them
+      # as secrets, they are embedded in the app as the licence allows; otherwise the UI falls
+      # back to Hyperlegible Sans.
+      - name: Fonts (optional)
+        env:
+          CLASH_DISPLAY_WOFF2_B64: ${{ secrets.CLASH_DISPLAY_WOFF2_B64 }}
+          CHILLAX_WOFF2_B64: ${{ secrets.CHILLAX_WOFF2_B64 }}
+        run: |
+          if [ -n "$CLASH_DISPLAY_WOFF2_B64" ]; then
+            mkdir -p public/fonts/clash-display
+            echo "$CLASH_DISPLAY_WOFF2_B64" | base64 --decode > public/fonts/clash-display/ClashDisplay-Variable.woff2
+          fi
+          if [ -n "$CHILLAX_WOFF2_B64" ]; then
+            mkdir -p public/fonts/chillax
+            echo "$CHILLAX_WOFF2_B64" | base64 --decode > public/fonts/chillax/Chillax-Variable.woff2
+          fi
+          ls -R public/fonts || true
+
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --lib
+
+      - name: Build universal app
+        run: npm run tauri build -- --target universal-apple-darwin
+
+      - name: Screenshot of the first launch
+        run: |
+          APP=$(ls -d src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app | head -1)
+          open "$APP"
+          sleep 12
+          screencapture -x first-launch.png
+          pgrep -fl moovy || echo "Moovy is not running"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moovy-macos
+          path: |
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            first-launch.png
+          if-no-files-found: error
