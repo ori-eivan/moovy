@@ -151,7 +151,7 @@ Kept minimal (decided 2026-10-18):
 - Next card in N min (status line)
 - Settings
 - Copy my stats
-- Reset card position
+- Set card position (shows the card with a "drag me anywhere" bubble; letting go saves the spot)
 - Update available: vX.Y.Z (shown only when there is one)
 - Quit
 

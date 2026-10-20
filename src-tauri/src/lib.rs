@@ -127,7 +127,7 @@ pub fn run() {
             let status = item("status", "Starting…", false)?;
             let settings_item = item("settings", "Settings", true)?;
             let copy_stats = item("copy_stats", "Copy my stats", true)?;
-            let reset_position = item("reset_position", "Reset card position", true)?;
+            let set_position = item("set_position", "Set card position", true)?;
             let quit = item("quit", "Quit", true)?;
             let fast_mode = item("fast_mode", &fast_mode_label(engine::speed(handle)), true)?;
             let fast_mode_for_menu = fast_mode.clone();
@@ -137,7 +137,7 @@ pub fn run() {
                 Box::new(PredefinedMenuItem::separator(app)?),
                 Box::new(settings_item),
                 Box::new(copy_stats),
-                Box::new(reset_position),
+                Box::new(set_position),
             ];
             // Development only: run the clock 60 times faster.
             if cfg!(debug_assertions) {
@@ -161,7 +161,7 @@ pub fn run() {
                     "copy_stats" => {
                         let _ = app.clipboard().write_text(stats::summary(app));
                     }
-                    "reset_position" => card::reset_position(app),
+                    "set_position" => card::set_position(app),
                     "fast_mode" => {
                         let speed = if engine::speed(app) > 1 { 1 } else { engine::FAST_SPEED };
                         engine::set_speed(app, speed);

@@ -235,13 +235,15 @@ pub fn clear_data(app: &AppHandle) {
     stats::clear(app);
 }
 
-pub fn reset_position(app: &AppHandle) {
-    let state = app.state::<CardState>();
-    state.lock().unwrap().saved_position = None;
-    if let Ok(store) = app.store(STORE_FILE) {
-        store.delete(KEY_POSITION);
-        let _ = store.save();
+/// "Set card position" in the tray: shows the hello card ("drag me anywhere") so the user can
+/// move it where they like. Letting go saves the spot. If a reminder is on screen right now,
+/// it is left alone: it can be dragged the same way, and the scheduler is still tracking it.
+pub fn set_position(app: &AppHandle) {
+    let showing = app.state::<CardState>().lock().unwrap().current.clone();
+    if matches!(showing, Some(ref p) if *p != CardPayload::Hello) {
+        return;
     }
+    present(app, CardPayload::Hello);
 }
 
 /// Resizes the card window to `logical_height`, keeping its bottom edge where it is.
