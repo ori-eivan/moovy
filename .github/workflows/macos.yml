@@ -43,15 +43,17 @@ jobs:
       - name: Fonts (optional)
         env:
           CLASH_DISPLAY_WOFF2_B64: ${{ secrets.CLASH_DISPLAY_WOFF2_B64 }}
-          CHILLAX_WOFF2_B64: ${{ secrets.CHILLAX_WOFF2_B64 }}
+          # Chillax is larger than the 48 KB secret limit, so it is stored in two parts.
+          CHILLAX_WOFF2_B64_1: ${{ secrets.CHILLAX_WOFF2_B64_1 }}
+          CHILLAX_WOFF2_B64_2: ${{ secrets.CHILLAX_WOFF2_B64_2 }}
         run: |
           if [ -n "$CLASH_DISPLAY_WOFF2_B64" ]; then
             mkdir -p public/fonts/clash-display
             echo "$CLASH_DISPLAY_WOFF2_B64" | base64 --decode > public/fonts/clash-display/ClashDisplay-Variable.woff2
           fi
-          if [ -n "$CHILLAX_WOFF2_B64" ]; then
+          if [ -n "$CHILLAX_WOFF2_B64_1" ]; then
             mkdir -p public/fonts/chillax
-            echo "$CHILLAX_WOFF2_B64" | base64 --decode > public/fonts/chillax/Chillax-Variable.woff2
+            printf '%s%s' "$CHILLAX_WOFF2_B64_1" "$CHILLAX_WOFF2_B64_2" | base64 --decode > public/fonts/chillax/Chillax-Variable.woff2
           fi
           ls -R public/fonts || true
 
