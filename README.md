@@ -1,8 +1,8 @@
 # Moovy
 
-A small, friendly companion for Windows that reminds you to drink water and move while you work at your computer.
+A small, friendly companion for Windows (and Mac, in beta) that reminds you to drink water and move while you work at your computer.
 
-> **Status: v0.1, early testing.** Windows 10 and 11.
+> **Status: v0.1, early testing.** Windows 10 and 11. Mac (macOS 11 or later) in beta.
 
 ## What it does
 
@@ -13,9 +13,9 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 - No account, no network, no tracking. Everything stays on your computer ([Privacy](PRIVACY.md))
 - English only
 
-## Install
+## Install on Windows
 
-1. Download `Moovy_0.1.2_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
+1. Download `Moovy_0.1.3_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
 2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
 3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
 4. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 30 minutes of active work.
@@ -27,14 +27,38 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and Moovy makes no network requests ([Privacy](PRIVACY.md)).
 
 ```powershell
-$setup = "$env:TEMP\Moovy_0.1.2_x64-setup.exe"
-Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.2/Moovy_0.1.2_x64-setup.exe" -OutFile $setup
-(Get-FileHash $setup -Algorithm SHA256).Hash   # should be 1BAE13707BE9F0A0EAA67F06D4EE8981397EBA66B43356C16D7E2D11343642B1
+$setup = "$env:TEMP\Moovy_0.1.3_x64-setup.exe"
+Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.3/Moovy_0.1.3_x64-setup.exe" -OutFile $setup
+(Get-FileHash $setup -Algorithm SHA256).Hash   # should be D66DFDD0E9C92AF7EB3DC7EA4FFCA1A32A0F8780D1631425DE6B9D807469C5C8
 Start-Process $setup -ArgumentList "/S" -Wait   # silent, current user only
 Start-Process "$env:LOCALAPPDATA\Moovy\moovy.exe"
 ```
 
 Moovy then sits in the tray and starts with Windows. The first card appears after 30 minutes of active work.
+
+## Install on Mac (beta)
+
+The Mac version is new and has had little real-world testing yet. Feedback is very welcome: [docs/MAC_BETA_TEST.md](docs/MAC_BETA_TEST.md) lists five quick checks.
+
+1. Download `Moovy_0.1.3_universal.dmg` from the [Releases page](https://github.com/ori-eivan/moovy/releases) (one file for Apple silicon and Intel).
+2. Open it and drag **Moovy** into **Applications**.
+3. Open Moovy. **macOS will say it can't check the app**, because Moovy is not notarized by Apple yet. Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**. Only the first time.
+4. The same short setup opens. Moovy then lives in the menu bar (top right), with no Dock icon.
+
+Moovy asks for no permissions on Mac. One difference from Windows: it doesn't recognise screen sharing yet (that would need the Screen Recording permission). It still waits during calls, and the card is left out of screen shares and recordings.
+
+**Uninstall:** in Moovy's settings turn off **Start at login**, quit Moovy from its menu, then drag it from Applications to the Bin.
+
+From the command line (a file downloaded this way is not flagged by Gatekeeper):
+
+```bash
+curl -L -o /tmp/Moovy.dmg https://github.com/ori-eivan/moovy/releases/download/v0.1.3/Moovy_0.1.3_universal.dmg
+shasum -a 256 /tmp/Moovy.dmg   # should be bf59ed3c82f5b9f128b7b59e260d9417924fb8716b674848667977caba31f64b
+hdiutil attach -nobrowse -quiet /tmp/Moovy.dmg -mountpoint /tmp/moovy-dmg
+cp -R /tmp/moovy-dmg/Moovy.app /Applications/
+hdiutil detach -quiet /tmp/moovy-dmg
+open /Applications/Moovy.app
+```
 
 The installer is the recommended way to use Moovy: it is the only version that includes the full design, with every font. A copy built from this source code works the same but shows a fallback font for headings and buttons (see [Fonts](#fonts)).
 
