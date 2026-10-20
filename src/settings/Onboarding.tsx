@@ -78,7 +78,7 @@ export default function Onboarding({ onFinish }: Props) {
         {step === 1 && (
           <>
             <p className="step">Step 1 of 2</p>
-            <h1>Who's keeping you company?</h1>
+            <h1>Pick your wellbeing buddy</h1>
             <div className="buddies" role="radiogroup" aria-label="Your buddy">
               {characters.map((c) => (
                 <button

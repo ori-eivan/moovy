@@ -87,8 +87,11 @@ body {
   box-sizing: border-box;
 }
 
+/* Character names are titles: Clash Display (docs/DESIGN_SYSTEM.md). */
 .character .name {
-  font-size: 14px;
+  font-family: "Clash Display", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .character:hover {
@@ -100,7 +103,7 @@ body {
 }
 
 .character.selected .name {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .character:focus-visible,

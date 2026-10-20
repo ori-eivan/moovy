@@ -42,7 +42,7 @@ export default function OnboardingMockups() {
       >
         <Frame id="A1" caption="Pick your buddy">
           <Step n={1} of={2} />
-          <h2>Who's keeping you company?</h2>
+          <h2>Pick your wellbeing buddy</h2>
           <Buddies selected="thomas" />
           <Actions primary="Next" />
         </Frame>

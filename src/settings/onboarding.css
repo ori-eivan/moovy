@@ -116,11 +116,13 @@
 }
 
 .buddy .name {
-  font-size: 14px;
+  font-family: "Clash Display", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .buddy.selected .name {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* Pace choice (also used in the settings screen) */
@@ -167,16 +169,24 @@
   border: 5px solid #221d1a;
 }
 
+/* Pace names are titles: Clash Display (docs/DESIGN_SYSTEM.md). */
 .pace-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
-  font-weight: 700;
+  font-family: "Clash Display", "Hyperlegible Sans", "Segoe UI", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* The tag inside a title stays in the label font. */
+.pace-title .tag {
+  font-family: "Hyperlegible Sans", "Segoe UI", sans-serif;
 }
 
 .pace-detail {
   display: block;
+  font-family: "Manrope", "Hyperlegible Sans", "Segoe UI", sans-serif;
   margin-top: 2px;
   font-size: 13px;
   color: #6b6058;
@@ -259,6 +269,7 @@
 
 .pace-short {
   margin-left: auto;
+  font-family: "Manrope", "Hyperlegible Sans", "Segoe UI", sans-serif;
   font-size: 13px;
   color: #6b6058;
 }

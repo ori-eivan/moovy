@@ -17,8 +17,10 @@ const STYLES: { key: string; name: string; where: string; sample: string }[] = [
   { key: "btnLink", name: "Text link", where: "How to, Back", sample: "How to" },
   { key: "close", name: "Close", where: "× on every card", sample: "×" },
   { key: "label", name: "Section label", where: "“Your buddy”", sample: "Your buddy" },
-  { key: "charName", name: "Character name", where: "Under each character", sample: "Character 1" },
-  { key: "switchRow", name: "Setting row", where: "Water reminders, Start with Windows", sample: "Water reminders" },
+  { key: "charName", name: "Character name", where: "Under each character", sample: "Corni" },
+  { key: "paceTitle", name: "Pace name", where: "Settings and onboarding: Recommended, Relaxed", sample: "Recommended" },
+  { key: "paceShort", name: "Pace detail", where: "Settings: “water 30 · move 60”", sample: "water 30 · move 60" },
+  { key: "switchRow", name: "Setting row", where: "Start with Windows", sample: "Start with Windows" },
   { key: "footer", name: "Footer", where: "Version, GitHub, Report a problem, Clear my data", sample: "Report a problem" },
 ];
 
@@ -193,6 +195,12 @@ export default function Typography() {
           <button className="character">
             <span className="name" data-k="charName">x</span>
           </button>
+          <div className="paces compact">
+            <button className="pace">
+              <span className="pace-title" data-k="paceTitle">x</span>
+              <span className="pace-short" data-k="paceShort">x</span>
+            </button>
+          </div>
           <label className="switch-row">
             <span data-k="switchRow">x</span>
           </label>

@@ -98,7 +98,7 @@ export default function FlowPrototype() {
               {stage === 1 && (
                 <>
                   <p className="step">Step 1 of 2</p>
-                  <h2>Who's keeping you company?</h2>
+                  <h2>Pick your wellbeing buddy</h2>
                   <div className="characters" role="radiogroup">
                     {BUDDIES.map((b) => (
                       <button
