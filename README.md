@@ -15,10 +15,10 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 
 ## Install
 
-1. Download `Moovy_0.1.1_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
+1. Download `Moovy_0.1.2_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
 2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
 3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
-4. Moovy opens its settings window once, then lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 30 minutes of active work.
+4. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 30 minutes of active work.
 
 **Uninstall:** Windows Settings → Apps → Installed apps → Moovy → Uninstall.
 
@@ -27,9 +27,9 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and Moovy makes no network requests ([Privacy](PRIVACY.md)).
 
 ```powershell
-$setup = "$env:TEMP\Moovy_0.1.1_x64-setup.exe"
-Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.1/Moovy_0.1.1_x64-setup.exe" -OutFile $setup
-(Get-FileHash $setup -Algorithm SHA256).Hash   # should be CCFED0E9E7DF8D744657917DAAF1DC57FC404CEEB1271BDA278BCF903B3BD5AA
+$setup = "$env:TEMP\Moovy_0.1.2_x64-setup.exe"
+Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.2/Moovy_0.1.2_x64-setup.exe" -OutFile $setup
+(Get-FileHash $setup -Algorithm SHA256).Hash   # should be 1BAE13707BE9F0A0EAA67F06D4EE8981397EBA66B43356C16D7E2D11343642B1
 Start-Process $setup -ArgumentList "/S" -Wait   # silent, current user only
 Start-Process "$env:LOCALAPPDATA\Moovy\moovy.exe"
 ```
