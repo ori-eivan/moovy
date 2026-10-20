@@ -44,6 +44,8 @@ Light theme only. Warm paper and ink, one accent.
 | Line strong | `#E6DDD0` | Choice row borders |
 | Control | `#D9D1C5` / `#B9ADA0` | Switch track off, radio ring, hover border |
 | Accent | `#C4502C` | Dose line, "move!", tags, focus ring |
+| Water box | `#E3F0F8` | Background of the 💧 minutes box |
+| Move box | `#FBE7DD` | Background of the 🚶 minutes box |
 | Danger | `#B3412A` | "Clear" (destructive) |
 
 No other colours without adding them here first. Character art brings its own colours; the UI around it stays in this palette.
@@ -55,6 +57,8 @@ No other colours without adding them here first. Character art brings its own co
 | Card | radius 18 px, border `1px rgba(34,29,26,0.12)`, shadow `0 4px 10px rgba(0,0,0,0.18)` |
 | Mascot tile, character tile | radius 14 px, Tint background |
 | Choice row (pace) | radius 14 px, 1.5 px Line strong border; selected: Ink border + Selected background |
+| Minutes box (💧 / 🚶) | radius 8 px, Water box or Move box background (Line when water is off), icon 15 px, Manrope 13 px bold, minutes written `45′` |
+| Slider | 6 px track, Ink fill up to the value, Line strong after it; 20 px Paper thumb with a 2 px Ink ring |
 | Buttons | pill (radius 999 px), at least 30 px tall (40 px in onboarding) |
 | Bubble | radius 12 px, Ink background, small rotated-square tail |
 
@@ -65,7 +69,7 @@ Click targets at least 32 px tall. Visible focus ring: 2 px Accent outline, 2 px
 | Surface | Size |
 |---|---|
 | Card window | 380 px wide (card 360 + shadow room), height follows the content |
-| Settings / onboarding window | 380 × 560 px. Everything must fit without scrolling, including the "Clear my data" confirmation |
+| Settings / onboarding window | 380 × 680 px (since 0.1.5). Everything must fit without scrolling, including Custom open together with the "Clear my data" confirmation |
 | Mascot on the card | 126 px tile |
 
 ## 5. Motion
@@ -84,15 +88,19 @@ Glass is used **only** for onboarding screen changes. It is not a general style:
 
 GSAP (`gsap` 3.14.2) is for multi-step sequences like the glass transition. Single-property effects stay in CSS.
 
-## 6. Components
+## 6. Icons
+
+Small UI icons come from **Microsoft Fluent Emoji, Flat style** (MIT licence, `public/icons/FLUENT-EMOJI-LICENSE.txt`), as SVG files in `public/icons/`. They look the same on Windows and Mac, unlike the system emoji. In use: `droplet.svg` (💧 water) and `person-walking.svg` (🚶 move). Never use the system emoji font for UI, and never ship Apple's emoji images.
+
+## 6b. Components
 
 | Component | Where it lives |
 |---|---|
 | Card (all states) | `src/card/CardView.tsx`, `src/card/card.css` |
 | Onboarding | `src/settings/Onboarding.tsx`, `src/settings/onboarding.css` |
 | Settings window | `src/settings/SettingsView.tsx`, `src/settings/settings.css` |
-| Choice rows (pace) | `.paces` / `.pace` in `onboarding.css`, used by onboarding and settings |
-| Pace data | `src/content/paces.ts` (ids must match `Pace` in `scheduler.rs`) |
+| Pace picker | `src/settings/PacePicker.tsx` (styles in `onboarding.css`): Recommended, Active, Custom. Only Custom opens the two sliders. Used by onboarding and settings |
+| Pace data | `src/content/paces.ts` (ids, minutes and ranges must match `src-tauri/src/pace.rs`) |
 
 ## 7. Copy
 

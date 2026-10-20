@@ -6,7 +6,7 @@ A small, friendly companion for Windows (and Mac, in beta) that reminds you to d
 
 ## What it does
 
-Every 30 minutes of active computer time, a small card pops up at the bottom-left of your screen, alternating between a glass of water and a 30-second movement or stretch. One click to start, snooze or skip. Then it gets out of your way.
+A small card pops up at the bottom-left of your screen during active computer time: a glass of water, or a 30-second movement or stretch. You pick how often, from a preset or your own minutes. One click to start, snooze or skip. Then it gets out of your way.
 
 - Never takes your keyboard focus
 - Waits while you're in a call (even muted), sharing your screen, presenting or in a full-screen app, and is left out of screen shares and recordings
@@ -18,7 +18,7 @@ Every 30 minutes of active computer time, a small card pops up at the bottom-lef
 1. Download `Moovy_0.1.4_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
 2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
 3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
-4. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 30 minutes of active work.
+4. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 45 minutes of active work (on the Recommended pace).
 
 **Uninstall:** Windows Settings → Apps → Installed apps → Moovy → Uninstall.
 
@@ -34,7 +34,7 @@ Start-Process $setup -ArgumentList "/S" -Wait   # silent, current user only
 Start-Process "$env:LOCALAPPDATA\Moovy\moovy.exe"
 ```
 
-Moovy then sits in the tray and starts with Windows. The first card appears after 30 minutes of active work.
+Moovy then sits in the tray and starts with Windows. The first card appears after 45 minutes of active work (on the Recommended pace).
 
 ## Install on Mac (beta)
 
@@ -84,6 +84,10 @@ npm run tauri dev
 ### Character art
 
 Moovy ships two characters: **Thomas**, a tabby cat (the default), in `public/characters/thomas/`, and **Corni**, a cornichon pickle, in `public/characters/corni/`. Each character is a folder of 11 images (one per card state and movement). Other folders in `public/characters/` are local only and never committed. The settings window lists only the characters whose images are present.
+
+### Icons
+
+The 💧 and 🚶 icons are from [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (Flat style), MIT licence: [`public/icons/FLUENT-EMOJI-LICENSE.txt`](public/icons/FLUENT-EMOJI-LICENSE.txt).
 
 ## License
 

@@ -35,16 +35,17 @@ Developers, designers, students and remote workers who sit at a Windows computer
 
 ## 5. The core loop
 
-Moovy counts **active computer time only** in a **60 minute cycle**:
+Moovy counts **active computer time only**. Water and moves each have their **own interval** (decided 2026-10-20):
 
-| Active minute | Card | Illustration |
+| Pace | 💧 Water | 🚶 Move |
 |---|---|---|
-| :30 | Water | Drink Water |
-| :60 | Movement break (alternates Movement / Stretch) | Break, then the movement pose |
+| Recommended (default) | every 45 min | every 60 min |
+| Active | every 30 min | every 45 min |
+| Custom | off, or every 20 to 120 min | every 30 to 120 min |
 
-Then the cycle starts again. Result: one card every 30 minutes of active work.
+Custom minutes move in steps of 5, with two sliders that appear only when Custom is picked. A move always outranks water when both are due, and the 15-minute minimum gap between cards still applies.
 
-If water reminders are off, only the break card appears, every 60 minutes.
+Settings from older versions are kept: the old Recommended (30/60) becomes the new Recommended, "Relaxed" becomes Custom 45/90, and water off becomes Custom with water off.
 
 ## 6. Cards
 
@@ -80,7 +81,7 @@ All cards appear at the **bottom-left of the work area** of the monitor you are 
 | Situation | Behaviour |
 |---|---|
 | No keyboard or mouse input | Counting **pauses**. It does not reset. |
-| Away 15+ minutes, screen locked, or computer asleep | The clock **restarts** (being away counts as a break), but the order is kept: if water already came, the next card is the break, 30 active minutes after coming back. The movement rotation continues where it stopped |
+| Away 15+ minutes, screen locked, or computer asleep | Both clocks **restart** (being away counts as a break). The movement rotation continues where it stopped |
 | Any two cards | At least 15 minutes apart |
 | Windows reports busy (presentation, full-screen game, quiet time) | Card waits |
 | Microphone in use (a call) | Card waits |

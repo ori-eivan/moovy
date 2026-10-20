@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import CharacterImage from "../content/CharacterImage";
 import FlowPrototype from "./FlowPrototype";
+import PaceSliders from "./PaceSliders";
 import "../settings/settings.css";
 import "./mockups.css";
 
@@ -20,6 +21,17 @@ export default function OnboardingMockups() {
           (A1, B1…) to point at in your notes. Nothing here is built yet.
         </p>
       </header>
+
+      <section className="direction">
+        <h2 className="direction-title">
+          <span className="badge">P</span> Water and move sliders (new, 20.10)
+        </h2>
+        <p className="direction-note">
+          Three presets and a fourth pill, Custom. Recommended is selected to start. Only Custom opens the two
+          sliders: water off or every 20 to 120 minutes, move every 30 to 120, in steps of 5.
+        </p>
+        <PaceSliders />
+      </section>
 
       <section className="direction">
         <h2 className="direction-title">

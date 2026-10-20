@@ -1,6 +1,7 @@
 mod activity;
 mod card;
 mod engine;
+mod pace;
 mod scheduler;
 mod settings;
 mod stats;

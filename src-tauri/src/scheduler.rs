@@ -2,17 +2,19 @@
 //! events with timestamps, and decisions come out. That is what makes it testable against a
 //! simulated clock (see the tests at the bottom).
 //!
-//! The rules (PRD §7): a 60-minute cycle of *active* computer time, water at :30, a break at
-//! :60. Idle pauses the count, 15 minutes away restarts the clock (keeping the water/break
-//! order). Never two cards within 15 minutes,
-//! never while busy, in a call or paused, and a card that waits 20 minutes is dropped.
+//! The rules (PRD §7): water and moves each have their own interval of *active* computer time
+//! (decided 2026-10-20: presets plus custom sliders). Idle pauses the count, being away (15
+//! minutes idle, locked, asleep) restarts both. Never two cards within 15 minutes, never while
+//! busy, in a call or paused, a move outranks water, and a card that waits 20 minutes is dropped.
 
 pub const MINUTE: u64 = 60_000;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Config {
-    pub cycle: u64,
-    pub water_at: u64,
+    /// Active time between two water cards. `None`: no water.
+    pub water_every: Option<u64>,
+    /// Active time between two moves.
+    pub move_every: u64,
     pub idle_pause_after: u64,
     pub away_reset_after: u64,
     pub min_gap: u64,
@@ -24,55 +26,14 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            cycle: 60 * MINUTE,
-            water_at: 30 * MINUTE,
+            water_every: Some(30 * MINUTE),
+            move_every: 60 * MINUTE,
             idle_pause_after: 2 * MINUTE,
             away_reset_after: 15 * MINUTE,
             min_gap: 15 * MINUTE,
             snooze: 10 * MINUTE,
             max_wait: 20 * MINUTE,
             grace_after_unlock: 2 * MINUTE,
-        }
-    }
-}
-
-/// How often cards come, picked in onboarding and settings.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Pace {
-    /// Water at :30, a move at :60.
-    Recommended,
-    /// Water at :45, a move at :90.
-    Relaxed,
-    /// A move every 60 minutes, no water.
-    MovesOnly,
-}
-
-impl Pace {
-    pub fn from_id(id: &str) -> Self {
-        match id {
-            "relaxed" => Pace::Relaxed,
-            "moves-only" => Pace::MovesOnly,
-            _ => Pace::Recommended,
-        }
-    }
-
-    pub fn id(self) -> &'static str {
-        match self {
-            Pace::Recommended => "recommended",
-            Pace::Relaxed => "relaxed",
-            Pace::MovesOnly => "moves-only",
-        }
-    }
-
-    pub fn water(self) -> bool {
-        self != Pace::MovesOnly
-    }
-
-    /// (cycle, water_at), in ms of active time.
-    pub fn timing(self) -> (u64, u64) {
-        match self {
-            Pace::Relaxed => (90 * MINUTE, 45 * MINUTE),
-            Pace::Recommended | Pace::MovesOnly => (60 * MINUTE, 30 * MINUTE),
         }
     }
 }
@@ -99,7 +60,7 @@ pub enum Event {
     MicInUse(bool),
     /// The user closed the open card (done or skipped: both end it the same way).
     CardClosed { now: u64 },
-    /// A card was put on screen by hand (tray, testing). It is tracked like any other card.
+    /// A card was put on screen by hand (testing). It is tracked like any other card.
     ForceShow { card: Card },
     /// The user snoozed the open card.
     Snoozed { now: u64 },
@@ -110,11 +71,8 @@ pub enum Event {
     Resume,
     #[allow(dead_code)]
     SkipNext,
-    // Superseded by Pace in the app (2026-10-19); kept for the scheduler tests.
-    #[allow(dead_code)]
-    WaterEnabled(bool),
-    /// A new pace: cycle length, when water comes, and whether it comes at all.
-    Pace(Pace),
+    /// New intervals (ms of active time). `water_every: None` turns water off.
+    Timing { water_every: Option<u64>, move_every: u64 },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -140,10 +98,10 @@ struct Queued {
 #[derive(Debug)]
 pub struct Scheduler {
     config: Config,
-    /// Active time in the current cycle.
-    active: u64,
-    water_done_this_cycle: bool,
-    water_enabled: bool,
+    /// Active time since the last water card was due.
+    water_active: u64,
+    /// Active time since the last move was due.
+    move_active: u64,
     last_tick: Option<u64>,
     /// Set once the user has been away long enough to reset, so it resets only once.
     away: bool,
@@ -163,12 +121,11 @@ pub struct Scheduler {
 }
 
 impl Scheduler {
-    pub fn new(config: Config, water_enabled: bool) -> Self {
+    pub fn new(config: Config) -> Self {
         Self {
             config,
-            active: 0,
-            water_done_this_cycle: false,
-            water_enabled,
+            water_active: 0,
+            move_active: 0,
             last_tick: None,
             away: false,
             queued: None,
@@ -185,21 +142,11 @@ impl Scheduler {
         }
     }
 
-    fn restart_cycle(&mut self) {
-        self.active = 0;
-        self.water_done_this_cycle = false;
-    }
-
-    /// Being away (locked, asleep, 15 minutes idle) counts as a break: the clock starts over, but
-    /// the order is kept. If water already came this cycle, the next card is still the break,
-    /// 30 active minutes after coming back, so frequent breaks don't turn into water only.
+    /// Being away (locked, asleep, 15 minutes idle) counts as a break: both clocks start over
+    /// and nothing piles up.
     fn away_reset(&mut self) {
-        let break_is_next = self.water_enabled && self.water_done_this_cycle;
-        self.restart_cycle();
-        if break_is_next {
-            self.active = self.config.cycle - self.config.water_at;
-            self.water_done_this_cycle = true;
-        }
+        self.water_active = 0;
+        self.move_active = 0;
         self.queued = None;
         self.snoozed = None;
     }
@@ -225,13 +172,8 @@ impl Scheduler {
             Event::Busy(busy) => self.busy = busy,
             Event::MicInUse(mic) => self.mic = mic,
             Event::CardClosed { now } => {
-                // Done or skipped, a closed break starts a new cycle.
-                if let Some(card) = self.card_open.take() {
+                if self.card_open.take().is_some() {
                     self.last_card_at = Some(now);
-                    let real = if card == Card::Return { self.snoozed_kind() } else { card };
-                    if real == Card::Break {
-                        self.restart_cycle();
-                    }
                 }
             }
             Event::ForceShow { card } => {
@@ -252,27 +194,26 @@ impl Scheduler {
             }
             Event::Resume => self.paused_until = None,
             Event::SkipNext => self.skip_next = true,
-            Event::WaterEnabled(enabled) => self.set_water(enabled),
-            Event::Pace(pace) => {
-                let (cycle, water_at) = pace.timing();
-                self.config.cycle = cycle;
-                self.config.water_at = water_at;
-                self.set_water(pace.water());
+            Event::Timing { water_every, move_every } => {
+                self.config.water_every = water_every;
+                self.config.move_every = move_every;
+                if water_every.is_none() && matches!(self.queued, Some(Queued { card: Card::Water, .. })) {
+                    self.queued = None;
+                }
             }
         }
         Vec::new()
     }
 
-    fn set_water(&mut self, enabled: bool) {
-        self.water_enabled = enabled;
-        if !enabled && matches!(self.queued, Some(Queued { card: Card::Water, .. })) {
-            self.queued = None;
-        }
-    }
-
     /// Which card a Return brings back.
     fn snoozed_kind(&self) -> Card {
         self.last_snoozed_kind.unwrap_or(Card::Break)
+    }
+
+    fn break_pending(&self) -> bool {
+        matches!(self.queued, Some(Queued { card: Card::Break, .. }))
+            || matches!(self.snoozed, Some((Card::Break, _)))
+            || (matches!(self.queued, Some(Queued { card: Card::Return, .. })) && self.last_snoozed_kind == Some(Card::Break))
     }
 
     fn tick(&mut self, now: u64, idle_ms: u64) -> Vec<Decision> {
@@ -290,7 +231,7 @@ impl Scheduler {
             return Vec::new();
         }
 
-        // Count active time. Idle pauses the count; long idle resets the cycle once.
+        // Count active time. Idle pauses the count; long idle resets once.
         if idle_ms >= self.config.away_reset_after {
             if !self.away {
                 self.away = true;
@@ -300,26 +241,23 @@ impl Scheduler {
         }
         self.away = false;
         if idle_ms < self.config.idle_pause_after && self.card_open.is_none() {
-            self.active += dt;
+            self.water_active += dt;
+            self.move_active += dt;
         }
 
-        // Something became due?
-        if self.water_enabled
-            && !self.water_done_this_cycle
-            && self.active >= self.config.water_at
-            && self.queued.is_none()
-            && self.card_open != Some(Card::Water)
-        {
-            self.water_done_this_cycle = true;
-            self.enqueue(Card::Water, now);
-        }
-        let break_pending = matches!(self.queued, Some(Queued { card: Card::Break, .. }))
-            || matches!(self.snoozed, Some((Card::Break, _)))
-            || (matches!(self.queued, Some(Queued { card: Card::Return, .. })) && self.last_snoozed_kind == Some(Card::Break));
-        if self.active >= self.config.cycle && !break_pending && self.card_open.is_none() {
-            // The break outranks a waiting water card.
-            self.water_done_this_cycle = true;
+        // A move outranks water: it replaces a water card that is still waiting.
+        if self.move_active >= self.config.move_every && self.card_open.is_none() && !self.break_pending() {
+            self.move_active = 0;
             self.enqueue(Card::Break, now);
+        }
+        if let Some(every) = self.config.water_every
+            && self.water_active >= every
+            && self.card_open.is_none()
+            && self.queued.is_none()
+            && self.snoozed.is_none()
+        {
+            self.water_active = 0;
+            self.enqueue(Card::Water, now);
         }
         if let Some((card, due)) = self.snoozed
             && now >= due
@@ -336,9 +274,6 @@ impl Scheduler {
     fn enqueue(&mut self, card: Card, now: u64) {
         if self.skip_next {
             self.skip_next = false;
-            if card == Card::Break {
-                self.restart_cycle();
-            }
             return;
         }
         self.queued = Some(Queued { card, since: now });
@@ -350,9 +285,6 @@ impl Scheduler {
         // Waited too long: drop it rather than show something stale.
         if now.saturating_sub(q.since) > self.config.max_wait {
             self.queued = None;
-            if q.card == Card::Break {
-                self.restart_cycle();
-            }
             return Vec::new();
         }
 
@@ -379,10 +311,14 @@ impl Scheduler {
             return Status::Waiting;
         }
         let to_minutes = |ms: u64| ms.div_ceil(MINUTE);
-        if self.water_enabled && !self.water_done_this_cycle && self.active < self.config.water_at {
-            return Status::Next { card: Card::Water, minutes: to_minutes(self.config.water_at - self.active) };
+        let to_move = self.config.move_every.saturating_sub(self.move_active);
+        match self.config.water_every {
+            Some(every) if every.saturating_sub(self.water_active) < to_move => Status::Next {
+                card: Card::Water,
+                minutes: to_minutes(every.saturating_sub(self.water_active)),
+            },
+            _ => Status::Next { card: Card::Break, minutes: to_minutes(to_move) },
         }
-        Status::Next { card: Card::Break, minutes: to_minutes(self.config.cycle.saturating_sub(self.active)) }
     }
 }
 
@@ -401,10 +337,17 @@ mod tests {
     }
 
     impl Sim {
+        /// The default intervals: water every 30, a move every 60.
         fn new() -> Self {
-            let mut s = Scheduler::new(Config::default(), true);
+            let mut s = Scheduler::new(Config::default());
             s.handle(Event::Tick { now: 0, idle_ms: 0 });
             Self { s, now: 0, idle: 0, shown: Vec::new() }
+        }
+        /// Custom intervals in minutes; `None` = no water.
+        fn with(water: Option<u64>, mv: u64) -> Self {
+            let mut sim = Self::new();
+            sim.s.handle(Event::Timing { water_every: water.map(|m| m * MINUTE), move_every: mv * MINUTE });
+            sim
         }
         /// Run `ms` of time. `active` = the user keeps typing; otherwise idle grows.
         fn run(&mut self, ms: u64, active: bool) {
@@ -430,25 +373,37 @@ mod tests {
     }
 
     #[test]
-    fn water_at_30_then_break_at_60() {
-        let mut sim = Sim::new();
-        sim.work(29);
+    fn water_and_moves_follow_their_own_intervals() {
+        let mut sim = Sim::with(Some(45), 60);
+        sim.work(44);
         assert!(sim.shown.is_empty());
         sim.work(1);
         assert_eq!(sim.cards(), vec![Card::Water]);
         sim.close();
-        sim.work(30);
+        sim.work(15);
         assert_eq!(sim.cards(), vec![Card::Water, Card::Break]);
     }
 
     #[test]
-    fn a_new_cycle_starts_after_the_break() {
+    fn water_comes_back_every_interval() {
+        let mut sim = Sim::with(Some(30), 120);
+        sim.work(30);
+        sim.close();
+        sim.work(30);
+        assert_eq!(sim.cards(), vec![Card::Water, Card::Water]);
+    }
+
+    #[test]
+    fn a_move_outranks_water_due_at_the_same_time() {
         let mut sim = Sim::new();
         sim.work(30);
         sim.close();
         sim.work(30);
+        assert_eq!(sim.cards(), vec![Card::Water, Card::Break], "both due at 60: the move goes first");
         sim.close();
-        sim.work(30);
+        sim.work(14);
+        assert_eq!(sim.cards().len(), 2, "water waits the 15-minute gap");
+        sim.work(1);
         assert_eq!(sim.cards(), vec![Card::Water, Card::Break, Card::Water]);
     }
 
@@ -467,43 +422,24 @@ mod tests {
     }
 
     #[test]
-    fn fifteen_minutes_away_resets_the_cycle() {
+    fn fifteen_minutes_away_restarts_both_clocks() {
         let mut sim = Sim::new();
         sim.work(25);
         sim.run(16 * MINUTE, false);
         sim.work(25);
-        assert!(sim.shown.is_empty(), "the away time reset the cycle");
+        assert!(sim.shown.is_empty(), "the away time reset the clocks");
         sim.work(5);
         assert_eq!(sim.cards(), vec![Card::Water]);
     }
 
     #[test]
-    fn a_lunch_break_after_water_keeps_the_break_next() {
-        let mut sim = Sim::new();
-        sim.work(30);
+    fn a_lunch_break_restarts_the_clocks() {
+        let mut sim = Sim::with(Some(45), 60);
+        sim.work(45);
         sim.close();
         sim.work(10);
         sim.run(30 * MINUTE, false); // lunch
-        assert_eq!(sim.s.status(), Status::Next { card: Card::Break, minutes: 30 });
-        sim.work(29);
-        assert_eq!(sim.cards(), vec![Card::Water], "no second water after lunch");
-        sim.work(1);
-        assert_eq!(sim.cards(), vec![Card::Water, Card::Break]);
-    }
-
-    #[test]
-    fn a_lunch_break_after_the_break_starts_with_water() {
-        let mut sim = Sim::new();
-        sim.work(30);
-        sim.close();
-        sim.work(30);
-        sim.close();
-        sim.work(5);
-        sim.s.handle(Event::Locked { now: sim.now });
-        sim.now += 30 * MINUTE;
-        sim.s.handle(Event::Unlocked { now: sim.now });
-        sim.work(30);
-        assert_eq!(sim.cards(), vec![Card::Water, Card::Break, Card::Water]);
+        assert_eq!(sim.s.status(), Status::Next { card: Card::Water, minutes: 45 });
     }
 
     #[test]
@@ -567,17 +503,18 @@ mod tests {
     }
 
     #[test]
-    fn snoozing_the_break_does_not_create_a_second_break() {
-        let mut sim = Sim::new();
-        sim.work(30);
-        sim.close();
-        sim.work(30);
+    fn snoozing_a_move_does_not_create_a_second_move() {
+        let mut sim = Sim::with(None, 60);
+        sim.work(60);
         sim.s.handle(Event::Snoozed { now: sim.now });
         sim.work(10);
-        assert_eq!(sim.cards(), vec![Card::Water, Card::Break, Card::Return]);
+        assert_eq!(sim.cards(), vec![Card::Break, Card::Return]);
         sim.close();
-        sim.work(29);
-        assert_eq!(sim.cards().len(), 3, "the returned break started a new cycle");
+        // The next move counts from when this one was due: 10 snoozed minutes already counted.
+        sim.work(49);
+        assert_eq!(sim.cards().len(), 2);
+        sim.work(1);
+        assert_eq!(sim.cards(), vec![Card::Break, Card::Return, Card::Break]);
     }
 
     #[test]
@@ -591,9 +528,9 @@ mod tests {
         assert_eq!(sim.cards(), vec![Card::Water]);
         sim.close();
         let closed_at = sim.now;
-        // The break is due at :60, only 14 minutes later, so it waits for the gap.
+        // The move is due at :60, only 14 minutes later, so it waits for the gap.
         sim.work(14);
-        assert_eq!(sim.cards(), vec![Card::Water], "break waits for the gap");
+        assert_eq!(sim.cards(), vec![Card::Water], "move waits for the gap");
         sim.work(2);
         assert_eq!(sim.cards(), vec![Card::Water, Card::Break]);
         let gap = sim.shown[1].0 - closed_at;
@@ -624,52 +561,24 @@ mod tests {
     }
 
     #[test]
-    fn water_off_means_only_breaks() {
-        let mut sim = Sim::new();
-        sim.s.handle(Event::WaterEnabled(false));
+    fn water_off_means_only_moves() {
+        let mut sim = Sim::with(None, 60);
         sim.work(60);
         assert_eq!(sim.cards(), vec![Card::Break]);
-    }
-
-    #[test]
-    fn relaxed_pace_means_water_at_45_and_a_move_at_90() {
-        let mut sim = Sim::new();
-        sim.s.handle(Event::Pace(Pace::Relaxed));
-        sim.work(44);
-        assert!(sim.shown.is_empty());
-        sim.work(1);
-        assert_eq!(sim.cards(), vec![Card::Water]);
         sim.close();
-        sim.work(44);
-        assert_eq!(sim.cards(), vec![Card::Water]);
-        sim.work(1);
-        assert_eq!(sim.cards(), vec![Card::Water, Card::Break]);
-    }
-
-    #[test]
-    fn moves_only_pace_never_shows_water() {
-        let mut sim = Sim::new();
-        sim.s.handle(Event::Pace(Pace::MovesOnly));
         sim.work(60);
-        assert_eq!(sim.cards(), vec![Card::Break]);
+        assert_eq!(sim.cards(), vec![Card::Break, Card::Break]);
     }
 
     #[test]
-    fn a_lunch_break_on_the_relaxed_pace_keeps_the_order_and_the_spacing() {
+    fn a_new_timing_applies_right_away() {
         let mut sim = Sim::new();
-        sim.s.handle(Event::Pace(Pace::Relaxed));
-        sim.work(45);
-        sim.close();
-        sim.run(30 * MINUTE, false); // lunch
-        assert_eq!(sim.s.status(), Status::Next { card: Card::Break, minutes: 45 });
-    }
-
-    #[test]
-    fn pace_ids_round_trip() {
-        for pace in [Pace::Recommended, Pace::Relaxed, Pace::MovesOnly] {
-            assert_eq!(Pace::from_id(pace.id()), pace);
-        }
-        assert_eq!(Pace::from_id("anything else"), Pace::Recommended);
+        sim.work(20);
+        sim.s.handle(Event::Timing { water_every: Some(45 * MINUTE), move_every: 90 * MINUTE });
+        sim.work(24);
+        assert!(sim.shown.is_empty(), "20 minutes already counted toward the new 45");
+        sim.work(1);
+        assert_eq!(sim.cards(), vec![Card::Water]);
     }
 
     #[test]
@@ -680,6 +589,7 @@ mod tests {
         sim.work(12);
         sim.close();
         sim.work(10);
+        // Water again in 20, the move in 20: the move is named.
         assert_eq!(sim.s.status(), Status::Next { card: Card::Break, minutes: 20 });
     }
 }

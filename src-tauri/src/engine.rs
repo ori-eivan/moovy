@@ -14,7 +14,8 @@ use tauri::{menu::MenuItem, AppHandle, Manager, Wry};
 
 use crate::activity::{self, Signals};
 use crate::card;
-use crate::scheduler::{Card, Config, Decision, Event, Pace, Scheduler, Status};
+use crate::pace::Pace;
+use crate::scheduler::{Card, Config, Decision, Event, Scheduler, Status};
 
 /// A wall-clock gap this long between two ticks means the computer was asleep.
 const SLEEP_GAP: Duration = Duration::from_secs(30);
@@ -42,8 +43,9 @@ pub fn init(app: &AppHandle, pace: Pace) {
         .filter(|_| cfg!(debug_assertions))
         .and_then(|s| s.parse().ok())
         .unwrap_or(1);
-    let mut scheduler = Scheduler::new(Config::default(), pace.water());
-    scheduler.handle(Event::Pace(pace));
+    let mut scheduler = Scheduler::new(Config::default());
+    let (water_every, move_every) = pace.timing();
+    scheduler.handle(Event::Timing { water_every, move_every });
     app.manage(Mutex::new(Engine {
         scheduler,
         now: 0,
@@ -146,7 +148,8 @@ pub fn force_show(app: &AppHandle, card: Card) {
 }
 
 pub fn set_pace(app: &AppHandle, pace: Pace) {
-    send(app, |_| Event::Pace(pace));
+    let (water_every, move_every) = pace.timing();
+    send(app, |_| Event::Timing { water_every, move_every });
 }
 
 pub fn speed(app: &AppHandle) -> u64 {

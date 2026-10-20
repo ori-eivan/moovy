@@ -12,7 +12,7 @@ Or by hand: download the `.dmg` from the Releases page, drag Moovy to Applicatio
 
 1. **First launch.** A small window asks you to pick a buddy, then a pace. A tap moves on by itself. After "Close", a card appears near the bottom-left corner with a bubble saying you can drag it. Drag it somewhere else and let go: the bubble should say "Saved!" and the card closes.
    - Expected: no Dock icon; Moovy lives in the menu bar (top right).
-2. **The card doesn't steal your typing.** The first card comes after 30 minutes of work (Recommended pace). When it appears while you're typing in another app, your typing should continue in that app, and one click on the card's buttons should work.
+2. **The card doesn't steal your typing.** The first card comes after 45 minutes of work (Recommended pace). When it appears while you're typing in another app, your typing should continue in that app, and one click on the card's buttons should work.
 3. **The card shows where you parked it** (where you dropped the hello card in check 1), on the screen you're working on.
 4. **Calls.** Join a Zoom, Meet or FaceTime call with the microphone on. No card should appear during the call; a card that was due shows up after you hang up.
 5. **Away and back.** Lock the screen (Control-Command-Q) for a minute, unlock: no card in the first 2 minutes.

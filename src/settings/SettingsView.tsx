@@ -1,12 +1,13 @@
 import { useState } from "react";
 import CharacterImage from "../content/CharacterImage";
 import { useAvailableCharacters } from "../content/characters";
-import { PACES, type PaceId } from "../content/paces";
+import type { Pace } from "../content/paces";
+import PacePicker from "./PacePicker";
 import "./onboarding.css";
 import "./settings.css";
 
 export interface SettingsState {
-  pace: PaceId;
+  pace: Pace;
   /** False until the first-run onboarding is finished. */
   onboarded: boolean;
   autostart: boolean;
@@ -16,7 +17,7 @@ export interface SettingsState {
 
 export interface SettingsActions {
   setCharacter: (id: string) => void;
-  setPace: (pace: PaceId) => void;
+  setPace: (pace: Pace) => void;
   setAutostart: (enabled: boolean) => void;
   clearData: () => void;
   openGitHub: () => void;
@@ -71,21 +72,7 @@ export default function SettingsView({ state, actions, confirmingClear = false }
         <p className="label" id="pace-label">
           Pace
         </p>
-        <div className="paces compact" role="radiogroup" aria-labelledby="pace-label">
-          {PACES.map((p) => (
-            <button
-              key={p.id}
-              role="radio"
-              aria-checked={state.pace === p.id}
-              className={`pace${state.pace === p.id ? " selected" : ""}`}
-              onClick={() => actions.setPace(p.id)}
-            >
-              <span className="radio" aria-hidden="true" />
-              <span className="pace-title">{p.title}</span>
-              <span className="pace-short">{p.short}</span>
-            </button>
-          ))}
-        </div>
+        <PacePicker value={state.pace} onChange={(pace) => actions.setPace(pace)} compact />
       </section>
 
       <section className="switches">

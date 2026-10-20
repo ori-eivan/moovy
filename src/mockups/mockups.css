@@ -75,7 +75,7 @@ body {
 
 .window {
   width: 380px;
-  height: 552px;
+  height: 592px;
   border-radius: 10px;
   overflow: hidden;
   background: #fffdf8;
@@ -95,8 +95,8 @@ body {
 
 /* The onboarding screen inside a window. */
 .window .settings.onboarding {
-  min-height: 520px;
-  height: 520px;
+  min-height: 560px;
+  height: 560px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -617,4 +617,196 @@ button.pace.selected:hover {
 
 .bubble {
   transform-origin: 28px 100%;
+}
+
+/* Pace sliders mockup */
+.sliders {
+  display: grid;
+  gap: 14px;
+}
+
+.slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.slider-label {
+  font-family: "Clash Display", "Hyperlegible Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.slider-readout {
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  font-size: 13px;
+  color: #6b6058;
+}
+
+.slider.off .slider-readout {
+  color: #8a7f74;
+  font-style: italic;
+}
+
+.slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #221d1a 0 var(--fill), #e6ddd0 var(--fill) 100%);
+  outline: none;
+  cursor: pointer;
+}
+
+.slider.off input[type="range"] {
+  background: #e6ddd0;
+}
+
+.slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fffdf8;
+  border: 2px solid #221d1a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.slider input[type="range"]:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid #c4502c;
+  outline-offset: 2px;
+}
+
+.slider-note {
+  margin: 0;
+  font-size: 12px;
+  color: #8a7f74;
+}
+
+.slider-explain {
+  max-width: 340px;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  font-size: 14px;
+  color: #4a413b;
+}
+
+/* Custom pace: a pill that opens into two sliders */
+.custom-pace {
+  display: block;
+  padding: 0;
+}
+
+.custom-pace .custom-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.paces.compact .custom-pace .custom-head {
+  padding: 8px 12px;
+}
+
+.custom-pace .sliders {
+  padding: 2px 14px 12px;
+  gap: 10px;
+}
+
+.paces.compact .custom-pace .sliders {
+  padding: 0 12px 10px;
+}
+
+.custom-pace {
+  box-sizing: border-box;
+}
+
+/* Settings with Custom open needs a taller window: 380 × 680. */
+.window.tall {
+  height: 712px;
+}
+
+.window.tall .settings {
+  min-height: 680px;
+}
+
+/* 💧 / 🚶 minute boxes on each pace pill */
+button.pace,
+.custom-pace .custom-head {
+  align-items: center;
+}
+
+.chips {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-family: "Manrope", "Hyperlegible Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #221d1a;
+}
+
+.chip.water {
+  background: #e3f0f8;
+}
+
+.chip.move {
+  background: #fbe7dd;
+}
+
+.chip.off {
+  background: #eee6da;
+  color: #8a7f74;
+}
+
+.chip-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Onboarding: title on the first line, the two boxes under it. */
+.pace-stack {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pace-stack .chips {
+  margin-left: 0;
+}
+
+.tag {
+  white-space: nowrap;
+}
+
+img.chip-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.slider-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slider-label img.chip-icon {
+  width: 18px;
+  height: 18px;
 }

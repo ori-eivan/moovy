@@ -21,7 +21,12 @@ export default function Settings() {
       <Onboarding
         onFinish={({ character, pace }) => {
           // Rust saves the choices, hides this window and shows the hello card.
-          invoke("finish_onboarding", { character, pace }).then(() =>
+          invoke("finish_onboarding", {
+            character,
+            pace: pace.id,
+            waterMinutes: pace.waterMinutes ?? 0,
+            moveMinutes: pace.moveMinutes,
+          }).then(() =>
             setState({ ...state, character, pace, onboarded: true }),
           );
         }}
@@ -39,7 +44,7 @@ export default function Settings() {
         },
         setPace: (pace) => {
           setState({ ...state, pace });
-          invoke("set_pace", { id: pace });
+          invoke("set_pace", { id: pace.id, waterMinutes: pace.waterMinutes ?? 0, moveMinutes: pace.moveMinutes });
         },
         setAutostart: (enabled) => {
           setState({ ...state, autostart: enabled });

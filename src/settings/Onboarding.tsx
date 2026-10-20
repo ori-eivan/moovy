@@ -2,18 +2,22 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import CharacterImage from "../content/CharacterImage";
 import { DEFAULT_CHARACTER, useAvailableCharacters } from "../content/characters";
-import { DEFAULT_PACE, PACES, firstCardLine, type PaceId } from "../content/paces";
+import { DEFAULT_PACE, firstCardLine, type Pace } from "../content/paces";
+import PacePicker from "./PacePicker";
 import "./onboarding.css";
 
 interface Props {
   /** The last screen was closed. */
-  onFinish: (choice: { character: string; pace: PaceId }) => void;
+  onFinish: (choice: { character: string; pace: Pace }) => void;
 }
 
 type Step = 1 | 2 | 3;
 
 /** Long enough to see the choice land before the screen starts to frost over. */
 const SELECT_HOLD = 0.18;
+
+/** The tray is the menu bar on Mac. */
+const IS_MAC = navigator.userAgent.includes("Mac");
 
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -26,7 +30,7 @@ export default function Onboarding({ onFinish }: Props) {
   const characters = useAvailableCharacters();
   const [step, setStep] = useState<Step>(1);
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
-  const [pace, setPace] = useState<PaceId>(DEFAULT_PACE);
+  const [pace, setPace] = useState<Pace>(DEFAULT_PACE);
   const [busy, setBusy] = useState(false);
   const content = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLDivElement>(null);
@@ -107,34 +111,24 @@ export default function Onboarding({ onFinish }: Props) {
           <>
             <p className="step">Step 2 of 2</p>
             <h1>How often?</h1>
-            <div className="paces" role="radiogroup" aria-label="Pace">
-              {PACES.map((p) => (
-                <button
-                  key={p.id}
-                  role="radio"
-                  aria-checked={pace === p.id}
-                  className={`pace${pace === p.id ? " selected" : ""}`}
-                  onClick={() => {
-                    if (busy) return;
-                    setPace(p.id);
-                    go(3);
-                  }}
-                >
-                  <span className="radio" aria-hidden="true" />
-                  <span>
-                    <span className="pace-title">
-                      {p.title}
-                      {p.id === DEFAULT_PACE && <span className="tag">Best to start</span>}
-                    </span>
-                    <span className="pace-detail">{p.detail}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
+            <PacePicker
+              value={pace}
+              onChange={(next, kind) => {
+                if (busy) return;
+                setPace(next);
+                // A preset moves on by itself; Custom opens the sliders and waits for Next.
+                if (kind === "preset") go(3);
+              }}
+            />
             <div className="nav">
               <button className="ghost" onClick={() => go(1, -1)}>
                 Back
               </button>
+              {pace.id === "custom" && (
+                <button className="primary" onClick={() => go(3)}>
+                  Next
+                </button>
+              )}
             </div>
           </>
         )}
@@ -145,8 +139,10 @@ export default function Onboarding({ onFinish }: Props) {
               <CharacterImage character={character} file="celebration.png" />
             </div>
             <h1>You're all set</h1>
-            <p className="body">Your {firstCardLine(pace)} of work. Moovy lives in the tray, next to the clock.</p>
-            <p className="hint">You can change all of this later: tray → Settings.</p>
+            <p className="lead">
+              Your {firstCardLine(pace)} of work. Moovy lives {IS_MAC ? "in the menu bar, at the top right" : "in the tray, next to the clock"}.
+            </p>
+            <p className="hint">You can change all of this later: {IS_MAC ? "menu bar" : "tray"} → Settings.</p>
             <div className="nav">
               <button className="ghost" onClick={() => go(2, -1)}>
                 Back

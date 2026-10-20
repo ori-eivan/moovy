@@ -189,11 +189,11 @@ function AllScreens({ character }: { character: string }) {
 /** Screens 10 and 11: the one settings window. Clickable here too, nothing is saved. */
 function SettingsScreens() {
   const [state, setState] = useState<SettingsState>({
-    pace: "recommended",
+    pace: { id: "recommended", waterMinutes: 45, moveMinutes: 60 },
     onboarded: true,
     autostart: true,
     character: DEFAULT_CHARACTER,
-    version: "0.1.2",
+    version: "0.1.5",
   });
   const [onboardingRun, setOnboardingRun] = useState(0);
   const actions: SettingsActions = {

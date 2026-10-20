@@ -8,12 +8,14 @@ use tauri_plugin_autostart::ManagerExt as _;
 use tauri_plugin_store::StoreExt;
 
 use crate::card;
-use crate::scheduler::Pace;
+use crate::pace::Pace;
 
 const STORE_FILE: &str = "moovy.json";
 /// Before the pace existed (v0.1.0/0.1.1), water could only be switched on or off.
 const KEY_WATER: &str = "waterEnabled";
 const KEY_PACE: &str = "pace";
+const KEY_WATER_MINUTES: &str = "waterMinutes";
+const KEY_MOVE_MINUTES: &str = "moveMinutes";
 const KEY_CHARACTER: &str = "character";
 const KEY_ONBOARDED: &str = "onboarded";
 pub const DEFAULT_CHARACTER: &str = "thomas";
@@ -21,7 +23,7 @@ pub const DEFAULT_CHARACTER: &str = "thomas";
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SettingsView {
-    pace: String,
+    pace: Pace,
     onboarded: bool,
     autostart: bool,
     character: String,
@@ -37,14 +39,31 @@ pub fn character(app: &AppHandle) -> String {
 }
 
 pub fn pace(app: &AppHandle) -> Pace {
-    let Ok(store) = app.store(STORE_FILE) else { return Pace::Recommended };
-    if let Some(id) = store.get(KEY_PACE).and_then(|v| v.as_str().map(str::to_string)) {
-        return Pace::from_id(&id);
+    let Ok(store) = app.store(STORE_FILE) else { return crate::pace::RECOMMENDED };
+    let id = store.get(KEY_PACE).and_then(|v| v.as_str().map(str::to_string));
+    let minutes = |key| store.get(key).and_then(|v| v.as_u64()).map(|m| m as u32);
+    match (id, minutes(KEY_MOVE_MINUTES)) {
+        // Saved by 0.1.5 or later: a preset, or custom minutes (water 0 = off).
+        (Some(id), Some(move_minutes)) => {
+            let water = minutes(KEY_WATER_MINUTES).filter(|&m| m > 0);
+            Pace::new(&id, water, move_minutes)
+        }
+        // 0.1.2 to 0.1.4 saved only a preset id.
+        (Some(id), None) => Pace::from_old(&id),
+        // 0.1.0 and 0.1.1: water could only be switched off.
+        (None, _) => match store.get(KEY_WATER).and_then(|v| v.as_bool()) {
+            Some(false) => Pace::from_old("moves-only"),
+            _ => crate::pace::RECOMMENDED,
+        },
     }
-    // Older installs: water switched off meant breaks only.
-    match store.get(KEY_WATER).and_then(|v| v.as_bool()) {
-        Some(false) => Pace::MovesOnly,
-        _ => Pace::Recommended,
+}
+
+fn save_pace(app: &AppHandle, pace: Pace) {
+    if let Ok(store) = app.store(STORE_FILE) {
+        store.set(KEY_PACE, json!(pace.id));
+        store.set(KEY_WATER_MINUTES, json!(pace.water_minutes.unwrap_or(0)));
+        store.set(KEY_MOVE_MINUTES, json!(pace.move_minutes));
+        let _ = store.save();
     }
 }
 
@@ -76,7 +95,7 @@ pub fn first_run(app: &AppHandle) {
 #[tauri::command]
 pub fn get_settings(app: AppHandle) -> SettingsView {
     SettingsView {
-        pace: pace(&app).id().to_string(),
+        pace: pace(&app),
         onboarded: onboarded(&app),
         autostart: app.autolaunch().is_enabled().unwrap_or(false),
         character: character(&app),
@@ -84,29 +103,26 @@ pub fn get_settings(app: AppHandle) -> SettingsView {
     }
 }
 
+/// `water_minutes`: 0 = off. Ignored for presets.
 #[tauri::command]
-pub fn set_pace(app: AppHandle, id: String) {
-    let pace = Pace::from_id(&id);
-    if let Ok(store) = app.store(STORE_FILE) {
-        store.set(KEY_PACE, json!(pace.id()));
-        let _ = store.save();
-    }
+pub fn set_pace(app: AppHandle, id: String, water_minutes: u32, move_minutes: u32) {
+    let pace = Pace::new(&id, Some(water_minutes).filter(|&m| m > 0), move_minutes);
+    save_pace(&app, pace);
     crate::engine::set_pace(&app, pace);
 }
 
 /// The last onboarding screen was closed: save the choices, close the window, and show the
 /// hello card that explains dragging.
 #[tauri::command]
-pub fn finish_onboarding(app: AppHandle, character: String, pace: String) {
-    let pace = Pace::from_id(&pace);
+pub fn finish_onboarding(app: AppHandle, character: String, pace: String, water_minutes: u32, move_minutes: u32) {
+    let pace = Pace::new(&pace, Some(water_minutes).filter(|&m| m > 0), move_minutes);
     #[cfg(debug_assertions)]
-    println!("[moovy] onboarding finished: character={character} pace={}", pace.id());
+    println!("[moovy] onboarding finished: character={character} pace={pace:?}");
     if let Ok(store) = app.store(STORE_FILE) {
         store.set(KEY_CHARACTER, json!(character));
-        store.set(KEY_PACE, json!(pace.id()));
         store.set(KEY_ONBOARDED, json!(true));
-        let _ = store.save();
     }
+    save_pace(&app, pace);
     crate::engine::set_pace(&app, pace);
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.hide();
