@@ -30,6 +30,9 @@ interface Props {
   confirmingClear?: boolean;
 }
 
+/** Each system calls it by its own name. */
+const START_AT_LOGIN = navigator.userAgent.includes("Mac") ? "Start at login" : "Start with Windows";
+
 /** The one Moovy window: pick a character, pick a pace, one switch, and a footer. Nothing else. */
 export default function SettingsView({ state, actions, confirmingClear = false }: Props) {
   const [confirming, setConfirming] = useState(confirmingClear);
@@ -86,7 +89,7 @@ export default function SettingsView({ state, actions, confirmingClear = false }
       </section>
 
       <section className="switches">
-        <Switch label="Start with Windows" checked={state.autostart} onChange={actions.setAutostart} />
+        <Switch label={START_AT_LOGIN} checked={state.autostart} onChange={actions.setAutostart} />
       </section>
 
       <footer>
