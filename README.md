@@ -24,7 +24,7 @@ A small card pops up at the bottom-left of your screen during active computer ti
 
 ## Install on Windows
 
-1. Download [Moovy-Windows-setup.exe](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Windows-setup.exe) (the same file as `Moovy_0.1.5_x64-setup.exe` on the [Releases page](https://github.com/ori-eivan/moovy/releases)).
+1. Download [Moovy-Windows-setup.exe](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Windows-setup.exe) (the same file as `Moovy_0.1.6_x64-setup.exe` on the [Releases page](https://github.com/ori-eivan/moovy/releases)).
 2. **Your browser may hold the download** with a note like "isn't commonly downloaded" (Chrome) or "isn't commonly downloaded / could harm your device" (Edge). This happens to new apps that aren't code-signed yet. Open the downloads list, click **⋯** next to the file, then **Keep** (in Edge: **Keep**, then **Show more → Keep anyway**).
 3. Run it. It installs for your user only, so it doesn't ask for administrator rights.
 4. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
@@ -37,9 +37,9 @@ A small card pops up at the bottom-left of your screen during active computer ti
 Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and Moovy makes no network requests ([Privacy](PRIVACY.md)).
 
 ```powershell
-$setup = "$env:TEMP\Moovy_0.1.5_x64-setup.exe"
-Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.5/Moovy_0.1.5_x64-setup.exe" -OutFile $setup
-(Get-FileHash $setup -Algorithm SHA256).Hash   # should be 095133ACCE62C0B63BC99C4A35F9643008A0533E7758A3FA2259AED25228FB10
+$setup = "$env:TEMP\Moovy_0.1.6_x64-setup.exe"
+Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.6/Moovy_0.1.6_x64-setup.exe" -OutFile $setup
+(Get-FileHash $setup -Algorithm SHA256).Hash   # should be F3442119A23B3E15DBBAD7336BCFE1667CF59A70D9A46472A7F609FE50C173ED
 Start-Process $setup -ArgumentList "/S" -Wait   # silent, current user only
 Start-Process "$env:LOCALAPPDATA\Moovy\moovy.exe"
 ```
@@ -50,7 +50,7 @@ Moovy then sits in the tray and starts with Windows. The first card appears afte
 
 The Mac version is new and has had little real-world testing yet. Feedback is very welcome: [docs/MAC_BETA_TEST.md](docs/MAC_BETA_TEST.md) lists five quick checks.
 
-1. Download [Moovy-Mac.dmg](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Mac.dmg) (the same file as `Moovy_0.1.5_universal.dmg`, one file for Apple silicon and Intel).
+1. Download [Moovy-Mac.dmg](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Mac.dmg) (the same file as `Moovy_0.1.6_universal.dmg`, one file for Apple silicon and Intel).
 2. Open it and drag **Moovy** into **Applications**.
 3. Open Moovy. **macOS will say it can't check the app**, because Moovy is not notarized by Apple yet. Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**. Only the first time.
 4. The same short setup opens. Moovy then lives in the menu bar (top right), with no Dock icon.
@@ -62,8 +62,8 @@ Moovy asks for no permissions on Mac. One difference from Windows: it doesn't re
 From the command line (a file downloaded this way is not flagged by Gatekeeper):
 
 ```bash
-curl -L -o /tmp/Moovy.dmg https://github.com/ori-eivan/moovy/releases/download/v0.1.5/Moovy_0.1.5_universal.dmg
-shasum -a 256 /tmp/Moovy.dmg   # should be 5f74a9e18c6439c6a0260a6169820e6a106d6f661c09e672cd1312bc340fa2a1
+curl -L -o /tmp/Moovy.dmg https://github.com/ori-eivan/moovy/releases/download/v0.1.6/Moovy_0.1.6_universal.dmg
+shasum -a 256 /tmp/Moovy.dmg   # should be 8ca79c65d24e9f85485246e84d77e258abbb03873b39a06f2c442d0a93928c70
 hdiutil attach -nobrowse -quiet /tmp/Moovy.dmg -mountpoint /tmp/moovy-dmg
 cp -R /tmp/moovy-dmg/Moovy.app /Applications/
 hdiutil detach -quiet /tmp/moovy-dmg
