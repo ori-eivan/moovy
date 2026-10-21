@@ -15,7 +15,7 @@ A small card pops up at the bottom-left of your screen during active computer ti
 
 ## Install on Windows
 
-1. Download `Moovy_0.1.4_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
+1. Download `Moovy_0.1.5_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
 2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
 3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
 4. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 45 minutes of active work (on the Recommended pace).
@@ -27,9 +27,9 @@ A small card pops up at the bottom-left of your screen during active computer ti
 Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and Moovy makes no network requests ([Privacy](PRIVACY.md)).
 
 ```powershell
-$setup = "$env:TEMP\Moovy_0.1.4_x64-setup.exe"
-Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.4/Moovy_0.1.4_x64-setup.exe" -OutFile $setup
-(Get-FileHash $setup -Algorithm SHA256).Hash   # should be 196D828206F4AED94D0C2D220BAE08561C320B1B2879457E39EED87528404FE7
+$setup = "$env:TEMP\Moovy_0.1.5_x64-setup.exe"
+Invoke-WebRequest "https://github.com/ori-eivan/moovy/releases/download/v0.1.5/Moovy_0.1.5_x64-setup.exe" -OutFile $setup
+(Get-FileHash $setup -Algorithm SHA256).Hash   # should be 095133ACCE62C0B63BC99C4A35F9643008A0533E7758A3FA2259AED25228FB10
 Start-Process $setup -ArgumentList "/S" -Wait   # silent, current user only
 Start-Process "$env:LOCALAPPDATA\Moovy\moovy.exe"
 ```
@@ -40,7 +40,7 @@ Moovy then sits in the tray and starts with Windows. The first card appears afte
 
 The Mac version is new and has had little real-world testing yet. Feedback is very welcome: [docs/MAC_BETA_TEST.md](docs/MAC_BETA_TEST.md) lists five quick checks.
 
-1. Download `Moovy_0.1.4_universal.dmg` from the [Releases page](https://github.com/ori-eivan/moovy/releases) (one file for Apple silicon and Intel).
+1. Download `Moovy_0.1.5_universal.dmg` from the [Releases page](https://github.com/ori-eivan/moovy/releases) (one file for Apple silicon and Intel).
 2. Open it and drag **Moovy** into **Applications**.
 3. Open Moovy. **macOS will say it can't check the app**, because Moovy is not notarized by Apple yet. Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**. Only the first time.
 4. The same short setup opens. Moovy then lives in the menu bar (top right), with no Dock icon.
@@ -52,8 +52,8 @@ Moovy asks for no permissions on Mac. One difference from Windows: it doesn't re
 From the command line (a file downloaded this way is not flagged by Gatekeeper):
 
 ```bash
-curl -L -o /tmp/Moovy.dmg https://github.com/ori-eivan/moovy/releases/download/v0.1.4/Moovy_0.1.4_universal.dmg
-shasum -a 256 /tmp/Moovy.dmg   # should be 4c9553200e56ea4b7b384b9496968bc46bcebc3afeacffc232b2f0ae9c339c1e
+curl -L -o /tmp/Moovy.dmg https://github.com/ori-eivan/moovy/releases/download/v0.1.5/Moovy_0.1.5_universal.dmg
+shasum -a 256 /tmp/Moovy.dmg   # should be 5f74a9e18c6439c6a0260a6169820e6a106d6f661c09e672cd1312bc340fa2a1
 hdiutil attach -nobrowse -quiet /tmp/Moovy.dmg -mountpoint /tmp/moovy-dmg
 cp -R /tmp/moovy-dmg/Moovy.app /Applications/
 hdiutil detach -quiet /tmp/moovy-dmg
