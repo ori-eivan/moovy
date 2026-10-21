@@ -25,9 +25,10 @@ A small card pops up at the bottom-left of your screen during active computer ti
 ## Install on Windows
 
 1. Download [Moovy-Windows-setup.exe](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Windows-setup.exe) (the same file as `Moovy_0.1.5_x64-setup.exe` on the [Releases page](https://github.com/ori-eivan/moovy/releases)).
-2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
-3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
-4. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 45 minutes of active work (on the Recommended pace).
+2. **Your browser may hold the download** with a note like "isn't commonly downloaded" (Chrome) or "isn't commonly downloaded / could harm your device" (Edge). This happens to new apps that aren't code-signed yet. Open the downloads list, click **⋯** next to the file, then **Keep** (in Edge: **Keep**, then **Show more → Keep anyway**).
+3. Run it. It installs for your user only, so it doesn't ask for administrator rights.
+4. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
+5. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 45 minutes of active work (on the Recommended pace).
 
 **Uninstall:** Windows Settings → Apps → Installed apps → Moovy → Uninstall.
 
