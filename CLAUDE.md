@@ -10,4 +10,4 @@ Before any change to how Moovy looks or moves, read `docs/DESIGN_SYSTEM.md`.
 - System-specific code lives behind `cfg` in two places: `src-tauri/src/activity.rs` (signals: idle, lock, mic, sharing) and the `platform` module in `src-tauri/src/card.rs` (`win32` for Windows, `portable` for macOS). New system-specific code goes there, with a version for each system.
 - Words that differ per system (e.g. "Start with Windows" / "Start at login", tray / menu bar) are chosen at runtime, never hard-coded for one.
 - Check Windows locally (`cargo clippy --all-targets`, `cargo test --lib`, `npm run tauri build`). Check macOS on GitHub: the `macOS build` workflow builds, runs the tests and screenshots the first launch on a hosted Mac.
-- A release carries both files: the Windows installer and the Mac `.dmg`.
+- A release carries both files twice: with the version in the name (`Moovy_X.Y.Z_x64-setup.exe`, `Moovy_X.Y.Z_universal.dmg`) and with a fixed name (`Moovy-Windows-setup.exe`, `Moovy-Mac.dmg`). The fixed names keep the README and shared links (`/releases/latest/download/...`) working for every new version. Update the README checksums in the same release.

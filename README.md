@@ -4,6 +4,15 @@ A small, friendly companion for Windows (and Mac, in beta) that reminds you to d
 
 > **Status: v0.1, early testing.** Windows 10 and 11. Mac (macOS 11 or later) in beta.
 
+## Download
+
+**You don't need the source code to use Moovy.** Download the app for your system:
+
+- **Windows:** [Moovy-Windows-setup.exe](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Windows-setup.exe)
+- **Mac (beta):** [Moovy-Mac.dmg](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Mac.dmg)
+
+These links always point to the latest version. Install steps, the first-run security prompt, and checksums are below. Cloning this repository is only needed to work on Moovy itself.
+
 ## What it does
 
 A small card pops up at the bottom-left of your screen during active computer time: a glass of water, or a 30-second movement or stretch. You pick how often, from a preset or your own minutes. One click to start, snooze or skip. Then it gets out of your way.
@@ -15,7 +24,7 @@ A small card pops up at the bottom-left of your screen during active computer ti
 
 ## Install on Windows
 
-1. Download `Moovy_0.1.5_x64-setup.exe` from the [Releases page](https://github.com/ori-eivan/moovy/releases).
+1. Download [Moovy-Windows-setup.exe](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Windows-setup.exe) (the same file as `Moovy_0.1.5_x64-setup.exe` on the [Releases page](https://github.com/ori-eivan/moovy/releases)).
 2. Run it. It installs for your user only, so it doesn't ask for administrator rights.
 3. **Windows may show "Windows protected your PC"** (SmartScreen). This appears for new apps that are not code-signed yet, not because something is wrong. Click **More info**, then **Run anyway**. The publisher shows as "Unknown publisher" for the same reason.
 4. A short setup opens: pick your buddy and how often you want reminders. Then Moovy lives in the tray (the `^` arrow next to the clock) and starts with Windows. The first card comes after 45 minutes of active work (on the Recommended pace).
@@ -40,7 +49,7 @@ Moovy then sits in the tray and starts with Windows. The first card appears afte
 
 The Mac version is new and has had little real-world testing yet. Feedback is very welcome: [docs/MAC_BETA_TEST.md](docs/MAC_BETA_TEST.md) lists five quick checks.
 
-1. Download `Moovy_0.1.5_universal.dmg` from the [Releases page](https://github.com/ori-eivan/moovy/releases) (one file for Apple silicon and Intel).
+1. Download [Moovy-Mac.dmg](https://github.com/ori-eivan/moovy/releases/latest/download/Moovy-Mac.dmg) (the same file as `Moovy_0.1.5_universal.dmg`, one file for Apple silicon and Intel).
 2. Open it and drag **Moovy** into **Applications**.
 3. Open Moovy. **macOS will say it can't check the app**, because Moovy is not notarized by Apple yet. Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**. Only the first time.
 4. The same short setup opens. Moovy then lives in the menu bar (top right), with no Dock icon.
