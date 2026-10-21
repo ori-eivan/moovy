@@ -193,7 +193,7 @@ function SettingsScreens() {
     onboarded: true,
     autostart: true,
     character: DEFAULT_CHARACTER,
-    version: "0.1.5",
+    version: "0.1.6",
   });
   const [onboardingRun, setOnboardingRun] = useState(0);
   const actions: SettingsActions = {

@@ -2,7 +2,7 @@
   "name": "moovy",
   "private": true,
   "license": "PolyForm-Noncommercial-1.0.0",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "scripts": {
     "dev": "vite",

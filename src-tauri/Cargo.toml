@@ -1,6 +1,6 @@
 [package]
 name = "moovy"
-version = "0.1.5"
+version = "0.1.6"
 description = "A friendly desktop companion that reminds you to drink water and move."
 authors = ["Ori Eivan"]
 license = "PolyForm-Noncommercial-1.0.0"
