@@ -4,7 +4,7 @@
 //!
 //! The rules (PRD §7): water and moves each have their own interval of *active* computer time
 //! (decided 2026-10-20: presets plus custom sliders). Idle pauses the count, being away (15
-//! minutes idle, locked, asleep) restarts both. Never two cards within 15 minutes, never while
+//! minutes idle, or locked for 15 minutes, or asleep) restarts both; a shorter lock only pauses. Never two cards within 15 minutes, never while
 //! busy, in a call or paused, a move outranks water, and a card that waits 20 minutes is dropped.
 
 pub const MINUTE: u64 = 60_000;
@@ -116,7 +116,8 @@ pub struct Scheduler {
     skip_next: bool,
     busy: bool,
     mic: bool,
-    locked: bool,
+    /// When the screen was locked, while it is.
+    locked_since: Option<u64>,
     grace_until: Option<u64>,
 }
 
@@ -137,13 +138,13 @@ impl Scheduler {
             skip_next: false,
             busy: false,
             mic: false,
-            locked: false,
+            locked_since: None,
             grace_until: None,
         }
     }
 
-    /// Being away (locked, asleep, 15 minutes idle) counts as a break: both clocks start over
-    /// and nothing piles up.
+    /// Being away (15 minutes idle or locked, or asleep) counts as a break: both clocks start
+    /// over and nothing piles up.
     fn away_reset(&mut self) {
         self.water_active = 0;
         self.move_active = 0;
@@ -154,13 +155,18 @@ impl Scheduler {
     pub fn handle(&mut self, event: Event) -> Vec<Decision> {
         match event {
             Event::Tick { now, idle_ms } => return self.tick(now, idle_ms),
+            // A lock pauses the count. Only a lock of 15 minutes or more counts as a break
+            // (decided 2026-10-21): locking for a coffee shouldn't push the next card away.
             Event::Locked { now } => {
-                self.locked = true;
+                self.locked_since = Some(now);
                 self.last_tick = Some(now);
-                self.away_reset();
             }
             Event::Unlocked { now } => {
-                self.locked = false;
+                if let Some(since) = self.locked_since.take()
+                    && now.saturating_sub(since) >= self.config.away_reset_after
+                {
+                    self.away_reset();
+                }
                 self.last_tick = Some(now);
                 self.grace_until = Some(now + self.config.grace_after_unlock);
             }
@@ -227,7 +233,7 @@ impl Scheduler {
                 return Vec::new();
             }
         }
-        if self.locked {
+        if self.locked_since.is_some() {
             return Vec::new();
         }
 
@@ -442,13 +448,39 @@ mod tests {
         assert_eq!(sim.s.status(), Status::Next { card: Card::Water, minutes: 45 });
     }
 
+    fn lock_for(sim: &mut Sim, minutes: u64) {
+        sim.s.handle(Event::Locked { now: sim.now });
+        sim.now += minutes * MINUTE;
+        sim.s.handle(Event::Unlocked { now: sim.now });
+    }
+
     #[test]
-    fn locking_resets_and_unlock_has_a_grace_period() {
+    fn a_short_lock_only_pauses_the_count() {
         let mut sim = Sim::new();
         sim.work(25);
-        sim.s.handle(Event::Locked { now: sim.now });
-        sim.now += 5 * MINUTE;
-        sim.s.handle(Event::Unlocked { now: sim.now });
+        lock_for(&mut sim, 5);
+        sim.work(4);
+        assert!(sim.shown.is_empty(), "the 5 locked minutes did not count");
+        sim.work(1);
+        assert_eq!(sim.cards(), vec![Card::Water], "25 + 5 active minutes: water, nothing was reset");
+    }
+
+    #[test]
+    fn nothing_shows_in_the_first_two_minutes_after_unlocking() {
+        let mut sim = Sim::new();
+        sim.work(29);
+        lock_for(&mut sim, 5);
+        sim.work(1);
+        assert!(sim.shown.is_empty(), "water is due, but the screen was just unlocked");
+        sim.work(2);
+        assert_eq!(sim.cards(), vec![Card::Water]);
+    }
+
+    #[test]
+    fn a_lock_of_fifteen_minutes_restarts_both_clocks() {
+        let mut sim = Sim::new();
+        sim.work(25);
+        lock_for(&mut sim, 15);
         sim.work(29);
         assert!(sim.shown.is_empty());
         sim.work(1);

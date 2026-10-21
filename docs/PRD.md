@@ -81,7 +81,8 @@ All cards appear at the **bottom-left of the work area** of the monitor you are 
 | Situation | Behaviour |
 |---|---|
 | No keyboard or mouse input | Counting **pauses**. It does not reset. |
-| Away 15+ minutes, screen locked, or computer asleep | Both clocks **restart** (being away counts as a break). The movement rotation continues where it stopped |
+| Away 15+ minutes (no input, or the screen locked that long), or computer asleep | Both clocks **restart** (being away counts as a break). The movement rotation continues where it stopped |
+| Screen locked for less than 15 minutes | Counting **pauses** and continues after unlocking (decided 2026-10-21) |
 | Any two cards | At least 15 minutes apart |
 | Windows reports busy (presentation, full-screen game, quiet time) | Card waits |
 | Microphone in use (a call) | Card waits |
