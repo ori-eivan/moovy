@@ -3,7 +3,7 @@ name = "moovy"
 version = "0.1.5"
 description = "A friendly desktop companion that reminds you to drink water and move."
 authors = ["Ori Eivan"]
-license = "MIT"
+license = "PolyForm-Noncommercial-1.0.0"
 repository = "https://github.com/ori-eivan/moovy"
 edition = "2024"
 

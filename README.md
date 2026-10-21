@@ -99,8 +99,10 @@ Moovy ships two characters: **Thomas**, a tabby cat (the default), in `public/ch
 
 The 💧 and 🚶 icons are from [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (Flat style), MIT licence: [`public/icons/FLUENT-EMOJI-LICENSE.txt`](public/icons/FLUENT-EMOJI-LICENSE.txt).
 
-## License
+## Free to use, not for sale
 
-Code: [MIT](LICENSE). Character art (Thomas, Corni): [CC BY-NC 4.0](ASSETS_LICENSE), not covered by the MIT license.
+Moovy is free to use, at home or at work. The code is open to read, learn from and change for yourself. Selling Moovy, or building a paid product from its code, is not allowed without permission from Ori Eivan.
+
+The terms: code under the [PolyForm Noncommercial License 1.0.0](LICENSE), with an extra permission to use the official app at work. Character art (Thomas, Corni): [CC BY-NC 4.0](ASSETS_LICENSE). Versions 0.1.5 and earlier stay under MIT.
 
 Made by Ori Eivan.

@@ -4,7 +4,7 @@
 **Status:** Planned, not implemented. Nothing in this document exists yet.
 **Platform:** Windows 10/11 (v0.1). macOS later.
 **Language:** English only.
-**License:** Code MIT. Character art CC BY-NC 4.0.
+**License:** Code PolyForm Noncommercial 1.0.0 from v0.1.6, with an extra permission to use the official app at work (MIT up to v0.1.5). Character art CC BY-NC 4.0.
 **Last updated:** 2026-10-17
 
 ---
@@ -204,7 +204,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 
 | Topic | Decision |
 |---|---|
-| Code license | MIT |
+| Code license | MIT. Changed 2026-10-21 to PolyForm Noncommercial 1.0.0 from v0.1.6: free to use, not for sale |
 | Character art license | CC BY-NC 4.0 (share and adapt with credit, no commercial use) |
 | Sound | Silent. No sounds at all in v0.1 |
 | Repository | `ori-eivan/moovy`, private while building, public on the day it goes to testers. History checked for personal data before it goes public |

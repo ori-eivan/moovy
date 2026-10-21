@@ -4,6 +4,8 @@ Moovy is a desktop tray app for **Windows and macOS** (Tauri v2: Rust in `src-ta
 
 Before any change to how Moovy looks or moves, read `docs/DESIGN_SYSTEM.md`.
 
+Open tasks and their order (updates, licence, publishing): `../docs/NEXT_TASKS.md`, outside this repository. Read it before starting on any of them.
+
 ## Every change ships on both systems
 
 - A feature is done only when it works on Windows **and** on macOS. Never build for one and leave the other behind.
