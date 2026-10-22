@@ -12,7 +12,6 @@ use tauri::{
     tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, RunEvent, WindowEvent, Wry,
 };
-use tauri_plugin_clipboard_manager::ClipboardExt;
 
 
 /// The user pressed Start on a movement.
@@ -184,8 +183,9 @@ pub fn run() {
             let status = item("status", "Starting…", false)?;
             let settings_item = item("settings", "Settings", true)?;
             let stats_item = item("stats", "Stats", true)?;
-            let copy_stats = item("copy_stats", "Copy my stats", true)?;
             let set_position = item("set_position", "Set card position", true)?;
+            // Not in the menu (the tray keeps only Settings, Stats and Set card position), but
+            // updates.rs still writes its status to it.
             let check_updates = item("check_updates", updates::CHECK_LABEL, true)?;
             let install_update = item("install_update", "Install update", true)?;
             let quit = item("quit", "Quit", true)?;
@@ -197,11 +197,9 @@ pub fn run() {
                 Box::new(PredefinedMenuItem::separator(app)?),
                 Box::new(settings_item),
                 Box::new(stats_item),
-                Box::new(copy_stats),
                 Box::new(set_position),
-                Box::new(check_updates.clone()),
             ];
-            // "Install update" appears right after "Check for updates" once one is downloaded.
+            // "Install update" appears right after "Set card position" once one is downloaded.
             let install_at = entries.len();
             // Development only: run the clock 60 times faster.
             if cfg!(debug_assertions) {
@@ -224,11 +222,7 @@ pub fn run() {
                 .on_menu_event(move |app, event| match event.id.as_ref() {
                     "settings" => open_settings(app),
                     "stats" => open_stats(app),
-                    "copy_stats" => {
-                        let _ = app.clipboard().write_text(stats::summary(app));
-                    }
                     "set_position" => card::set_position(app),
-                    "check_updates" => updates::check(app, true),
                     "install_update" => updates::install(app),
                     "fast_mode" => {
                         let speed = if engine::speed(app) > 1 { 1 } else { engine::FAST_SPEED };

@@ -21,4 +21,4 @@ Or by hand: download the `.dmg` from the Releases page, drag Moovy to Applicatio
 
 - Which checks passed, which didn't.
 - Your macOS version (Apple menu → About This Mac) and whether it's Apple silicon (M1/M2/M3/M4) or Intel.
-- From the menu bar icon: **Copy my stats**, paste it in the message.
+- From the menu bar icon: **Stats**, and a screenshot of that window.

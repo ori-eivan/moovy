@@ -149,16 +149,16 @@ Deliberately not in the window: pause controls, interval, sounds.
 
 ## 11. Tray menu
 
-Kept minimal (decided 2026-10-18):
+Kept minimal (decided 2026-10-18, trimmed 2026-10-22 to three actions):
 
 - Next card in N min (status line)
 - Settings
 - Stats (the same window, showing the days; see section 10)
-- Copy my stats
 - Set card position (shows the card with a "drag me anywhere" bubble; letting go saves the spot)
-- Check for updates (works even with the switch off, because the user asked)
 - Install update (vX.Y.Z) (shown only once an update is downloaded)
 - Quit
+
+Removed 2026-10-22: **Copy my stats** (the Stats screen replaces it for users; see section 13 for testers) and **Check for updates** (the daily check and the update card still run; there is no manual check).
 
 Development builds also show "Fast mode". Pause and skip were removed from the tray; the scheduler still supports them and they can come back in v0.2.
 
@@ -175,7 +175,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 
 - **Day 7:** GitHub release sent to 3 to 5 testers (a student, a designer, a developer at minimum).
 - **Testers use it for 5 working days.**
-- **Public announcement** only if, across testers, **at least 50% of break cards get Start**. The Stats tab shows each user their own days (since 2026-10-22); the gate number itself is not shown. Testers use **Copy my stats** in the tray to copy a one-line 7-day summary and send it themselves. Nothing is sent automatically.
+- **Public announcement** only if, across testers, **at least 50% of break cards get Start**. The Stats screen shows each user their own days (since 2026-10-22); the gate number (share of break cards that got Start) is not shown. **Open:** the tray item testers used to copy the one-line summary (Copy my stats) was removed on 2026-10-22; the summary code is still in `stats.rs`. Until a new way is chosen, testers send a screenshot of the Stats screen, which shows done and skipped but not Start. Nothing is sent automatically.
 - If under 50%, the problem is the idea or the card, not the code. Revisit before announcing.
 
 ## 14. Out of scope for v0.1
