@@ -223,6 +223,8 @@
 
 .stats-empty {
   display: grid;
+  /* The screen gives this section the rest of the window: keep the two lines together. */
+  align-content: start;
   gap: 4px;
   padding: 40px 8px;
   text-align: center;
