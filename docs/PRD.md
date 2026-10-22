@@ -26,7 +26,7 @@ A public GitHub repository good enough for Ori Eivan's portfolio, used daily by 
 3. **Never rude.** Moovy never takes keyboard focus, never shows during a call or presentation, and never piles up cards.
 4. **No guilt.** No streaks, no sad character, no "you missed" messages.
 5. **No medical claims.** Cards describe what to do and how it feels, never what it fixes.
-6. **Private.** Everything stays on the device. v0.1 makes no network calls at all.
+6. **Private.** Everything stays on the device. The only network call is the daily update check, which the user can switch off (since v0.1.7).
 7. **Small.** Tray app, low CPU and memory when idle.
 
 ## 4. Users
@@ -154,7 +154,8 @@ Kept minimal (decided 2026-10-18):
 - Settings
 - Copy my stats
 - Set card position (shows the card with a "drag me anywhere" bubble; letting go saves the spot)
-- Update available: vX.Y.Z (shown only when there is one)
+- Check for updates (works even with the switch off, because the user asked)
+- Install update (vX.Y.Z) (shown only once an update is downloaded)
 - Quit
 
 Development builds also show "Fast mode". Pause and skip were removed from the tray; the scheduler still supports them and they can come back in v0.2.
@@ -164,7 +165,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 - No account, no telemetry, no analytics.
 - Settings and daily counts are stored locally in the user's AppData.
 - Microphone: Moovy checks only **whether** some app is recording from the microphone, by asking Windows' audio system and its privacy records. It never opens, records or listens to the microphone.
-- Network: none in v0.1 (the update check is not built yet). See `PRIVACY.md`, which is the user-facing version of this section.
+- Network: one request a day for `latest.json` on GitHub, nothing about the user added. Off switch in onboarding and settings; off means no requests. Updates are signed and verified, and install only after the user clicks Install on the update card (decided 2026-10-22). See `PRIVACY.md`, which is the user-facing version of this section.
 - Screen sharing: window titles are read and compared to recognise a share bar, never stored.
 - Uninstall removes the app. A clear note explains where local data lives and how to delete it.
 
@@ -178,7 +179,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 ## 14. Out of scope for v0.1
 
 - Microsoft Store / MSIX (v0.2)
-- Self-updating (v0.2, through the Store)
+- Self-updating without asking (updates are signed and install only after the user clicks Install, since v0.1.7)
 - Streaks, levels, journey
 - Interval settings, quiet hours
 - Additional characters

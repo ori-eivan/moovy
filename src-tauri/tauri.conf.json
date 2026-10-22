@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Moovy",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "identifier": "com.orieivan.moovy",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -32,7 +32,7 @@
         "title": "Moovy",
         "url": "index.html",
         "width": 380,
-        "height": 680,
+        "height": 730,
         "resizable": false,
         "center": true,
         "visible": false
@@ -63,6 +63,18 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI0NzU4QkJBOTg3ODYxMDQKUldRRVlYaVl1b3QxSkFuY3VVd2hRTUppUzF3bForMjJ4RU9tNDh4KzlORlFOdE8vNEdmK292ZTgK",
+      "endpoints": [
+        "https://github.com/ori-eivan/moovy/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

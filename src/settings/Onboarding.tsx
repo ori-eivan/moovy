@@ -4,11 +4,13 @@ import CharacterImage from "../content/CharacterImage";
 import { DEFAULT_CHARACTER, useAvailableCharacters } from "../content/characters";
 import { DEFAULT_PACE, firstCardLine, type Pace } from "../content/paces";
 import PacePicker from "./PacePicker";
+import { Switch, UPDATES_HINT } from "./SettingsView";
 import "./onboarding.css";
+import "./settings.css";
 
 interface Props {
   /** The last screen was closed. */
-  onFinish: (choice: { character: string; pace: Pace }) => void;
+  onFinish: (choice: { character: string; pace: Pace; updates: boolean }) => void;
 }
 
 type Step = 1 | 2 | 3;
@@ -31,6 +33,8 @@ export default function Onboarding({ onFinish }: Props) {
   const [step, setStep] = useState<Step>(1);
   const [character, setCharacter] = useState(DEFAULT_CHARACTER);
   const [pace, setPace] = useState<Pace>(DEFAULT_PACE);
+  // On by default, and shown here openly so nobody finds out later (decided 2026-10-22).
+  const [updates, setUpdates] = useState(true);
   const [busy, setBusy] = useState(false);
   const content = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLDivElement>(null);
@@ -142,12 +146,15 @@ export default function Onboarding({ onFinish }: Props) {
             <p className="lead">
               Your {firstCardLine(pace)} of work. Moovy lives {IS_MAC ? "in the menu bar, at the top right" : "in the tray, next to the clock"}.
             </p>
+            <div className="switches">
+              <Switch label="Check for updates" hint={UPDATES_HINT} checked={updates} onChange={setUpdates} />
+            </div>
             <p className="hint">You can change all of this later: {IS_MAC ? "menu bar" : "tray"} → Settings.</p>
             <div className="nav">
               <button className="ghost" onClick={() => go(2, -1)}>
                 Back
               </button>
-              <button className="primary" onClick={() => leave(() => onFinish({ character, pace }))}>
+              <button className="primary" onClick={() => leave(() => onFinish({ character, pace, updates }))}>
                 Close
               </button>
             </div>

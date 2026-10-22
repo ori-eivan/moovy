@@ -1,5 +1,5 @@
-//! The few settings Moovy has: which character, the pace, start with Windows, and whether the
-//! first-run onboarding is done. Stored in the same local file as the card position.
+//! The few settings Moovy has: which character, the pace, start with Windows, update checks,
+//! and whether the first-run onboarding is done. Stored in the same local file as the card position.
 
 use serde::Serialize;
 use serde_json::json;
@@ -26,6 +26,7 @@ pub struct SettingsView {
     pace: Pace,
     onboarded: bool,
     autostart: bool,
+    updates: bool,
     character: String,
     version: String,
 }
@@ -67,7 +68,7 @@ fn save_pace(app: &AppHandle, pace: Pace) {
     }
 }
 
-fn onboarded(app: &AppHandle) -> bool {
+pub fn onboarded(app: &AppHandle) -> bool {
     app.store(STORE_FILE)
         .ok()
         .and_then(|s| s.get(KEY_ONBOARDED))
@@ -98,6 +99,7 @@ pub fn get_settings(app: AppHandle) -> SettingsView {
         pace: pace(&app),
         onboarded: onboarded(&app),
         autostart: app.autolaunch().is_enabled().unwrap_or(false),
+        updates: crate::updates::enabled(&app),
         character: character(&app),
         version: app.package_info().version.to_string(),
     }
@@ -114,7 +116,7 @@ pub fn set_pace(app: AppHandle, id: String, water_minutes: u32, move_minutes: u3
 /// The last onboarding screen was closed: save the choices, close the window, and show the
 /// hello card that explains dragging.
 #[tauri::command]
-pub fn finish_onboarding(app: AppHandle, character: String, pace: String, water_minutes: u32, move_minutes: u32) {
+pub fn finish_onboarding(app: AppHandle, character: String, pace: String, water_minutes: u32, move_minutes: u32, updates: bool) {
     let pace = Pace::new(&pace, Some(water_minutes).filter(|&m| m > 0), move_minutes);
     #[cfg(debug_assertions)]
     println!("[moovy] onboarding finished: character={character} pace={pace:?}");
@@ -123,6 +125,7 @@ pub fn finish_onboarding(app: AppHandle, character: String, pace: String, water_
         store.set(KEY_ONBOARDED, json!(true));
     }
     save_pace(&app, pace);
+    crate::updates::set_enabled(&app, updates);
     crate::engine::set_pace(&app, pace);
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.hide();
@@ -140,6 +143,11 @@ pub fn set_autostart(app: AppHandle, enabled: bool) -> Result<(), String> {
     let autolaunch = app.autolaunch();
     let result = if enabled { autolaunch.enable() } else { autolaunch.disable() };
     result.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn set_updates(app: AppHandle, enabled: bool) {
+    crate::updates::set_enabled(&app, enabled);
 }
 
 /// Picking a character also shows a card with it, so the choice is seen right away.

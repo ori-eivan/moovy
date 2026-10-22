@@ -45,6 +45,18 @@ pub enum CardPayload {
     Water,
     /// Shown once, right after onboarding: "drag me anywhere". Never counted, never scheduled.
     Hello,
+    /// Shown once to people who installed before updates existed: keep update checks on?
+    UpdatesNotice,
+    /// A new version is downloaded and checked: install it now, or later?
+    UpdateReady { version: String },
+}
+
+impl CardPayload {
+    /// Water and breaks. The other cards are Moovy talking about itself: never counted, and
+    /// never brought back by a snooze.
+    fn is_reminder(&self) -> bool {
+        matches!(self, CardPayload::Break { .. } | CardPayload::Water)
+    }
 }
 
 /// Where the user parked the card: the card's bottom-left corner, as a fraction of the work area.
@@ -114,7 +126,7 @@ pub fn show(app: &AppHandle, payload: CardPayload) {
     let event = match payload {
         CardPayload::Break { .. } => Some(stats::Event::BreakShown),
         CardPayload::Water => Some(stats::Event::WaterShown),
-        CardPayload::Hello => None,
+        _ => None,
     };
     if let Some(event) = event {
         stats::record(app, event);
@@ -127,6 +139,16 @@ pub fn show_hello(app: &AppHandle) {
     present(app, CardPayload::Hello);
 }
 
+/// A card about Moovy itself (updates). Not counted, and not remembered as the last card.
+pub fn show_notice(app: &AppHandle, payload: CardPayload) {
+    present(app, payload);
+}
+
+/// True while any card is on screen.
+pub fn is_showing(app: &AppHandle) -> bool {
+    app.state::<CardState>().lock().unwrap().current.is_some()
+}
+
 /// Puts a card on screen without counting it (snooze returns, previews).
 fn present(app: &AppHandle, payload: CardPayload) {
     let Some(window) = app.get_webview_window("card") else {
@@ -136,7 +158,7 @@ fn present(app: &AppHandle, payload: CardPayload) {
         let state = app.state::<CardState>();
         let mut runtime = state.lock().unwrap();
         runtime.current = Some(payload.clone());
-        if payload != CardPayload::Hello {
+        if payload.is_reminder() {
             runtime.last = Some(payload.clone());
         }
         runtime.dragging = false;

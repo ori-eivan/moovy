@@ -19,7 +19,7 @@ A small card pops up at the bottom-left of your screen during active computer ti
 
 - Never takes your keyboard focus
 - Waits while you're in a call (even muted), sharing your screen, presenting or in a full-screen app, and is left out of screen shares and recordings
-- No account, no network, no tracking. Everything stays on your computer ([Privacy](PRIVACY.md))
+- No account, no tracking. Everything stays on your computer. The only thing Moovy asks the internet is "is there a newer version?", once a day, and you can switch that off ([Privacy](PRIVACY.md))
 - English only
 
 ## Install on Windows
@@ -34,7 +34,7 @@ A small card pops up at the bottom-left of your screen during active computer ti
 
 ### Install from the command line
 
-Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and Moovy makes no network requests ([Privacy](PRIVACY.md)).
+Handy if an assistant or a script sets it up for you. The installer is per-user, needs no administrator rights, and the only network request Moovy makes is a daily update check you can switch off ([Privacy](PRIVACY.md)).
 
 ```powershell
 $setup = "$env:TEMP\Moovy_0.1.6_x64-setup.exe"

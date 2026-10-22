@@ -21,7 +21,7 @@ body {
 }
 
 .window .settings {
-  min-height: 680px;
+  min-height: 730px;
 }
 
 .settings footer {
@@ -129,6 +129,18 @@ body {
   border-bottom: 1px solid #eee6da;
   font-size: 15px;
   cursor: pointer;
+}
+
+.switch-text {
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px 8px 0;
+}
+
+.switch-text small {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #8a7f74;
 }
 
 .switch-row input {

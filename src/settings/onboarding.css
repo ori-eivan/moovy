@@ -16,7 +16,7 @@
 }
 
 .window .onboarding {
-  height: 680px;
+  height: 730px;
 }
 
 .onboarding .stage {
@@ -439,7 +439,7 @@ button.pace,
   outline-offset: 4px;
 }
 
-/* Settings: slightly tighter rows so Custom open plus "Clear my data" still fits 680. */
+/* Settings: slightly tighter rows so Custom open plus "Clear my data" still fits 730. */
 .paces.compact .pace,
 .paces.compact .custom-pace .custom-head {
   padding-top: 7px;

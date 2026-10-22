@@ -1,8 +1,20 @@
 # Privacy
 
-Moovy runs entirely on your computer. It has no account, no analytics, no telemetry, and it makes **no network requests**. Nothing about you or your computer leaves your machine.
+Moovy runs entirely on your computer. It has no account, no analytics and no telemetry. Nothing about you or your computer leaves your machine.
 
-_Last updated: 19 October 2026 (v0.1.0)_
+Moovy talks to the internet for one thing only: once a day it asks GitHub whether there is a newer version. You can switch that off, and then Moovy makes no network requests at all.
+
+_Last updated: 22 October 2026 (v0.1.7)_
+
+## The one network request: checking for updates
+
+- **What is sent:** a request for one public file, [`latest.json`](https://github.com/ori-eivan/moovy/releases/latest/download/latest.json), which holds the newest version number and its download links. Moovy adds nothing about you: no ID, no settings, no counts. Like any website, GitHub sees your IP address and that the request comes from Moovy.
+- **How often:** at most once a day, starting a couple of minutes after Moovy opens, plus whenever you click **Check for updates** in the tray.
+- **When there is a new version:** Moovy downloads it in the background and checks its digital signature, so only versions signed by Ori Eivan are accepted. Then your character asks: **Install** or **Later**. Nothing installs without your click.
+- **Switching it off:** **Check for updates** in the settings window (and on the last setup screen). Off means no request is made at all, except when you click **Check for updates** in the tray yourself.
+- **The code:** all of it is in [`src-tauri/src/updates.rs`](https://github.com/ori-eivan/moovy/blob/main/src-tauri/src/updates.rs).
+
+If you installed Moovy before 0.1.7, nothing is checked until your character asks you once whether to keep update checks on.
 
 ## What Moovy reads, and why
 
@@ -19,9 +31,9 @@ The card is also marked so that screen sharing, recordings and screenshots leave
 
 ## What Moovy stores
 
-One file on your computer: `%APPDATA%\com.orieivan.moovy\moovy.json`. It holds:
+One file on your computer: `%APPDATA%\com.orieivan.moovy\moovy.json` on Windows, `~/Library/Application Support/com.orieivan.moovy/moovy.json` on a Mac. It holds:
 
-- Your settings: water reminders on or off, your character, whether setup is done.
+- Your settings: your pace, your character, update checks on or off, whether setup is done, and when updates were last checked.
 - Where you dragged the card, and which movement comes next.
 - Daily counts of what happened to the cards: shown, started, done, snoozed, skipped. Only numbers, kept on your computer. **Copy my stats** in the tray copies a short summary to your clipboard, and only when you click it. Sharing it is up to you.
 
@@ -39,6 +51,6 @@ The settings window links to GitHub (the project and "Report a problem"). These 
 
 ## Changes
 
-If a future version ever needs the network (for example to check for updates), this page will say exactly what it sends, before that version is released.
+If a future version ever sends anything more, this page will say exactly what, before that version is released.
 
 Questions: open an issue at https://github.com/ori-eivan/moovy/issues

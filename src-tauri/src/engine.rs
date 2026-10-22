@@ -152,6 +152,15 @@ pub fn set_pace(app: &AppHandle, pace: Pace) {
     send(app, |_| Event::Timing { water_every, move_every });
 }
 
+/// No call, presentation, screen share or lock right now: a good moment for a card that
+/// isn't a reminder (updates).
+pub fn is_quiet(app: &AppHandle) -> bool {
+    let state = app.state::<EngineState>();
+    let e = state.lock().unwrap();
+    let s = e.signals;
+    !(s.locked || s.busy || s.mic_in_use || s.sharing_screen)
+}
+
 pub fn speed(app: &AppHandle) -> u64 {
     app.state::<EngineState>().lock().unwrap().speed
 }

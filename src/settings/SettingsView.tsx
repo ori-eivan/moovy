@@ -11,6 +11,8 @@ export interface SettingsState {
   /** False until the first-run onboarding is finished. */
   onboarded: boolean;
   autostart: boolean;
+  /** Check GitHub for a new version once a day. */
+  updates: boolean;
   character: string;
   version: string;
 }
@@ -19,6 +21,7 @@ export interface SettingsActions {
   setCharacter: (id: string) => void;
   setPace: (pace: Pace) => void;
   setAutostart: (enabled: boolean) => void;
+  setUpdates: (enabled: boolean) => void;
   clearData: () => void;
   openGitHub: () => void;
   reportProblem: () => void;
@@ -34,7 +37,7 @@ interface Props {
 /** Each system calls it by its own name. */
 const START_AT_LOGIN = navigator.userAgent.includes("Mac") ? "Start at login" : "Start with Windows";
 
-/** The one Moovy window: pick a character, pick a pace, one switch, and a footer. Nothing else. */
+/** The one Moovy window: pick a character, pick a pace, two switches, and a footer. Nothing else. */
 export default function SettingsView({ state, actions, confirmingClear = false }: Props) {
   const [confirming, setConfirming] = useState(confirmingClear);
   const [cleared, setCleared] = useState(false);
@@ -77,6 +80,7 @@ export default function SettingsView({ state, actions, confirmingClear = false }
 
       <section className="switches">
         <Switch label={START_AT_LOGIN} checked={state.autostart} onChange={actions.setAutostart} />
+        <Switch label="Check for updates" hint={UPDATES_HINT_SHORT} checked={state.updates} onChange={actions.setUpdates} />
       </section>
 
       <footer>
@@ -108,10 +112,28 @@ export default function SettingsView({ state, actions, confirmingClear = false }
   );
 }
 
-function Switch({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
+/** What the updates switch does, in the words of PRIVACY.md. */
+export const UPDATES_HINT = "Once a day, asks GitHub for the newest version number. Nothing about you is sent.";
+/** The same promise in one line, for the settings window, which has less room. */
+const UPDATES_HINT_SHORT = "Once a day. Sends nothing about you.";
+
+export function Switch({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
   return (
     <label className="switch-row">
-      <span>{label}</span>
+      <span className="switch-text">
+        {label}
+        {hint && <small>{hint}</small>}
+      </span>
       <input type="checkbox" role="switch" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span className="track" aria-hidden="true" />
     </label>

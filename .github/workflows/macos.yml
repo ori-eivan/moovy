@@ -61,7 +61,12 @@ jobs:
         working-directory: src-tauri
         run: cargo test --lib
 
+      # The update files (Moovy.app.tar.gz and its .sig) are signed with the updater key, so the
+      # app accepts them. Without the secrets the build still works, minus the update files.
       - name: Build universal app
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri build -- --target universal-apple-darwin
 
       - name: Screenshot of the first launch
@@ -77,5 +82,7 @@ jobs:
           name: moovy-macos
           path: |
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz.sig
             first-launch.png
           if-no-files-found: error

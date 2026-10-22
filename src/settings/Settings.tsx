@@ -19,15 +19,16 @@ export default function Settings() {
   if (!state.onboarded) {
     return (
       <Onboarding
-        onFinish={({ character, pace }) => {
+        onFinish={({ character, pace, updates }) => {
           // Rust saves the choices, hides this window and shows the hello card.
           invoke("finish_onboarding", {
             character,
             pace: pace.id,
             waterMinutes: pace.waterMinutes ?? 0,
             moveMinutes: pace.moveMinutes,
+            updates,
           }).then(() =>
-            setState({ ...state, character, pace, onboarded: true }),
+            setState({ ...state, character, pace, updates, onboarded: true }),
           );
         }}
       />
@@ -49,6 +50,10 @@ export default function Settings() {
         setAutostart: (enabled) => {
           setState({ ...state, autostart: enabled });
           invoke("set_autostart", { enabled }).catch(() => setState({ ...state, autostart: !enabled }));
+        },
+        setUpdates: (enabled) => {
+          setState({ ...state, updates: enabled });
+          invoke("set_updates", { enabled });
         },
         clearData: () => invoke("clear_data"),
         openGitHub: () => openUrl(REPO),

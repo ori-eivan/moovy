@@ -2,7 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MOVEMENTS, type Movement } from "../content/movements";
 
 /** What Rust sends with "card:show". Matches `CardPayload` in card.rs. */
-export type Payload = { kind: "break"; movementId: string } | { kind: "water" } | { kind: "hello" };
+export type Payload =
+  | { kind: "break"; movementId: string }
+  | { kind: "water" }
+  | { kind: "hello" }
+  | { kind: "updatesNotice" }
+  | { kind: "updateReady"; version: string };
 
 export type View =
   | { name: "breakIntro"; movement: Movement }
@@ -13,7 +18,11 @@ export type View =
   | { name: "waterDone" }
   | { name: "waiting" }
   /** After onboarding: "drag me anywhere". `saved` once the user has let go of it. */
-  | { name: "hello"; saved: boolean };
+  | { name: "hello"; saved: boolean }
+  /** Once, on installs from before 0.1.7: keep checking for updates? */
+  | { name: "updatesNotice" }
+  /** A new version is downloaded and checked: install now or later? */
+  | { name: "updateReady"; version: string };
 
 export const BREAK_INTRO_MS = 3000;
 export const CELEBRATION_MS = 4000;
@@ -31,6 +40,9 @@ export interface CardOutcomes {
   snooze: () => void;
   /** The hello card is finished (dragged into place, or closed). */
   helloDone?: () => void;
+  updatesAnswer?: (enabled: boolean) => void;
+  updateInstall?: () => void;
+  updateLater?: () => void;
 }
 
 export interface CardActions {
@@ -44,6 +56,9 @@ export interface CardActions {
   /** The user let go of the hello card after dragging it. */
   helloSaved: () => void;
   helloDone: () => void;
+  updatesAnswer: (enabled: boolean) => void;
+  updateInstall: () => void;
+  updateLater: () => void;
 }
 
 /**
@@ -79,6 +94,14 @@ export function useCardFlow(outcomes: CardOutcomes, options: { timeScale?: numbe
       }
       if (payload.kind === "hello") {
         setView({ name: "hello", saved: false });
+        return;
+      }
+      if (payload.kind === "updatesNotice") {
+        setView({ name: "updatesNotice" });
+        return;
+      }
+      if (payload.kind === "updateReady") {
+        setView({ name: "updateReady", version: payload.version });
         return;
       }
       const movement = MOVEMENTS[payload.movementId];
@@ -143,6 +166,18 @@ export function useCardFlow(outcomes: CardOutcomes, options: { timeScale?: numbe
     helloDone: () => {
       clearTimers();
       outcomesRef.current.helloDone?.();
+    },
+    updatesAnswer: (enabled) => {
+      clearTimers();
+      outcomesRef.current.updatesAnswer?.(enabled);
+    },
+    updateInstall: () => {
+      clearTimers();
+      outcomesRef.current.updateInstall?.();
+    },
+    updateLater: () => {
+      clearTimers();
+      outcomesRef.current.updateLater?.();
     },
   };
 

@@ -97,6 +97,8 @@ function imageFor(view: View): string {
     case "waiting":
       return "waiting.png";
     case "hello":
+    case "updatesNotice":
+    case "updateReady":
       return "idle.png";
   }
 }
@@ -206,6 +208,34 @@ function renderBody(view: View, now: number, actions: CardActions) {
         <>
           <p className="title">Hi! This is where I'll pop up.</p>
           <p className="line">Every now and then, while you work.</p>
+        </>
+      );
+
+    case "updatesNotice":
+      return (
+        <>
+          <p className="title">Shall I keep myself up to date?</p>
+          <p className="line">Once a day I ask GitHub for the newest version number. Nothing about you is sent.</p>
+          <div className="actions">
+            <button className="primary" onClick={() => actions.updatesAnswer(true)}>
+              Keep on
+            </button>
+            <button onClick={() => actions.updatesAnswer(false)}>Turn off</button>
+          </div>
+        </>
+      );
+
+    case "updateReady":
+      return (
+        <>
+          <p className="title">A new Moovy is ready</p>
+          <p className="line">Version {view.version}. Install it now? It takes a few seconds.</p>
+          <div className="actions">
+            <button className="primary" onClick={actions.updateInstall}>
+              Install
+            </button>
+            <button onClick={actions.updateLater}>Later</button>
+          </div>
         </>
       );
   }

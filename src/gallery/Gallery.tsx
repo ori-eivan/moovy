@@ -21,6 +21,9 @@ const noop: CardActions = {
   skip: () => {},
   helloSaved: () => {},
   helloDone: () => {},
+  updatesAnswer: () => {},
+  updateInstall: () => {},
+  updateLater: () => {},
 };
 
 export default function Gallery() {
@@ -158,6 +161,16 @@ function AllScreens({ character }: { character: string }) {
     { title: "Waiting", how: "Click “Snooze” on screen 2, 4 or 8. Closes after 2 seconds, the card returns in 10 minutes.", view: { name: "waiting" } },
     { title: "Hello", how: "Once, right after onboarding. Drag it anywhere.", view: { name: "hello", saved: false } },
     { title: "Hello, saved", how: "After letting go of the drag. Closes after 2 seconds.", view: { name: "hello", saved: true } },
+    {
+      title: "Keep updates on?",
+      how: "Once, for people who installed before 0.1.7, at a quiet moment.",
+      view: { name: "updatesNotice" },
+    },
+    {
+      title: "Update ready",
+      how: "A new version is downloaded and checked. “Later” asks again in a day.",
+      view: { name: "updateReady", version: "0.1.8" },
+    },
   ];
 
   return (
@@ -192,21 +205,23 @@ function SettingsScreens() {
     pace: { id: "recommended", waterMinutes: 45, moveMinutes: 60 },
     onboarded: true,
     autostart: true,
+    updates: true,
     character: DEFAULT_CHARACTER,
-    version: "0.1.6",
+    version: "0.1.7",
   });
   const [onboardingRun, setOnboardingRun] = useState(0);
   const actions: SettingsActions = {
     setCharacter: (id) => setState((s) => ({ ...s, character: id })),
     setPace: (pace) => setState((s) => ({ ...s, pace })),
     setAutostart: (autostart) => setState((s) => ({ ...s, autostart })),
+    setUpdates: (updates) => setState((s) => ({ ...s, updates })),
     clearData: () => {},
     openGitHub: () => {},
     reportProblem: () => {},
   };
   const screens = [
     { title: "Settings", how: "Opens on first launch, and from “Settings” in the tray.", confirming: false },
-    { title: "Clear my data", how: "Click “Clear my data” on screen 11.", confirming: true },
+    { title: "Clear my data", how: "Click “Clear my data” on screen 15.", confirming: true },
   ];
   return (
     <>
@@ -226,7 +241,7 @@ function SettingsScreens() {
       {screens.map((s, i) => (
         <figure key={s.title}>
           <figcaption>
-            <span className="num">{13 + i}</span>
+            <span className="num">{15 + i}</span>
             <span>
               <b>{s.title}</b>
               <small>{s.how}</small>

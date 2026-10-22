@@ -69,7 +69,7 @@ Click targets at least 32 px tall. Visible focus ring: 2 px Accent outline, 2 px
 | Surface | Size |
 |---|---|
 | Card window | 380 px wide (card 360 + shadow room), height follows the content |
-| Settings / onboarding window | 380 × 680 px (since 0.1.5). Everything must fit without scrolling, including Custom open together with the "Clear my data" confirmation |
+| Settings / onboarding window | 380 × 730 px (since 0.1.7, was 680 before the updates switch). Everything must fit without scrolling, including Custom open together with the "Clear my data" confirmation |
 | Mascot on the card | 126 px tile |
 
 ## 5. Motion

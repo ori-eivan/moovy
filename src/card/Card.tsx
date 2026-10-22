@@ -21,6 +21,9 @@ export default function Card() {
     skip: () => invoke("card_skip"),
     snooze: () => invoke("card_snooze"),
     helloDone: () => invoke("card_hello_done"),
+    updatesAnswer: (enabled) => invoke("updates_answer", { enabled }),
+    updateInstall: () => invoke("update_install"),
+    updateLater: () => invoke("update_later"),
   });
   const viewRef = useRef(view);
   viewRef.current = view;

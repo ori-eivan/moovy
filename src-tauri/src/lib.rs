@@ -5,6 +5,7 @@ mod pace;
 mod scheduler;
 mod settings;
 mod stats;
+mod updates;
 
 use tauri::{
     menu::{IsMenuItem, Menu, MenuItem, PredefinedMenuItem},
@@ -72,6 +73,26 @@ fn card_hello_done(app: AppHandle) {
     card::hide(&app);
 }
 
+/// The one-time question on older installs: keep checking for updates?
+#[tauri::command]
+fn updates_answer(app: AppHandle, enabled: bool) {
+    updates::set_enabled(&app, enabled);
+    card::hide(&app);
+}
+
+/// "Install" on the update card.
+#[tauri::command]
+fn update_install(app: AppHandle) {
+    card::hide(&app);
+    updates::install(&app);
+}
+
+/// "Later" on the update card. It asks again in a day; the tray can install any time.
+#[tauri::command]
+fn update_later(app: AppHandle) {
+    card::hide(&app);
+}
+
 fn open_settings(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();
@@ -99,6 +120,7 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             card_started,
             card_done,
@@ -107,10 +129,14 @@ pub fn run() {
             card_resize,
             card_drag_start,
             card_hello_done,
+            updates_answer,
+            update_install,
+            update_later,
             settings::get_settings,
             settings::set_pace,
             settings::finish_onboarding,
             settings::set_autostart,
+            settings::set_updates,
             settings::set_character,
             settings::clear_data
         ])
@@ -123,12 +149,15 @@ pub fn run() {
             card::init(handle);
             engine::init(handle, settings::pace(handle));
             settings::first_run(handle);
+            updates::init(handle, settings::onboarded(handle));
 
             let item = |id: &str, text: &str, enabled: bool| MenuItem::with_id(app, id, text, enabled, None::<&str>);
             let status = item("status", "Starting…", false)?;
             let settings_item = item("settings", "Settings", true)?;
             let copy_stats = item("copy_stats", "Copy my stats", true)?;
             let set_position = item("set_position", "Set card position", true)?;
+            let check_updates = item("check_updates", updates::CHECK_LABEL, true)?;
+            let install_update = item("install_update", "Install update", true)?;
             let quit = item("quit", "Quit", true)?;
             let fast_mode = item("fast_mode", &fast_mode_label(engine::speed(handle)), true)?;
             let fast_mode_for_menu = fast_mode.clone();
@@ -139,7 +168,10 @@ pub fn run() {
                 Box::new(settings_item),
                 Box::new(copy_stats),
                 Box::new(set_position),
+                Box::new(check_updates.clone()),
             ];
+            // "Install update" appears right after "Check for updates" once one is downloaded.
+            let install_at = entries.len();
             // Development only: run the clock 60 times faster.
             if cfg!(debug_assertions) {
                 entries.push(Box::new(PredefinedMenuItem::separator(app)?));
@@ -151,6 +183,7 @@ pub fn run() {
             let menu = Menu::with_items(app, &refs)?;
 
             app.manage(engine::TrayItems { status });
+            app.manage(updates::TrayItems { menu: menu.clone(), check: check_updates, install: install_update, install_at });
 
             TrayIconBuilder::with_id("moovy")
                 .icon(app.default_window_icon().cloned().expect("app icon missing"))
@@ -163,6 +196,8 @@ pub fn run() {
                         let _ = app.clipboard().write_text(stats::summary(app));
                     }
                     "set_position" => card::set_position(app),
+                    "check_updates" => updates::check(app, true),
+                    "install_update" => updates::install(app),
                     "fast_mode" => {
                         let speed = if engine::speed(app) > 1 { 1 } else { engine::FAST_SPEED };
                         engine::set_speed(app, speed);
