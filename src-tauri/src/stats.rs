@@ -1,7 +1,7 @@
 //! What happens to the cards, kept only on this computer and never sent anywhere.
 //!
-//! - A count per day. Testers copy a one-line summary from the tray ("Copy my stats") and share
-//!   it themselves; that number is the 50% release gate in the PRD.
+//! - A count per day, summed into the one line behind the 50% release gate in the PRD. The tray
+//!   item that copied it was removed on 2026-10-22 (see `summary`).
 //! - A log of each card that was done or closed with X, shown day by day in the Stats tab.
 //!   Snoozes and cards left unanswered are not in the log.
 
@@ -174,6 +174,9 @@ pub fn clear(app: &AppHandle) {
 }
 
 /// The one line testers copy and send: totals over the last 7 days that have any activity.
+/// The tray item that copied it ("Copy my stats") was removed on 2026-10-22; kept for the
+/// tester release gate in the PRD until a new way to share it is chosen.
+#[allow(dead_code)]
 pub fn summary(app: &AppHandle) -> String {
     let version = app.package_info().version.to_string();
     summarize(&load(app), &version)

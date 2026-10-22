@@ -9,9 +9,9 @@ _Last updated: 22 October 2026 (v0.1.7)_
 ## The one network request: checking for updates
 
 - **What is sent:** a request for one public file, [`latest.json`](https://github.com/ori-eivan/moovy/releases/latest/download/latest.json), which holds the newest version number and its download links. Moovy adds nothing about you: no ID, no settings, no counts. Like any website, GitHub sees your IP address and that the request comes from Moovy.
-- **How often:** at most once a day, starting a couple of minutes after Moovy opens, plus whenever you click **Check for updates** in the tray.
+- **How often:** at most once a day, starting a couple of minutes after Moovy opens.
 - **When there is a new version:** Moovy downloads it in the background and checks its digital signature, so only versions signed by Ori Eivan are accepted. Then your character asks: **Install** or **Later**. Nothing installs without your click.
-- **Switching it off:** **Check for updates** in the settings window (and on the last setup screen). Off means no request is made at all, except when you click **Check for updates** in the tray yourself.
+- **Switching it off:** **Check for updates** in the settings window (and on the last setup screen). Off means no request is made at all.
 - **The code:** all of it is in [`src-tauri/src/updates.rs`](https://github.com/ori-eivan/moovy/blob/main/src-tauri/src/updates.rs).
 
 If you installed Moovy before 0.1.7, nothing is checked until your character asks you once whether to keep update checks on.
@@ -36,7 +36,7 @@ One file on your computer: `%APPDATA%\com.orieivan.moovy\moovy.json` on Windows,
 - Your settings: your pace, your character, update checks on or off, whether setup is done, and when updates were last checked.
 - Where you dragged the card, and which movement comes next.
 - Daily counts of what happened to the cards: shown, started, done, snoozed, skipped. Only numbers, kept on your computer.
-- For the Stats tab, a list of the cards you finished or closed in the last 30 days: the time, water or which movement, and done or skipped. Kept on your computer only. **Clear my data** deletes it. **Copy my stats** in the tray copies a short summary to your clipboard, and only when you click it. Sharing it is up to you.
+- For the Stats screen, a list of the cards you finished or closed in the last 30 days: the time, water or which movement, and done or skipped. Kept on your computer only. **Clear my data** deletes it.
 
 **Start with Windows** adds a Moovy entry to your Windows startup list. You can turn it off in the settings window.
 
