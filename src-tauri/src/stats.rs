@@ -1,6 +1,9 @@
-//! A silent local count of what happens to the cards, per day. Never shown in the UI and never
-//! sent anywhere. Testers copy a one-line summary from the tray ("Copy my stats") and share it
-//! themselves; that number is the 50% release gate in the PRD.
+//! What happens to the cards, kept only on this computer and never sent anywhere.
+//!
+//! - A count per day. Testers copy a one-line summary from the tray ("Copy my stats") and share
+//!   it themselves; that number is the 50% release gate in the PRD.
+//! - A log of each card that was done or closed with X, shown day by day in the Stats tab.
+//!   Snoozes and cards left unanswered are not in the log.
 
 use std::collections::BTreeMap;
 
@@ -10,6 +13,7 @@ use tauri_plugin_store::StoreExt;
 
 const STORE_FILE: &str = "moovy.json";
 const KEY_DAYS: &str = "days";
+const KEY_LOG: &str = "log";
 const KEEP_DAYS: usize = 30;
 
 #[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq)]
@@ -62,8 +66,45 @@ impl Day {
 
 type Days = BTreeMap<String, Day>;
 
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum Outcome {
+    Done,
+    Skipped,
+}
+
+/// One card in the day log.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Entry {
+    /// Local time the card was answered, "HH:MM".
+    pub time: String,
+    /// "break" or "water".
+    pub kind: String,
+    /// The movement on a break card. The page turns it into a name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub movement_id: Option<String>,
+    pub outcome: Outcome,
+}
+
+type Log = BTreeMap<String, Vec<Entry>>;
+
+/// One day of the log, as the Stats tab gets it.
+#[derive(Clone, Debug, Serialize, PartialEq)]
+pub struct DayLog {
+    pub date: String,
+    pub entries: Vec<Entry>,
+}
+
 fn today() -> String {
     chrono::Local::now().date_naive().to_string()
+}
+
+/// Keeps the last 30 days only. Dates sort correctly as YYYY-MM-DD strings.
+fn keep_recent<T>(days: &mut BTreeMap<String, T>) {
+    while days.len() > KEEP_DAYS {
+        days.pop_first();
+    }
 }
 
 fn load(app: &AppHandle) -> Days {
@@ -78,20 +119,56 @@ pub fn record(app: &AppHandle, event: Event) {
     let Ok(store) = app.store(STORE_FILE) else { return };
     let mut days = load(app);
     days.entry(today()).or_default().apply(event);
-    // Keep the last 30 days only. Dates sort correctly as YYYY-MM-DD strings.
-    while days.len() > KEEP_DAYS {
-        let oldest = days.keys().next().cloned().unwrap();
-        days.remove(&oldest);
-    }
+    keep_recent(&mut days);
     if let Ok(value) = serde_json::to_value(&days) {
         store.set(KEY_DAYS, value);
         let _ = store.save();
     }
 }
 
+fn load_log(app: &AppHandle) -> Log {
+    app.store(STORE_FILE)
+        .ok()
+        .and_then(|s| s.get(KEY_LOG))
+        .and_then(|v| serde_json::from_value(v).ok())
+        .unwrap_or_default()
+}
+
+/// Adds a done or skipped card to today's log.
+pub fn log_card(app: &AppHandle, kind: &str, movement_id: Option<String>, outcome: Outcome) {
+    let Ok(store) = app.store(STORE_FILE) else { return };
+    let now = chrono::Local::now();
+    let entry = Entry { time: now.format("%H:%M").to_string(), kind: kind.to_string(), movement_id, outcome };
+    let mut log = load_log(app);
+    add_entry(&mut log, now.date_naive().to_string(), entry);
+    if let Ok(value) = serde_json::to_value(&log) {
+        store.set(KEY_LOG, value);
+        let _ = store.save();
+    }
+}
+
+fn add_entry(log: &mut Log, date: String, entry: Entry) {
+    log.entry(date).or_default().push(entry);
+    keep_recent(log);
+}
+
+/// Every day in the log, newest first. Days with no entries are left out.
+pub fn day_logs(app: &AppHandle) -> Vec<DayLog> {
+    newest_first(load_log(app))
+}
+
+fn newest_first(log: Log) -> Vec<DayLog> {
+    log.into_iter()
+        .rev()
+        .filter(|(_, entries)| !entries.is_empty())
+        .map(|(date, entries)| DayLog { date, entries })
+        .collect()
+}
+
 pub fn clear(app: &AppHandle) {
     if let Ok(store) = app.store(STORE_FILE) {
         store.delete(KEY_DAYS);
+        store.delete(KEY_LOG);
         let _ = store.save();
     }
 }
@@ -146,6 +223,45 @@ mod tests {
     fn summary_without_cards_has_no_rate() {
         let line = summarize(&Days::new(), "0.1.0");
         assert!(line.contains("0 break cards, started 0 (n/a)"), "{line}");
+    }
+
+    fn entry(time: &str, outcome: Outcome) -> Entry {
+        Entry { time: time.into(), kind: "water".into(), movement_id: None, outcome }
+    }
+
+    #[test]
+    fn log_keeps_the_last_thirty_days() {
+        let mut log = Log::new();
+        for i in 1..=31 {
+            add_entry(&mut log, format!("2026-10-{i:02}"), entry("10:00", Outcome::Done));
+        }
+        assert_eq!(log.len(), 30);
+        assert!(!log.contains_key("2026-10-01"));
+    }
+
+    #[test]
+    fn day_logs_are_newest_first_in_the_order_they_happened() {
+        let mut log = Log::new();
+        add_entry(&mut log, "2026-10-20".into(), entry("09:00", Outcome::Done));
+        add_entry(&mut log, "2026-10-21".into(), entry("09:30", Outcome::Skipped));
+        add_entry(&mut log, "2026-10-21".into(), entry("10:00", Outcome::Done));
+        let days = newest_first(log);
+        assert_eq!(days[0].date, "2026-10-21");
+        assert_eq!(days[0].entries[0].time, "09:30");
+        assert_eq!(days[1].date, "2026-10-20");
+    }
+
+    #[test]
+    fn entry_json_matches_the_page() {
+        let break_entry = Entry {
+            time: "14:05".into(),
+            kind: "break".into(),
+            movement_id: Some("wall-angels".into()),
+            outcome: Outcome::Skipped,
+        };
+        let json = serde_json::to_string(&break_entry).unwrap();
+        assert_eq!(json, r#"{"time":"14:05","kind":"break","movementId":"wall-angels","outcome":"skipped"}"#);
+        assert!(!serde_json::to_string(&entry("09:00", Outcome::Done)).unwrap().contains("movementId"));
     }
 
     #[test]

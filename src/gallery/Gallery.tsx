@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import CardView from "../card/CardView";
 import Onboarding from "../settings/Onboarding";
 import SettingsView, { type SettingsActions, type SettingsState } from "../settings/SettingsView";
+import StatsView, { type DayLog, type LogEntry } from "../settings/StatsView";
 import { useCardFlow, type CardActions, type Payload, type View } from "../card/useCardFlow";
 import { CHARACTERS, DEFAULT_CHARACTER } from "../content/characters";
 import { MOVEMENTS } from "../content/movements";
@@ -199,6 +200,24 @@ function AllScreens({ character }: { character: string }) {
   );
 }
 
+/** Made-up test days for the gallery only. The first one is always today. */
+const SAMPLE_DAYS: DayLog[] = [0, 1, 2, 4].map((ago, i) => {
+  const d = new Date();
+  d.setDate(d.getDate() - ago);
+  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const entries: LogEntry[] = [
+    { time: "09:40", kind: "water", outcome: "done" },
+    { time: "10:25", kind: "break", movementId: "wall-angels", outcome: "done" },
+    { time: "11:15", kind: "water", outcome: "skipped" },
+    { time: "12:05", kind: "break", movementId: "neck-flexion", outcome: "done" },
+    { time: "14:30", kind: "water", outcome: "done" },
+    { time: "15:20", kind: "break", movementId: "hip-flexor", outcome: "skipped" },
+    { time: "16:45", kind: "water", outcome: "done" },
+  ];
+  return { date, entries: entries.slice(0, 7 - i) };
+});
+const loadSampleDays = async () => SAMPLE_DAYS;
+
 /** Screens 10 and 11: the one settings window. Clickable here too, nothing is saved. */
 function SettingsScreens() {
   const [state, setState] = useState<SettingsState>({
@@ -219,9 +238,17 @@ function SettingsScreens() {
     openGitHub: () => {},
     reportProblem: () => {},
   };
-  const screens = [
+  const screens: { title: string; how: string; confirming: boolean; tab?: "stats"; openDate?: string }[] = [
     { title: "Settings", how: "Opens on first launch, and from “Settings” in the tray.", confirming: false },
     { title: "Clear my data", how: "Click “Clear my data” on screen 15.", confirming: true },
+    { title: "Stats", how: "“Stats” in the tray. Click a day: it slides up and its cards appear.", confirming: false, tab: "stats" },
+    {
+      title: "Stats: one day",
+      how: "A day open. Click the day again or Back to return.",
+      confirming: false,
+      tab: "stats",
+      openDate: SAMPLE_DAYS[0].date,
+    },
   ];
   return (
     <>
@@ -249,7 +276,11 @@ function SettingsScreens() {
           </figcaption>
           <div className="window">
             <div className="titlebar">Moovy</div>
-            <SettingsView state={state} actions={actions} confirmingClear={s.confirming} />
+            {s.tab === "stats" ? (
+              <StatsView loadDays={loadSampleDays} openDate={s.openDate} />
+            ) : (
+              <SettingsView state={state} actions={actions} confirmingClear={s.confirming} />
+            )}
           </div>
         </figure>
       ))}

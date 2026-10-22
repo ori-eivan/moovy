@@ -1,17 +1,29 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import Onboarding from "./Onboarding";
 import SettingsView, { type SettingsState } from "./SettingsView";
+import StatsView, { type DayLog } from "./StatsView";
 
 const REPO = "https://github.com/ori-eivan/moovy";
+
+const loadDays = () => invoke<DayLog[]>("get_day_logs");
 
 /** The real settings window: the view, wired to Rust. */
 export default function Settings() {
   const [state, setState] = useState<SettingsState | null>(null);
+  // The tray picks the screen: "Settings" or "Stats". Both live in this one window.
+  const [screen, setScreen] = useState<"settings" | "stats">("settings");
 
   useEffect(() => {
     invoke<SettingsState>("get_settings").then(setState);
+    const unlisten = getCurrentWebviewWindow().listen<"settings" | "stats">("settings:screen", ({ payload }) =>
+      setScreen(payload),
+    );
+    return () => {
+      unlisten.then((stop) => stop());
+    };
   }, []);
 
   if (!state) return null;
@@ -34,6 +46,8 @@ export default function Settings() {
       />
     );
   }
+
+  if (screen === "stats") return <StatsView loadDays={loadDays} />;
 
   return (
     <SettingsView

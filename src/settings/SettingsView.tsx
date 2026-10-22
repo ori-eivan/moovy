@@ -86,7 +86,7 @@ export default function SettingsView({ state, actions, confirmingClear = false }
       <footer>
         {confirming ? (
           <div className="confirm" role="alert">
-            <span>Forget the card position and movement order?</span>
+            <span>Forget the card position, movement order and your stats?</span>
             <button
               className="danger"
               onClick={() => {
