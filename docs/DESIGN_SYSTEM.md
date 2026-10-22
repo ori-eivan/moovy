@@ -2,7 +2,7 @@
 
 The single source of truth for how Moovy looks and moves. Read it before any UI change; update it in the same change when a decision changes. This project has its own design language, so the general ORIKU visual system does not apply here.
 
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-22
 **Live check:** `http://localhost:1420/gallery.html` → Part 3, Typography. It reads every text style from the running CSS, so it shows what is really on screen.
 
 `DESIGN_BRIEF.md` is the original brief for the first design pass. Where the two disagree, this file wins (the brief asked for one font and no glass; both were changed on purpose, see below).
@@ -69,7 +69,7 @@ Click targets at least 32 px tall. Visible focus ring: 2 px Accent outline, 2 px
 | Surface | Size |
 |---|---|
 | Card window | 380 px wide (card 360 + shadow room), height follows the content |
-| Settings / onboarding window | 380 × 730 px (since 0.1.7, was 680 before the updates switch). Everything must fit without scrolling, including Custom open together with the "Clear my data" confirmation |
+| Settings / onboarding window | 380 × 730 px. The Stats screen's day list scrolls inside the window when there are more days than fit; the title stays put (since 0.1.7, was 680 before the updates switch). Everything must fit without scrolling, including Custom open together with the "Clear my data" confirmation |
 | Mascot on the card | 126 px tile |
 
 ## 5. Motion
@@ -83,6 +83,7 @@ Calm and short. Everything turns off with Windows "Animation effects" off (`pref
 | Card: water Done, celebration | Small bounce (CSS) | 600 ms ease-out |
 | Card: Waiting | Gentle sway (CSS) | 1600 ms loop |
 | How to panel | Slides in with clip-path (CSS) | 300 ms in, 460 ms out |
+| Stats: open a day | (GSAP) the week line and the other days fade out, then the clicked day slides up to the top and that day's cards fade up under it one by one. Back (or the day again) runs it in reverse | fade 0.15 s `power2.in`; slide 0.30 s `power3.out`; cards 0.24 s `power2.out`, 30 ms apart |
 
 Glass is used **only** for onboarding screen changes. It is not a general style: no glass cards, no glass buttons.
 
@@ -99,6 +100,7 @@ Small UI icons come from **Microsoft Fluent Emoji, Flat style** (MIT licence, `p
 | Card (all states) | `src/card/CardView.tsx`, `src/card/card.css` |
 | Onboarding | `src/settings/Onboarding.tsx`, `src/settings/onboarding.css` |
 | Settings window | `src/settings/SettingsView.tsx`, `src/settings/settings.css` |
+| Stats screen | `src/settings/StatsView.tsx`, `src/settings/stats.css`. Same window as settings, opened from the tray; no tabs. Title "Stats". Week line: section label "Last 7 days" and the done count in Clash Display, Accent. Day rows look like choice rows (radius 14, Line strong border, Ink when open): day name in Clash Display 18 px, date under it in Hyperlegible Sans 13 px Muted (`21.10.26`), then the pace picker's minutes boxes counting cards (`💧 3/4`, `🚶 2/3`; Line box with `0` when there were none). Each card line in an open day: time (Hyperlegible Sans), 💧 / 🚶 box, name (Manrope), Done / Skipped (Skipped in Muted) |
 | Pace picker | `src/settings/PacePicker.tsx` (styles in `onboarding.css`): Recommended, Active, Custom. Only Custom opens the two sliders. Used by onboarding and settings |
 | Pace data | `src/content/paces.ts` (ids, minutes and ranges must match `src-tauri/src/pace.rs`) |
 

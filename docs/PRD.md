@@ -142,9 +142,10 @@ No safety line in the UI (removed 2026-10-18). The copy stays gentle ("Don't pul
 - **Your buddy:** pick a character. Picking one shows a card with that character right away, so the choice is seen.
 - **Water reminders** (switch, on by default)
 - **Start with Windows** (switch, on by default, switched on at first launch)
-- Footer: version · GitHub · Report a problem · Clear my data (asks to confirm; forgets card position and movement order, keeps settings)
+- Footer: version · GitHub · Report a problem · Clear my data (asks to confirm; forgets card position, movement order and stats, keeps settings)
+- **Stats screen** (added 2026-10-22, replaces "no stats in the window" from 2026-10-18), opened from **Stats** in the tray, in the same window: a line for the last 7 days ("16 of 22 done"), then one row per day, newest first. The day's name leads ("Today", "Yesterday", "Monday"), with the date small under it ("21.10.26"), and two boxes on the right: 💧 water done/shown and 🚶 moves done/shown. Clicking a day slides its title to the top and lists that day's cards under it: time, water or movement name, Done or Skipped. Only cards that were done or closed with × are listed; snoozes and unanswered cards are not. Days with no cards are not shown. The last 30 days are kept.
 
-Deliberately not in the window: stats, pause controls, interval, sounds.
+Deliberately not in the window: pause controls, interval, sounds.
 
 ## 11. Tray menu
 
@@ -152,6 +153,7 @@ Kept minimal (decided 2026-10-18):
 
 - Next card in N min (status line)
 - Settings
+- Stats (the same window, showing the days; see section 10)
 - Copy my stats
 - Set card position (shows the card with a "drag me anywhere" bubble; letting go saves the spot)
 - Check for updates (works even with the switch off, because the user asked)
@@ -163,7 +165,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 ## 12. Privacy
 
 - No account, no telemetry, no analytics.
-- Settings and daily counts are stored locally in the user's AppData.
+- Settings, daily counts and the day log for the Stats tab are stored locally in the user's AppData.
 - Microphone: Moovy checks only **whether** some app is recording from the microphone, by asking Windows' audio system and its privacy records. It never opens, records or listens to the microphone.
 - Network: one request a day for `latest.json` on GitHub, nothing about the user added. Off switch in onboarding and settings; off means no requests. Updates are signed and verified, and install only after the user clicks Install on the update card (decided 2026-10-22). See `PRIVACY.md`, which is the user-facing version of this section.
 - Screen sharing: window titles are read and compared to recognise a share bar, never stored.
@@ -173,7 +175,7 @@ Development builds also show "Fast mode". Pause and skip were removed from the t
 
 - **Day 7:** GitHub release sent to 3 to 5 testers (a student, a designer, a developer at minimum).
 - **Testers use it for 5 working days.**
-- **Public announcement** only if, across testers, **at least 50% of break cards get Start**. The settings window shows no stats (decided 2026-10-18). Moovy counts silently in its local file, and testers use **Copy my stats** in the tray to copy a one-line 7-day summary and send it themselves. Nothing is sent automatically.
+- **Public announcement** only if, across testers, **at least 50% of break cards get Start**. The Stats tab shows each user their own days (since 2026-10-22); the gate number itself is not shown. Testers use **Copy my stats** in the tray to copy a one-line 7-day summary and send it themselves. Nothing is sent automatically.
 - If under 50%, the problem is the idea or the card, not the code. Revisit before announcing.
 
 ## 14. Out of scope for v0.1

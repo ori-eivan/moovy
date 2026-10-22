@@ -75,6 +75,8 @@ pub struct CardRuntime {
     rotation_index: usize,
     /// True between the user grabbing the card and the card hiding. Only drags are remembered.
     dragging: bool,
+    /// The card on screen is a character preview from settings: kept out of the day log.
+    preview: bool,
 }
 
 pub type CardState = Mutex<CardRuntime>;
@@ -104,6 +106,7 @@ pub fn show_next_break(app: &AppHandle) {
 pub fn preview_next_break(app: &AppHandle) {
     let payload = next_break(app);
     present(app, payload);
+    app.state::<CardState>().lock().unwrap().preview = true;
 }
 
 fn next_break(app: &AppHandle) -> CardPayload {
@@ -144,6 +147,13 @@ pub fn show_notice(app: &AppHandle, payload: CardPayload) {
     present(app, payload);
 }
 
+/// The water or break card on screen, if it belongs in the day log (not a preview).
+pub fn current_reminder(app: &AppHandle) -> Option<CardPayload> {
+    let runtime = app.state::<CardState>();
+    let runtime = runtime.lock().unwrap();
+    runtime.current.clone().filter(|p| p.is_reminder() && !runtime.preview)
+}
+
 /// True while any card is on screen.
 pub fn is_showing(app: &AppHandle) -> bool {
     app.state::<CardState>().lock().unwrap().current.is_some()
@@ -158,6 +168,7 @@ fn present(app: &AppHandle, payload: CardPayload) {
         let state = app.state::<CardState>();
         let mut runtime = state.lock().unwrap();
         runtime.current = Some(payload.clone());
+        runtime.preview = false;
         if payload.is_reminder() {
             runtime.last = Some(payload.clone());
         }
@@ -199,9 +210,15 @@ pub fn hide(app: &AppHandle) {
 /// Brings back the last card (after a snooze). The scheduler decides when.
 /// The same card coming back is not a new card, so it is not counted again.
 pub fn present_last(app: &AppHandle) {
-    let last = app.state::<CardState>().lock().unwrap().last.clone();
+    let (last, preview) = {
+        let runtime = app.state::<CardState>();
+        let runtime = runtime.lock().unwrap();
+        (runtime.last.clone(), runtime.preview)
+    };
     if let Some(payload) = last {
         present(app, payload);
+        // A snoozed preview stays a preview.
+        app.state::<CardState>().lock().unwrap().preview = preview;
     }
 }
 

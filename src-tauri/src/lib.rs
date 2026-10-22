@@ -10,7 +10,7 @@ mod updates;
 use tauri::{
     menu::{IsMenuItem, Menu, MenuItem, PredefinedMenuItem},
     tray::TrayIconBuilder,
-    AppHandle, Manager, RunEvent, WindowEvent, Wry,
+    AppHandle, Emitter, Manager, RunEvent, WindowEvent, Wry,
 };
 use tauri_plugin_clipboard_manager::ClipboardExt;
 
@@ -28,6 +28,7 @@ fn card_done(app: AppHandle, kind: String) {
     println!("[moovy] card done: {kind}");
     let event = if kind == "water" { stats::Event::WaterDone } else { stats::Event::BreakCompleted };
     stats::record(&app, event);
+    log_current_card(&app, stats::Outcome::Done);
     card::hide(&app);
     engine::card_closed(&app);
 }
@@ -38,8 +39,24 @@ fn card_skip(app: AppHandle) {
     #[cfg(debug_assertions)]
     println!("[moovy] card skipped");
     stats::record(&app, stats::Event::Skipped);
+    log_current_card(&app, stats::Outcome::Skipped);
     card::hide(&app);
     engine::card_closed(&app);
+}
+
+/// Puts the card on screen into today's log. Must run before the card hides.
+fn log_current_card(app: &AppHandle, outcome: stats::Outcome) {
+    match card::current_reminder(app) {
+        Some(card::CardPayload::Break { movement_id }) => stats::log_card(app, "break", Some(movement_id), outcome),
+        Some(card::CardPayload::Water) => stats::log_card(app, "water", None, outcome),
+        _ => {}
+    }
+}
+
+/// The Stats tab: every day in the log, newest first.
+#[tauri::command]
+fn get_day_logs(app: AppHandle) -> Vec<stats::DayLog> {
+    stats::day_logs(&app)
 }
 
 /// The user pressed Snooze. The card has already shown its Waiting state.
@@ -94,7 +111,18 @@ fn update_later(app: AppHandle) {
 }
 
 fn open_settings(app: &AppHandle) {
+    open_window(app, "settings", "Moovy");
+}
+
+/// "Stats" in the tray: the same window, showing the days instead of the settings.
+fn open_stats(app: &AppHandle) {
+    open_window(app, "stats", "Moovy · Stats");
+}
+
+fn open_window(app: &AppHandle, screen: &str, title: &str) {
     if let Some(window) = app.get_webview_window("settings") {
+        let _ = app.emit_to("settings", "settings:screen", screen);
+        let _ = window.set_title(title);
         let _ = window.show();
         let _ = window.unminimize();
         let _ = window.set_focus();
@@ -132,6 +160,7 @@ pub fn run() {
             updates_answer,
             update_install,
             update_later,
+            get_day_logs,
             settings::get_settings,
             settings::set_pace,
             settings::finish_onboarding,
@@ -154,6 +183,7 @@ pub fn run() {
             let item = |id: &str, text: &str, enabled: bool| MenuItem::with_id(app, id, text, enabled, None::<&str>);
             let status = item("status", "Starting…", false)?;
             let settings_item = item("settings", "Settings", true)?;
+            let stats_item = item("stats", "Stats", true)?;
             let copy_stats = item("copy_stats", "Copy my stats", true)?;
             let set_position = item("set_position", "Set card position", true)?;
             let check_updates = item("check_updates", updates::CHECK_LABEL, true)?;
@@ -166,6 +196,7 @@ pub fn run() {
                 Box::new(status.clone()),
                 Box::new(PredefinedMenuItem::separator(app)?),
                 Box::new(settings_item),
+                Box::new(stats_item),
                 Box::new(copy_stats),
                 Box::new(set_position),
                 Box::new(check_updates.clone()),
@@ -192,6 +223,7 @@ pub fn run() {
                 .show_menu_on_left_click(true)
                 .on_menu_event(move |app, event| match event.id.as_ref() {
                     "settings" => open_settings(app),
+                    "stats" => open_stats(app),
                     "copy_stats" => {
                         let _ = app.clipboard().write_text(stats::summary(app));
                     }

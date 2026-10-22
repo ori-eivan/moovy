@@ -35,7 +35,8 @@ One file on your computer: `%APPDATA%\com.orieivan.moovy\moovy.json` on Windows,
 
 - Your settings: your pace, your character, update checks on or off, whether setup is done, and when updates were last checked.
 - Where you dragged the card, and which movement comes next.
-- Daily counts of what happened to the cards: shown, started, done, snoozed, skipped. Only numbers, kept on your computer. **Copy my stats** in the tray copies a short summary to your clipboard, and only when you click it. Sharing it is up to you.
+- Daily counts of what happened to the cards: shown, started, done, snoozed, skipped. Only numbers, kept on your computer.
+- For the Stats tab, a list of the cards you finished or closed in the last 30 days: the time, water or which movement, and done or skipped. Kept on your computer only. **Clear my data** deletes it. **Copy my stats** in the tray copies a short summary to your clipboard, and only when you click it. Sharing it is up to you.
 
 **Start with Windows** adds a Moovy entry to your Windows startup list. You can turn it off in the settings window.
 
