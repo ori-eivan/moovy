@@ -12,6 +12,15 @@ Open tasks and their order (updates, licence, publishing): `../docs/NEXT_TASKS.m
 - Commit only the files you changed yourself, by name. Never `git add -A` or `git add .` here.
 - Releases and work that must not mix with someone else's go in a separate git worktree (for example `../app-release`), never in a folder another session is using.
 
+## Every new version goes through the same four steps
+
+1. A new branch for the version. Never bump the version on `main`.
+2. Ori tests the build locally, on his own Windows.
+3. The GitHub checks run on the branch and pass.
+4. Only then is it merged. Ori merges, after both 2 and 3 passed.
+
+**Install and launch the test build outside Claude.** The Claude desktop app is a packaged app: anything a session installs or runs inherits its sandbox, so files under `AppData` and keys under `HKCU` land in `C:\Users\user\AppData\Local\Packages\Claude_*\LocalCache` instead of the real locations. The install looks fine from inside Claude and does not exist for Windows: no Start with Windows, broken shortcuts, and the app dies when Claude restarts (seen 22.10.2026 with 0.1.8). Run the installer and the app through a process outside the package, for example `Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine='"<path>\Moovy_X.Y.Z_x64-setup.exe"'}`, or ask Ori to double-click it. To check what Windows really sees, read the paths from such an outside process too.
+
 ## Every change ships on both systems
 
 - A feature is done only when it works on Windows **and** on macOS. Never build for one and leave the other behind.
