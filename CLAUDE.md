@@ -6,11 +6,13 @@ Before any change to how Moovy looks or moves, read `docs/DESIGN_SYSTEM.md`.
 
 Open tasks and their order (updates, licence, publishing): `../docs/NEXT_TASKS.md`, outside this repository. Read it before starting on any of them.
 
-## Several sessions work on Moovy at once
+## One folder, branches inside it
 
-- `app/` may be in use by another session, on its own branch, with unfinished changes. Before any commit, check the branch (`git branch --show-current`) and `git status`.
+- All Moovy work happens in `app/`. A new branch is made in this folder (`git switch -c <name>`), and you move between branches with `git switch`. No extra folders: Ori does not want copies of the project piling up (decided 25.10.2026, after `app-last-things` and `app-release` took 6 GB).
+- Before switching branch, check `git status`. Unfinished changes are committed first, never left to travel to the other branch.
 - Commit only the files you changed yourself, by name. Never `git add -A` or `git add .` here.
-- Releases and work that must not mix with someone else's go in a separate git worktree (for example `../app-release`), never in a folder another session is using.
+- A second folder (`git worktree`) only when another session is working on Moovy right now with unfinished changes, and only after asking Ori. Remove it with `git worktree remove` as soon as its branch is merged.
+- Build output (`src-tauri/target`) grows by gigabytes per release. Old installers are on GitHub Releases, so `cargo clean` is always safe.
 
 ## Every new version goes through the same four steps
 
