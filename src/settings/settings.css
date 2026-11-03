@@ -108,6 +108,7 @@ body {
 
 .character:focus-visible,
 .switch-row input:focus-visible + .track,
+.power input:focus-visible + .track,
 .links button:focus-visible,
 .confirm button:focus-visible {
   outline: 2px solid #c4502c;
@@ -179,6 +180,61 @@ body {
   transform: translateX(16px);
 }
 
+/* On/off, beside the title. Same switch as the rows below. */
+.settings header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.power {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b6058;
+  cursor: pointer;
+}
+
+.power input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.power .track {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  background: #d9d1c5;
+  transition: background 160ms ease;
+}
+
+.power .track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 160ms ease;
+}
+
+.power input:checked + .track {
+  background: #221d1a;
+}
+
+.power input:checked + .track::after {
+  transform: translateX(16px);
+}
+
 /* Footer */
 .links,
 .confirm {
@@ -228,7 +284,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .switch-row .track,
-  .switch-row .track::after {
+  .switch-row .track::after,
+  .power .track,
+  .power .track::after {
     transition: none;
   }
 }

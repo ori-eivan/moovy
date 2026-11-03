@@ -28,16 +28,23 @@ pub struct Engine {
     speed: u64,
     signals: Signals,
     status_text: String,
+    /// Off: no signals are read and no card is shown, until the user turns Moovy back on.
+    running: bool,
 }
 
 pub type EngineState = Mutex<Engine>;
 
-/// The tray status line, which follows the scheduler.
+/// The tray status line, which follows the scheduler, and the on/off item.
 pub struct TrayItems {
     pub status: MenuItem<Wry>,
+    pub toggle: MenuItem<Wry>,
 }
 
-pub fn init(app: &AppHandle, pace: Pace) {
+pub fn toggle_label(running: bool) -> &'static str {
+    if running { "Turn off Moovy" } else { "Turn on Moovy" }
+}
+
+pub fn init(app: &AppHandle, pace: Pace, running: bool) {
     let speed = std::env::var("MOOVY_SPEED")
         .ok()
         .filter(|_| cfg!(debug_assertions))
@@ -52,6 +59,7 @@ pub fn init(app: &AppHandle, pace: Pace) {
         speed,
         signals: Signals::default(),
         status_text: String::new(),
+        running,
     }));
 
     let handle = app.clone();
@@ -68,6 +76,10 @@ pub fn init(app: &AppHandle, pace: Pace) {
 }
 
 fn tick(app: &AppHandle, gap: Duration) {
+    // Off: nothing is read or counted. The loop only waits to be turned back on.
+    if !running(app) {
+        return;
+    }
     let signals = activity::read();
     let decisions = {
         let state = app.state::<EngineState>();
@@ -161,6 +173,34 @@ pub fn is_quiet(app: &AppHandle) -> bool {
     !(s.locked || s.busy || s.mic_in_use || s.sharing_screen)
 }
 
+pub fn running(app: &AppHandle) -> bool {
+    app.state::<EngineState>().lock().unwrap().running
+}
+
+/// Turning off forgets any card that was open; turning on starts both clocks over, like
+/// coming back from being away.
+pub fn set_running(app: &AppHandle, on: bool) {
+    {
+        let state = app.state::<EngineState>();
+        let mut e = state.lock().unwrap();
+        if e.running == on {
+            return;
+        }
+        e.running = on;
+        let now = e.now;
+        if on {
+            e.signals = Signals::default();
+            e.scheduler.handle(Event::Resumed { now });
+        } else {
+            e.scheduler.handle(Event::CardClosed { now });
+        }
+    }
+    if let Some(items) = app.try_state::<TrayItems>() {
+        let _ = items.toggle.set_text(toggle_label(on));
+    }
+    refresh_tray(app);
+}
+
 pub fn speed(app: &AppHandle) -> u64 {
     app.state::<EngineState>().lock().unwrap().speed
 }
@@ -171,6 +211,9 @@ pub fn set_speed(app: &AppHandle, speed: u64) {
 }
 
 fn status_text(e: &Engine) -> String {
+    if !e.running {
+        return "Moovy is off".into();
+    }
     let fast = if e.speed > 1 { " (fast mode)" } else { "" };
     match e.scheduler.status() {
         Status::Next { card, minutes } => {

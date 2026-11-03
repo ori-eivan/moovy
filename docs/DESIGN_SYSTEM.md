@@ -99,7 +99,7 @@ Small UI icons come from **Microsoft Fluent Emoji, Flat style** (MIT licence, `p
 |---|---|
 | Card (all states) | `src/card/CardView.tsx`, `src/card/card.css` |
 | Onboarding | `src/settings/Onboarding.tsx`, `src/settings/onboarding.css` |
-| Settings window | `src/settings/SettingsView.tsx`, `src/settings/settings.css` |
+| Settings window | `src/settings/SettingsView.tsx`, `src/settings/settings.css`. The on/off switch sits beside the "Moovy" title (Label font, 15 px, Muted, "On" / "Off"), the same switch as the rows below. It mirrors "Turn off / Turn on Moovy" in the tray |
 | Stats screen | `src/settings/StatsView.tsx`, `src/settings/stats.css`. Same window as settings, opened from the tray; no tabs. Title "Stats". Week line: section label "Last 7 days" and the done count in Clash Display, Accent. Day rows look like choice rows (radius 14, Line strong border, Ink when open): day name in Clash Display 18 px, date under it in Hyperlegible Sans 13 px Muted (`21.10.26`), then the pace picker's minutes boxes counting cards (`💧 3/4`, `🚶 2/3`; Line box with `0` when there were none). Each card line in an open day: time (Hyperlegible Sans), 💧 / 🚶 box, name (Manrope), Done / Skipped (Skipped in Muted) |
 | Pace picker | `src/settings/PacePicker.tsx` (styles in `onboarding.css`): Recommended, Active, Custom. Only Custom opens the two sliders. Used by onboarding and settings |
 | Pace data | `src/content/paces.ts` (ids, minutes and ranges must match `src-tauri/src/pace.rs`) |
