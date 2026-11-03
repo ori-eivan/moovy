@@ -227,6 +227,7 @@ function SettingsScreens() {
     updates: true,
     character: DEFAULT_CHARACTER,
     version: "0.1.7",
+    running: true,
   });
   const [onboardingRun, setOnboardingRun] = useState(0);
   const actions: SettingsActions = {
@@ -234,6 +235,7 @@ function SettingsScreens() {
     setPace: (pace) => setState((s) => ({ ...s, pace })),
     setAutostart: (autostart) => setState((s) => ({ ...s, autostart })),
     setUpdates: (updates) => setState((s) => ({ ...s, updates })),
+    setRunning: (running) => setState((s) => ({ ...s, running })),
     clearData: () => {},
     openGitHub: () => {},
     reportProblem: () => {},

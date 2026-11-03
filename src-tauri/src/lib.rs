@@ -165,6 +165,7 @@ pub fn run() {
             settings::finish_onboarding,
             settings::set_autostart,
             settings::set_updates,
+            settings::set_running,
             settings::set_character,
             settings::clear_data
         ])
@@ -175,16 +176,17 @@ pub fn run() {
 
             let handle = app.handle();
             card::init(handle);
-            engine::init(handle, settings::pace(handle));
+            engine::init(handle, settings::pace(handle), settings::running(handle));
             settings::first_run(handle);
             updates::init(handle, settings::onboarded(handle));
 
             let item = |id: &str, text: &str, enabled: bool| MenuItem::with_id(app, id, text, enabled, None::<&str>);
             let status = item("status", "Starting…", false)?;
+            let toggle = item("toggle", engine::toggle_label(settings::running(handle)), true)?;
             let settings_item = item("settings", "Settings", true)?;
             let stats_item = item("stats", "Stats", true)?;
             let set_position = item("set_position", "Set card position", true)?;
-            // Not in the menu (the tray keeps only Settings, Stats and Set card position), but
+            // Not in the menu (the tray keeps only the on/off item, Settings, Stats and Set card position), but
             // updates.rs still writes its status to it.
             let check_updates = item("check_updates", updates::CHECK_LABEL, true)?;
             let install_update = item("install_update", "Install update", true)?;
@@ -194,6 +196,7 @@ pub fn run() {
 
             let mut entries: Vec<Box<dyn IsMenuItem<Wry>>> = vec![
                 Box::new(status.clone()),
+                Box::new(toggle.clone()),
                 Box::new(PredefinedMenuItem::separator(app)?),
                 Box::new(settings_item),
                 Box::new(stats_item),
@@ -211,7 +214,7 @@ pub fn run() {
             let refs: Vec<&dyn IsMenuItem<Wry>> = entries.iter().map(|e| e.as_ref()).collect();
             let menu = Menu::with_items(app, &refs)?;
 
-            app.manage(engine::TrayItems { status });
+            app.manage(engine::TrayItems { status, toggle });
             app.manage(updates::TrayItems { menu: menu.clone(), check: check_updates, install: install_update, install_at });
 
             TrayIconBuilder::with_id("moovy")
@@ -220,6 +223,7 @@ pub fn run() {
                 .menu(&menu)
                 .show_menu_on_left_click(true)
                 .on_menu_event(move |app, event| match event.id.as_ref() {
+                    "toggle" => settings::apply_running(app, !engine::running(app)),
                     "settings" => open_settings(app),
                     "stats" => open_stats(app),
                     "set_position" => card::set_position(app),

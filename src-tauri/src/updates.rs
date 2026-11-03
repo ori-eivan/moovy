@@ -99,6 +99,10 @@ pub fn init(app: &AppHandle, onboarded: bool) {
 }
 
 fn look(app: &AppHandle) {
+    // Moovy is off: no network and no update card until it is turned back on.
+    if !engine::running(app) {
+        return;
+    }
     let last = app
         .store(STORE_FILE)
         .ok()

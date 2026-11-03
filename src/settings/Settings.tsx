@@ -21,8 +21,13 @@ export default function Settings() {
     const unlisten = getCurrentWebviewWindow().listen<"settings" | "stats">("settings:screen", ({ payload }) =>
       setScreen(payload),
     );
+    // The tray's "Turn off / Turn on" keeps this switch in step.
+    const unlistenRunning = getCurrentWebviewWindow().listen<boolean>("settings:running", ({ payload }) =>
+      setState((s) => (s ? { ...s, running: payload } : s)),
+    );
     return () => {
       unlisten.then((stop) => stop());
+      unlistenRunning.then((stop) => stop());
     };
   }, []);
 
@@ -68,6 +73,10 @@ export default function Settings() {
         setUpdates: (enabled) => {
           setState({ ...state, updates: enabled });
           invoke("set_updates", { enabled });
+        },
+        setRunning: (on) => {
+          setState({ ...state, running: on });
+          invoke("set_running", { on });
         },
         clearData: () => invoke("clear_data"),
         openGitHub: () => openUrl(REPO),

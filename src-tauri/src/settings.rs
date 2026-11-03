@@ -3,7 +3,7 @@
 
 use serde::Serialize;
 use serde_json::json;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_autostart::ManagerExt as _;
 use tauri_plugin_store::StoreExt;
 
@@ -18,6 +18,7 @@ const KEY_WATER_MINUTES: &str = "waterMinutes";
 const KEY_MOVE_MINUTES: &str = "moveMinutes";
 const KEY_CHARACTER: &str = "character";
 const KEY_ONBOARDED: &str = "onboarded";
+const KEY_RUNNING: &str = "running";
 pub const DEFAULT_CHARACTER: &str = "thomas";
 
 #[derive(Serialize)]
@@ -29,6 +30,7 @@ pub struct SettingsView {
     updates: bool,
     character: String,
     version: String,
+    running: bool,
 }
 
 pub fn character(app: &AppHandle) -> String {
@@ -68,6 +70,35 @@ fn save_pace(app: &AppHandle, pace: Pace) {
     }
 }
 
+/// On unless the user turned Moovy off. Kept across restarts, so an off Moovy that starts
+/// with Windows stays off.
+pub fn running(app: &AppHandle) -> bool {
+    app.store(STORE_FILE)
+        .ok()
+        .and_then(|s| s.get(KEY_RUNNING))
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true)
+}
+
+/// The on/off switch, from the tray or the settings window. Off hides the card on screen,
+/// stops reading the computer's signals and skips the daily update check.
+pub fn apply_running(app: &AppHandle, on: bool) {
+    if let Ok(store) = app.store(STORE_FILE) {
+        store.set(KEY_RUNNING, json!(on));
+        let _ = store.save();
+    }
+    if !on && card::is_showing(app) {
+        card::hide(app);
+    }
+    crate::engine::set_running(app, on);
+    let _ = app.emit_to("settings", "settings:running", on);
+}
+
+#[tauri::command]
+pub fn set_running(app: AppHandle, on: bool) {
+    apply_running(&app, on);
+}
+
 pub fn onboarded(app: &AppHandle) -> bool {
     app.store(STORE_FILE)
         .ok()
@@ -102,6 +133,7 @@ pub fn get_settings(app: AppHandle) -> SettingsView {
         updates: crate::updates::enabled(&app),
         character: character(&app),
         version: app.package_info().version.to_string(),
+        running: running(&app),
     }
 }
 

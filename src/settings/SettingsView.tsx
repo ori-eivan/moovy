@@ -15,6 +15,8 @@ export interface SettingsState {
   updates: boolean;
   character: string;
   version: string;
+  /** Off: no cards and nothing running in the background, until turned back on. */
+  running: boolean;
 }
 
 export interface SettingsActions {
@@ -22,6 +24,7 @@ export interface SettingsActions {
   setPace: (pace: Pace) => void;
   setAutostart: (enabled: boolean) => void;
   setUpdates: (enabled: boolean) => void;
+  setRunning: (on: boolean) => void;
   clearData: () => void;
   openGitHub: () => void;
   reportProblem: () => void;
@@ -47,6 +50,17 @@ export default function SettingsView({ state, actions, confirmingClear = false }
     <main className="settings">
       <header>
         <h1>Moovy</h1>
+        <label className="power">
+          <span>{state.running ? "On" : "Off"}</span>
+          <input
+            type="checkbox"
+            role="switch"
+            aria-label="Moovy on"
+            checked={state.running}
+            onChange={(e) => actions.setRunning(e.target.checked)}
+          />
+          <span className="track" aria-hidden="true" />
+        </label>
       </header>
 
       <section aria-labelledby="character-label">
